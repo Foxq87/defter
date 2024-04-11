@@ -1,21 +1,25 @@
 import 'dart:io';
 
+import 'package:acc/core/commons/error_text.dart';
+import 'package:acc/features/notifications/controller/notification_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 import 'package:acc/core/utils.dart';
 
 import 'package:acc/features/user_profile/repository/user_profile_repository.dart';
-import 'package:acc/models/post_model.dart';
+import 'package:acc/models/note_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:routemaster/routemaster.dart';
 
 import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 
-final userProfileControllerProvider = StateNotifierProvider<UserProfileController, bool>((ref) {
+final userProfileControllerProvider =
+    StateNotifierProvider<UserProfileController, bool>((ref) {
   final userProfileRepository = ref.watch(userProfileRepositoryProvider);
   final storageRepository = ref.watch(storageRepositoryProvider);
   return UserProfileController(
@@ -27,6 +31,20 @@ final userProfileControllerProvider = StateNotifierProvider<UserProfileControlle
 
 final getUserPostsProvider = StreamProvider.family((ref, String uid) {
   return ref.read(userProfileControllerProvider.notifier).getUserPosts(uid);
+});
+
+final getUserFollowersProvider =
+    StreamProvider.family((ref, List<String> followerUids) {
+  return ref
+      .read(userProfileControllerProvider.notifier)
+      .getUserFollowers(followerUids);
+});
+
+final getUserFollowingsProvider =
+    StreamProvider.family((ref, List<String> followingUids) {
+  return ref
+      .read(userProfileControllerProvider.notifier)
+      .getUserFollowings(followingUids);
 });
 
 class UserProfileController extends StateNotifier<bool> {
@@ -49,6 +67,8 @@ class UserProfileController extends StateNotifier<bool> {
     required Uint8List? bannerWebFile,
     required BuildContext context,
     required String name,
+    required String username,
+    required String bio,
   }) async {
     state = true;
     UserModel user = _ref.read(userProvider)!;
@@ -79,7 +99,11 @@ class UserProfileController extends StateNotifier<bool> {
       );
     }
 
-    user = user.copyWith(name: name);
+    user = user.copyWith(
+      name: name,
+      username: username,
+      bio: bio,
+    );
     final res = await _userProfileRepository.editProfile(user);
     state = false;
     res.fold(
@@ -91,8 +115,49 @@ class UserProfileController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Post>> getUserPosts(String uid) {
+  Stream<List<Note>> getUserPosts(String uid) {
     return _userProfileRepository.getUserPosts(uid);
+  }
+
+  Stream<List<UserModel>> getUserFollowers(List<String> followerUids) {
+    return _userProfileRepository.getUserFollowers(followerUids);
+  }
+
+  Stream<List<UserModel>> getUserFollowings(List<String> followingUids) {
+    return _userProfileRepository.getUserFollowings(followingUids);
+  }
+
+  void followUser(
+    BuildContext context,
+    UserModel user,
+    UserModel currentUser,
+    WidgetRef ref,
+  ) async {
+    if (currentUser.following.contains(user.uid)/*if i am following him*/) {
+      user.followers.remove(currentUser.uid);//
+      currentUser.following.remove(user.uid);//
+    } else {
+      user.followers.add(currentUser.uid);
+      currentUser.following.add(user.uid);
+    }
+    _ref.read(notificationControllerProvider.notifier).sendNotification(
+          context: context,
+          type: 'follow',
+          content: "${currentUser.username} seni takip ediyor",
+          senderId: currentUser.uid,
+          receiverUid: user.uid,
+          id: currentUser.uid,
+        );
+
+    user = user.copyWith(followers: user.followers);
+    currentUser = currentUser.copyWith(following: currentUser.following);
+    final res = await _userProfileRepository.followUser(user, currentUser);
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) {
+        _ref.read(userProvider.notifier).update((state) => currentUser);
+      },
+    );
   }
 
   // void updateUserKarma(UserKarma karma) async {

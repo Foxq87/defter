@@ -12,6 +12,7 @@ import '../../../core/constants/constants.dart';
 import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../../core/utils.dart';
+import '../../../models/note_model.dart';
 import '../../../models/school_model.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../repository/school_repository.dart';
@@ -44,9 +45,17 @@ final searchUserProvider = StreamProvider.family((ref, String query) {
   return ref.watch(schoolControllerProvider.notifier).searchUser(query);
 });
 
-// final getSchoolPostsProvider = StreamProvider.family((ref, String name) {
-//   return ref.read(schoolControllerProvider.notifier).getSchoolPosts(name);
-// });
+final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
+  return ref.read(schoolControllerProvider.notifier).getSchoolPosts(name);
+});
+
+final getWorldNotesProvider = StreamProvider.family((ref, String name) {
+  return ref.read(schoolControllerProvider.notifier).getWorldPosts(name);
+});
+
+final getAllSchoolsProvider = StreamProvider((ref) {
+  return ref.watch(schoolControllerProvider.notifier).getAllSchools();
+});
 
 class SchoolController extends StateNotifier<bool> {
   final SchoolRepository _schoolRepository;
@@ -171,7 +180,15 @@ class SchoolController extends StateNotifier<bool> {
     );
   }
 
-  // Stream<List<Post>> getSchoolPosts(String name) {
-  //   return _schoolRepository.getSchoolPosts(name);
-  // }
+  Stream<List<Note>> getSchoolPosts(String name) {
+    return _schoolRepository.getSchoolPosts(name);
+  }
+
+  Stream<List<Note>> getWorldPosts(String name) {
+    return _schoolRepository.getWorldPosts(name);
+  }
+
+  Stream<List<School>> getAllSchools() {
+    return _schoolRepository.getAllSchools();
+  }
 }

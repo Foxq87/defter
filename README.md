@@ -1,6 +1,6 @@
 # acc
 
-A new Flutter project.
+öğrenci sosyal medya platformu
 
 ## Getting Started
 

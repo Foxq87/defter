@@ -16,7 +16,12 @@ class SearchScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen>
+    with AutomaticKeepAliveClientMixin<SearchScreen> {
+      
+  @override
+  bool get wantKeepAlive => true;
+
   String query = "";
   List contentItems = [
     ['kullanıcılar', true],
@@ -58,49 +63,41 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   TextEditingController searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: CupertinoNavigationBar(
-        backgroundColor: Colors.transparent,
-        border: const Border(
-            bottom: BorderSide(width: 1, color: Palette.textfieldColor)),
-        middle: Padding(
-          padding: const EdgeInsets.only(right: 10.0),
-          child: SizedBox(
-            height: 40,
-            child: CupertinoSearchTextField(
-              onChanged: (text) {
-                setState(() {
-                  query = text;
-                });
-              },
-              controller: searchController,
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                color: Palette.textfieldColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              prefixIcon: const Padding(
-                padding: EdgeInsets.only(right: 5.0),
-                child: Icon(
-                  CupertinoIcons.search,
-                  color: Palette.placeholderColor,
-                ),
-              ),
-              style: const TextStyle(
-                color: Colors.white,
-                fontFamily: "JetBrainsMonoRegular",
-              ),
-              placeholder: 'search',
-              placeholderStyle: const TextStyle(
-                color: Palette.placeholderColor,
-                fontFamily: 'JetBrainsMonoBold',
-              ),
-            ),
-          ),
-        ),
+        backgroundColor: Palette.backgroundColor,
+        middle: largeText('ara', false),
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: SizedBox(
+              height: 40,
+              child: CupertinoTextField(
+                onChanged: (text) {
+                  setState(() {
+                    query = text;
+                  });
+                },
+                controller: searchController,
+                decoration: BoxDecoration(
+                  color: Palette.textFieldColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: "JetBrainsMonoRegular",
+                ),
+                placeholder: 'ara',
+                placeholderStyle: const TextStyle(
+                  color: Palette.placeholderColor,
+                  fontFamily: 'JetBrainsMonoBold',
+                ),
+              ),
+            ),
+          ),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(contentItems.length, (index) {

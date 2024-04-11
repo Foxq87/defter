@@ -1,13 +1,19 @@
+import 'package:acc/core/utils.dart';
+import 'package:acc/features/school/controller/school_controller.dart';
+import 'package:acc/features/user_profile/follower_following_details.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:unicons/unicons.dart';
 import '../../../core/commons/error_text.dart';
 import '../../../core/commons/loader.dart';
 // import 'package:acc/core/common/post_card.dart';
 import '../../../core/commons/nav_bar_button.dart';
-import '../../../core/commons/post_card.dart';
+import '../../../core/commons/not_available_card.dart';
+import '../../notes/widgets/note_card.dart';
 import '../../../features/auth/controller/auth_controller.dart';
+import '../../../models/school_model.dart';
 import '../../../theme/palette.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -29,9 +35,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   List contentItems = [
-    ['posts', true],
-    ['articles', false],
-    ['school', false],
+    ['postlar', true],
+    ['gazeteler', false],
+    ['okul', false],
   ];
   void selectAndUnselectOthers(int index) {
     for (var element in contentItems) {
@@ -42,6 +48,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     }
   }
 
+  void suspendAccount(String uid, BuildContext context) {
+    AuthController authController = ref.read(authControllerProvider.notifier);
+    authController.suspendAccount(uid, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserModel currentUser = ref.watch(userProvider)!;
@@ -49,170 +60,445 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       //build edit profile
 
       body: ref.watch(getUserDataProvider(widget.uid)).when(
-            data: (user) => ListView(children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: AspectRatio(
-                          aspectRatio: 10 / 3.5,
-                          child: Image.network(
-                            user.banner,
-                            fit: BoxFit.cover,
+            data: (user) => ListView(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: AspectRatio(
+                            aspectRatio: 10 / 3.5,
+                            child: Image.network(
+                              user.banner,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: JustIconButton(
-                      icon: CupertinoIcons.back,
-                      onPressed: () {
-                        Routemaster.of(context).pop();
-                      },
-                    ),
-                  ),
-                  Positioned(
+                    Positioned(
                       top: 10,
-                      right: 10,
+                      left: 10,
                       child: JustIconButton(
+                        icon: CupertinoIcons.back,
+                        onPressed: () {
+                          Routemaster.of(context).pop();
+                        },
+                      ),
+                    ),
+                    Positioned(
+                        top: 10,
+                        right: 10,
+                        child: JustIconButton(
                           icon: CupertinoIcons.ellipsis,
                           onPressed: () {
-                            Routemaster.of(context).pop();
-                          })),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0).copyWith(top: 0),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        user.profilePic,
-                        fit: BoxFit.cover,
-                        height: 80,
-                        width: 80,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.name,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'JetBrainsMonoExtraBold'),
-                          ),
-                          Text(
-                            '@${user.username}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Palette.placeholderColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                            showModalBottomSheet(
+                              backgroundColor: Palette.darkGreyColor,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          SizedBox(
+                                            width: 15,
+                                          ),
+                                          if (currentUser.roles
+                                              .contains('admin'))
+                                            Expanded(
+                                              child: CupertinoButton(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 7),
+                                                color: Palette.textFieldColor,
+                                                onPressed: () {
+                                                  showCupertinoDialog(
+                                                    barrierDismissible: true,
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        CupertinoAlertDialog(
+                                                      title: const Text(
+                                                        "emin misin?",
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'JetBrainsMonoExtraBold'),
+                                                      ),
+                                                      content: const Text(
+                                                        'bu hesabı askıya alıyorsun',
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                'JetBrainsMonoBold'),
+                                                      ),
+                                                      actions: <CupertinoDialogAction>[
+                                                        CupertinoDialogAction(
+                                                          isDefaultAction: true,
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: const Text(
+                                                            'geri',
+                                                            style: TextStyle(
+                                                              color: Palette
+                                                                  .themeColor,
+                                                              fontFamily:
+                                                                  'JetBrainsMonoRegular',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        CupertinoDialogAction(
+                                                          isDestructiveAction:
+                                                              true,
+                                                          onPressed: () async {
+                                                            suspendAccount(
+                                                              user.uid,
+                                                              context,
+                                                            );
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: const Text(
+                                                            'evet',
+                                                            style: TextStyle(
+                                                              color: Palette
+                                                                  .redColor,
+                                                              fontFamily:
+                                                                  'JetBrainsMonoRegular',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .report_gmailerrorred_outlined,
+                                                      color: Palette.redColor,
+                                                      size: 22,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    Text(
+                                                      'hesabı askıya al',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Palette.redColor),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: CupertinoButton(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 7),
+                                              color: Palette.textFieldColor,
+                                              onPressed: () {
+                                                // Share logic here
+                                              },
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    UniconsLine.megaphone,
+                                                    color: Colors.white,
+                                                    size: 19,
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                    'notu şikayet et',
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 15,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 50,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        )),
                   ],
                 ),
-              ),
-
-              buildFollowerAndFollowingCount(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
-                  children: user.uid == currentUser.uid
-                      ? [
-                          buildActionButton(
-                            onPressed: () => navigateToEditUser(context),
-                            text: 'Edit Profile',
-                            color: Palette.textfieldColor,
-                          )
-                        ]
-                      : [
-                          buildActionButton(
-                              onPressed: () {},
-                              text: 'Follow',
-                              color: Palette.themeColor),
-                          const SizedBox(
-                            width: 10,
+                Padding(
+                  padding: const EdgeInsets.all(8.0).copyWith(top: 0),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          user.profilePic,
+                          fit: BoxFit.cover,
+                          height: 80,
+                          width: 80,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      user.name,
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          fontFamily: 'JetBrainsMonoExtraBold'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '@${user.username}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Palette.placeholderColor,
+                                ),
+                              ),
+                            ],
                           ),
-                          buildActionButton(
-                            onPressed: () {},
-                            text: 'Message',
-                            color: Palette.textfieldColor,
-                          ),
-                        ],
-                ),
-              ),
-              // Padding(
-              //   padding: const EdgeInsets.only(top: 10),
-              //   child: Text(
-              //     '${user.karma} karma',
-              //   ),
-              // ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(contentItems.length, (index) {
-                    return CupertinoButton(
-                      onPressed: () => selectAndUnselectOthers(index),
-                      padding: EdgeInsets.zero,
-                      child: buildContentItem(
-                          text: contentItems[index][0],
-                          isSelected: contentItems[index][1]),
-                    );
-                  })),
-
-              const Divider(
-                thickness: 0.6,
-                height: 0,
-              ),
-              ref.watch(getUserPostsProvider(user.uid)).when(
-                    data: (data) {
-                      return ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: data.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final post = data[index];
-                          return PostCard(post: post);
-                        },
-                      );
-                    },
-                    error: (error, stackTrace) {
-                      return ErrorText(error: error.toString());
-                    },
-                    loading: () => const Loader(),
+                        ),
+                      ),
+                    ],
                   ),
-            ]
-                //   body: ref.watch(getUserPostsProvider(uid)).when(
-                //         data: (data) {
-                //           return ListView.builder(
-                //             itemCount: data.length,
-                //             itemBuilder: (BuildContext context, int index) {
-                //               final post = data[index];
-                //               return PostCard(post: post);
-                //             },
-                //           );
-                //         },
-                //         error: (error, stackTrace) {
-                //           return ErrorText(error: error.toString());
-                //         },
-                //         loading: () => const Loader(),
-                //       ),
                 ),
+                buildFollowerAndFollowingCount(user),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: user.uid == currentUser.uid
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoButton(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Palette.textFieldColor,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () =>
+                                        navigateToEditUser(context),
+                                    child: const Text(
+                                      'Edit Profile',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    )),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoButton(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: currentUser.following
+                                            .contains(widget.uid)
+                                        ? Palette.redColor
+                                        : Palette.themeColor,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      print(
+                                          "${currentUser.following.contains(user.uid)} sa" +
+                                              widget.uid +
+                                              user.uid);
+                                      ref
+                                          .read(userProfileControllerProvider
+                                              .notifier)
+                                          .followUser(
+                                              context, user, currentUser, ref);
+                                    },
+                                    child: Text(
+                                      currentUser.following.contains(widget.uid)
+                                          ? 'takipten çık'
+                                          : 'takip et',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    )),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoButton(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Palette.textFieldColor,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      alertNotAvailable(context);
+                                    },
+                                    child: const Text(
+                                      'mesaj at',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    )),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(contentItems.length, (index) {
+                      return CupertinoButton(
+                        onPressed: () => selectAndUnselectOthers(index),
+                        padding: EdgeInsets.zero,
+                        child: buildContentItem(
+                            text: contentItems[index][0],
+                            isSelected: contentItems[index][1]),
+                      );
+                    })),
+                const Divider(
+                  thickness: 0.6,
+                  height: 0,
+                ),
+                if (contentItems[0][1])
+                  ref.watch(getUserPostsProvider(user.uid)).when(
+                        data: (data) {
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final note = data[index];
+                              return PostCard(note: note);
+                            },
+                          );
+                        },
+                        error: (error, stackTrace) {
+                          return ErrorText(error: error.toString());
+                        },
+                        loading: () => const Loader(),
+                      )
+                else if (contentItems[1][1])
+                  const NotAvailable()
+                else
+                  ref.read(getSchoolByIdProvider(user.schoolId)).when(
+                        data: (School school) => GestureDetector(
+                          onTap: () {},
+                          child: GestureDetector(
+                            onTap: () {
+                              Routemaster.of(context)
+                                  .push('/school-profile/${school.id}/');
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.all(20.0),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  width: 2.0,
+                                  color: Palette.postIconColor,
+                                ),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(13),
+                                          child: Image.network(
+                                            school.avatar,
+                                            height: 50,
+                                            width: 50,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 15.0,
+                                        ),
+                                        Expanded(
+                                            child: Text(
+                                          "${school.title} • ${school.id}",
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontFamily:
+                                                  'JetBrainsMonoExtraBold'),
+                                        )),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    RichText(
+                                      text: TextSpan(children: [
+                                        TextSpan(
+                                            text: school.students.length
+                                                .toString(),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'JetBrainsMonoBold',
+                                            )),
+                                        TextSpan(
+                                            text:
+                                                "\tstudent${school.students.length > 1 ? "s" : ''}",
+                                            style: const TextStyle(
+                                                fontSize: 15,
+                                                fontFamily: 'JetBrainsMonoBold',
+                                                color:
+                                                    Palette.placeholderColor)),
+                                      ]),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        error: (error, stackTrace) =>
+                            ErrorText(error: error.toString()),
+                        loading: () => const Loader(),
+                      ),
+              ],
+            ),
             error: (error, stackTrace) => ErrorText(error: error.toString()),
             loading: () => const Loader(),
           ),
@@ -236,55 +522,59 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  Padding buildFollowerAndFollowingCount() {
+  Padding buildFollowerAndFollowingCount(UserModel user) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
-        child: GestureDetector(
-          onTap: () {
-            // Routemaster.of(context).push();
-          },
-          child: RichText(
-              text: const TextSpan(children: [
-            TextSpan(
-                text: '1.8M',
-                style: TextStyle(fontFamily: 'JetBrainsMonoRegular')),
-            TextSpan(
-                text: ' followers',
-                style: TextStyle(
-                    color: Palette.placeholderColor,
-                    fontFamily: 'JetBrainsMonoRegular')),
-            TextSpan(
-                text: '\t87',
-                style: TextStyle(fontFamily: 'JetBrainsMonoRegular')),
-            TextSpan(
-                text: ' following',
-                style: TextStyle(
-                    color: Palette.placeholderColor,
-                    fontFamily: 'JetBrainsMonoRegular')),
-          ])),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(user.bio),
+            GestureDetector(
+              onTap: () {
+                // Routemaster.of(context).push();
+              },
+              child: Row(
+                children: [
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => FollowerFollowingDetails(
+                                  followerUids: user.followers,
+                                  followingUids: user.following)));
+                    },
+                    child: RichText(
+                        text: TextSpan(children: [
+                      TextSpan(
+                          text: user.followers.length.toString(),
+                          style: const TextStyle(
+                              fontFamily: 'JetBrainsMonoRegular')),
+                      const TextSpan(
+                          text: ' followers',
+                          style: TextStyle(
+                              color: Palette.placeholderColor,
+                              fontFamily: 'JetBrainsMonoRegular')),
+                    ])),
+                  ),
+                  RichText(
+                      text: TextSpan(children: [
+                    TextSpan(
+                        text: '\t${user.following.length}',
+                        style: const TextStyle(
+                            fontFamily: 'JetBrainsMonoRegular')),
+                    const TextSpan(
+                        text: ' following',
+                        style: TextStyle(
+                            color: Palette.placeholderColor,
+                            fontFamily: 'JetBrainsMonoRegular')),
+                  ])),
+                ],
+              ),
+            ),
+          ],
         ));
-  }
-
-  Expanded buildActionButton({
-    required VoidCallback onPressed,
-    required String text,
-    required Color color,
-  }) {
-    return Expanded(
-      child: SizedBox(
-        height: 40,
-        child: CupertinoButton(
-            borderRadius: BorderRadius.circular(10),
-            color: color,
-            padding: EdgeInsets.zero,
-            onPressed: onPressed,
-            child: Text(
-              text,
-              style: const TextStyle(
-                  color: Colors.white, fontFamily: 'JetBrainsMonoBold'),
-            )),
-      ),
-    );
   }
 
   Padding buildContentItem({required String text, required bool isSelected}) {

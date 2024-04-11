@@ -1,6 +1,10 @@
+import 'package:acc/core/commons/error_text.dart';
+import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/commons/commons.dart';
 import 'package:acc/features/article.dart';
+import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +13,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:routemaster/routemaster.dart';
 import '../../../models/models.dart';
 import '../../../theme/palette.dart';
+import '../../notes/widgets/note_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,56 +22,142 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with AutomaticKeepAliveClientMixin<HomeScreen> {
+  int segmentedValue = 2;
+  int noteLimit = 10;
+  final scrollController = ScrollController();
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    final user = ref.read(userProvider)!;
     return Scaffold(
       appBar: CupertinoNavigationBar(
-        backgroundColor: Colors.transparent,
+        border: const Border(
+            bottom: BorderSide(color: Palette.postIconColor, width: 0.25)),
+        backgroundColor: Colors.black.withOpacity(0.4),
+        padding: EdgeInsetsDirectional.zero,
         leading: Builder(
           builder: (context) => IconButton(
             padding: EdgeInsets.zero,
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            icon: userSquare(context),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: userSquare(context, user.profilePic),
           ),
         ),
         middle: largeText("defter", true),
       ),
       drawer: const DrawerView(),
       body: ListView(
+        controller: scrollController,
         children: [
-          //Articles
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                largeText("gazeteler", false),
-                const Text(
-                  "view all",
-                  style: TextStyle(color: Colors.grey),
-                )
-              ],
-            ),
+          segmentedValue == 1
+              ? ref.watch(getWorldNotesProvider(user.schoolId)).when(
+                    data: (notes) {
+                      // if (scrollController.position.atEdge) {
+                      //   noteLimit += 10;
+                      // }
+                      return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount:
+                            noteLimit > notes.length ? notes.length : noteLimit,
+                        itemBuilder: (BuildContext context, int index) {
+                          final note = notes[index];
+                          return PostCard(note: note);
+                        },
+                      );
+                    },
+                    error: (error, stackTrace) =>
+                        ErrorText(error: error.toString()),
+                    loading: () => const Loader(),
+                  )
+              : ref.watch(getSchoolNotesProvider(user.schoolId)).when(
+                    data: (notes) {
+                      // if (scrollController.position.atEdge) {
+                      //   noteLimit += 10;
+                      // }
+                      return ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount:
+                            noteLimit > notes.length ? notes.length : noteLimit,
+                        itemBuilder: (BuildContext context, int index) {
+                          final note = notes[index];
+                          return PostCard(note: note);
+                        },
+                      );
+                    },
+                    error: (error, stackTrace) =>
+                        ErrorText(error: error.toString()),
+                    loading: () => const Loader(),
+                  ),
+          SizedBox(
+            height: 10,
           ),
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(10),
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: List.generate(
-                articles.length,
-                (index) => articleCard(
-                  articles[index],
-                  context,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CupertinoButton(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                color: Palette.orangeColor,
+                borderRadius: BorderRadius.circular(20),
+                child: Text(
+                  'daha fazla',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontFamily: 'JetBrainsMonoRegular',
+                  ),
                 ),
+                onPressed: () {
+                  setState(() {
+                    noteLimit += 10;
+                  });
+                },
               ),
-            ),
+            ],
           ),
-          const Divider(
-            color: Colors.grey,
-          ),
+          SizedBox(
+            height: 70,
+          )
         ],
       ),
+      //Articles
+      // Padding(
+      //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     children: [
+      //       largeText("gazeteler", false),
+      //       const Text(
+      //         "view all",
+      //         style: TextStyle(color: Colors.grey),
+      //       )
+      //     ],
+      //   ),
+      // ),
+      // SingleChildScrollView(
+      //   padding: const EdgeInsets.all(10),
+      //   scrollDirection: Axis.horizontal,
+      //   child: Row(
+      //     children: List.generate(
+      //       articles.length,
+      //       (index) => articleCard(
+      //         articles[index],
+      //         context,
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // const Divider(
+      //   color: Colors.grey,
+      // ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
         height: 50,
@@ -75,9 +166,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             CustomSlidingSegmentedControl<int>(
               initialValue: 2,
-              children: const {
-                1: Text(
-                  'World',
+              children: {
+                1: const Text(
+                  'dünya',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
@@ -85,8 +176,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 2: Text(
-                  'School',
-                  style: TextStyle(
+                  user.schoolId,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
                     fontFamily: "JetBrainsMonoBold",
@@ -95,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white12),
-                color: CupertinoColors.black.withOpacity(0.5),
+                color: CupertinoColors.black.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(100),
               ),
               thumbDecoration: BoxDecoration(
@@ -115,7 +206,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              onValueChanged: (v) {},
+              onValueChanged: (v) {
+                setState(() {
+                  segmentedValue = v;
+                });
+              },
             ),
             const SizedBox(
               width: 4,
@@ -126,6 +221,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   height: 45,
                   width: 45,
                   decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.8),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white12)),
                   child: const Icon(
@@ -134,7 +230,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Routemaster.of(context).push('/create-post/');
+                  Routemaster.of(context).push('/create-note/');
                 })
           ],
         ),
@@ -148,7 +244,7 @@ GestureDetector articleCard(Article article, BuildContext context) {
     onTap: () {
       Navigator.push(
           context,
-          CupertinoPageRoute(
+          MaterialPageRoute(
             builder: (context) => ArticleView(
               article: article,
             ),

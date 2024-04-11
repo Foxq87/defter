@@ -103,7 +103,18 @@ class LogInButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          //   FirebaseFirestore.instance
+          //       .collection('users')
+          //       .get()
+          //       .then((querySnapshot) {
+          //     querySnapshot.docs.forEach((doc) {
+          //       doc.reference.update({
+
+          //       });
+          //     });
+          //   });
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(

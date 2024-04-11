@@ -24,15 +24,15 @@ class LoginScreen extends ConsumerWidget {
                     child: RichText(
                       text: const TextSpan(children: [
                         TextSpan(
-                            text: "join us\t>>>",
+                            text: "bize katıl >>> ",
                             style: TextStyle(
-                                fontSize: 30,
+                                fontSize: 25,
                                 fontFamily: "JetBrainsMonoExtraBold")),
                         TextSpan(
-                            text: '\tacc.',
+                            text: 'defter',
                             style: TextStyle(
                                 color: Palette.themeColor,
-                                fontSize: 35,
+                                fontSize: 30,
                                 fontFamily: "JetBrainsMonoExtraBold"))
                       ]),
                     ),

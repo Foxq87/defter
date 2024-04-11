@@ -7,6 +7,7 @@ import '../../../core/constants/firebase_constants.dart';
 import '../../../core/failure.dart';
 import '../../../core/providers/firebase_providers.dart';
 import '../../../core/type_defs.dart';
+import '../../../models/note_model.dart';
 import '../../../models/school_model.dart';
 
 final schoolRepositoryProvider = Provider((ref) {
@@ -90,13 +91,15 @@ class SchoolRepository {
   Stream<List<School>> searchSchool(String query) {
     return _schools
         .where(
-          'title',
-          isGreaterThanOrEqualTo: query.isEmpty ? 0 : query,
+          'title_insensitive',
+          isGreaterThanOrEqualTo: query.toLowerCase(),
           isLessThan: query.isEmpty
               ? null
-              : query.substring(0, query.length - 1) +
+              : query
+                      .toLowerCase()
+                      .substring(0, query.toLowerCase().length - 1) +
                   String.fromCharCode(
-                    query.codeUnitAt(query.length - 1) + 1,
+                    query.codeUnitAt(query.toLowerCase().length - 1) + 1,
                   ),
         )
         .snapshots()
@@ -111,24 +114,29 @@ class SchoolRepository {
 
   Stream<List<UserModel>> searchUser(String query) {
     return _users
-        .where(
-          'username',
-          isGreaterThanOrEqualTo: query.isEmpty ? 0 : query,
-          isLessThan: query.isEmpty
-              ? null
-              : query.substring(0, query.length - 1) +
-                  String.fromCharCode(
-                    query.codeUnitAt(query.length - 1) + 1,
-                  ),
-        )
+        .orderBy('username_insensitive', descending: false)
+        .startAt([query])
+        .endAt([query + '\uf8ff'])
+        // .where(
+        //   'username',
+        //   isGreaterThanOrEqualTo: query,
+        // )
+        // .where('username', isLessThan: query + 'z')
+        // isLessThan: query.isEmpty
+        //     ? null
+        //     : query.toUpperCase().substring(0, query.length - 1) +
+        //         String.fromCharCode(
+        //           query.codeUnitAt(query.length - 1) + 1,
+        //         ),
+
         .snapshots()
         .map((event) {
-      List<UserModel> users = [];
-      for (var user in event.docs) {
-        users.add(UserModel.fromMap(user.data() as Map<String, dynamic>));
-      }
-      return users;
-    });
+          List<UserModel> users = [];
+          for (var user in event.docs) {
+            users.add(UserModel.fromMap(user.data() as Map<String, dynamic>));
+          }
+          return users;
+        });
   }
 
   FutureVoid addMods(String schoolName, List<String> uids) async {
@@ -143,19 +151,56 @@ class SchoolRepository {
     }
   }
 
-  // Stream<List<Post>> getSchoolPosts(String name) {
-  //   return _posts.where('schoolName', isEqualTo: name).orderBy('createdAt', descending: true).snapshots().map(
-  //         (event) => event.docs
-  //             .map(
-  //               (e) => Post.fromMap(
-  //                 e.data() as Map<String, dynamic>,
-  //               ),
-  //             )
-  //             .toList(),
-  //       );
-  // }
+  Stream<List<Note>> getSchoolPosts(
+    String name,
+  ) {
+    return _posts
+        .where('schoolName', isEqualTo: name)
+        .where('repliedTo', isEqualTo: '')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => Note.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
+  }
 
-  // CollectionReference get _posts => _firestore.collection(FirebaseConstants.postsCollection);
+  Stream<List<Note>> getWorldPosts(String name) {
+    return _posts
+        .where('schoolName', isEqualTo: "")
+        .where('repliedTo', isEqualTo: '')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => Note.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Stream<List<School>> getAllSchools() {
+    return _schools.snapshots().map(
+          (event) => event.docs
+              .map(
+                (e) => School.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  CollectionReference get _posts =>
+      _firestore.collection(FirebaseConstants.notesCollection);
   CollectionReference get _schools =>
       _firestore.collection(FirebaseConstants.schoolsCollection);
   CollectionReference get _users =>

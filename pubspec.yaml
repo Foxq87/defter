@@ -1,5 +1,5 @@
 name: acc
-description: A new Flutter project.
+description: öğrenci sosyal medya platformu
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -37,17 +37,16 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg: ^2.0.7
   custom_sliding_segmented_control: ^1.8.0
-  firebase_core: ^2.24.2
-  firebase_storage: ^11.6.0
-  cloud_firestore: ^4.14.0
-  firebase_auth: ^4.17.3
+  firebase_core: ^2.27.0
+  firebase_storage: ^11.6.9
+  cloud_firestore: ^4.15.8
+  firebase_auth: ^4.17.8
   google_sign_in: ^6.2.1
   flutter_riverpod: ^2.4.4
   fpdart: ^1.1.0
   routemaster: ^1.0.1
   file_picker: ^6.1.1
   dotted_border: ^2.1.0
-  persistent_bottom_nav_bar: ^5.0.2
   uuid: ^4.3.3
   carousel_slider: ^4.2.1
   any_link_preview: ^3.0.1
@@ -55,12 +54,36 @@ dependencies:
   intl: ^0.19.0
   timeago: ^3.6.1
   like_button: ^2.0.5
+  flutter_image_compress: ^2.1.0
+  connectivity_plus: ^5.0.2
+  get: ^4.6.1 
+  internet_connection_checker: ^1.0.0+1
+  lottie: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  firebase_messaging: ^14.7.19
+  path_provider: ^2.1.2
+  upgrader: ^9.0.0
+  flutter_native_splash: ^2.3.10
+  searchable_listview: ^2.10.2
+
+
+
 
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_native_splash:
+  color: "#0c0c0c"
+  image: "assets/defter-icons_foreground.png"
+  
+flutter_icons:
+  android: true
+  ios: true
+  image_path_ios: "assets/defter-icon-ios.png"
+  image_path: "assets/defter-icon-android.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -86,6 +109,10 @@ flutter:
     - assets/svgs/bottom-nav-bar-icons/mail-outlined.svg
     - assets/svgs/
     - assets/images/
+    - assets/images/no_internet.png
+    - assets/animations/
+    - assets/
+
 
   #   - images/a_dot_ham.jpeg
 

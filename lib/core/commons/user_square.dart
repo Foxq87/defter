@@ -1,15 +1,18 @@
+import 'package:acc/theme/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../../theme/palette.dart';
-import '../constants/constants.dart';
 
-Widget userSquare(BuildContext context) => GestureDetector(
-      onTap: () => Scaffold.of(context).openDrawer(),
-      child: SvgPicture.asset(
-        Constants.squareOutlined,
-        colorFilter:
-            const ColorFilter.mode(Palette.themeColor, BlendMode.srcIn),
-        height: 30,
-        
-      ),
-    );
+Widget userSquare(BuildContext context, String imageLink) => GestureDetector(
+    onTap: () => Scaffold.of(context).openDrawer(),
+    child: Container(
+      height: 30.0,
+      width: 30.0,
+      decoration: BoxDecoration(
+          color: Palette.textFieldColor,
+          borderRadius: BorderRadius.circular(8.0),
+          image: DecorationImage(
+            image: NetworkImage(
+              imageLink,
+            ),
+            fit: BoxFit.cover,
+          )),
+    ));

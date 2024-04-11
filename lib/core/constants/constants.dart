@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../features/features.dart';
 
 class Constants {
@@ -36,7 +35,7 @@ class Constants {
 
   //defaults
   static const String bannerDefault =
-      'https://thumbs.dreamstime.com/b/abstract-stained-pattern-rectangle-background-blue-sky-over-fiery-red-orange-color-modern-painting-art-watercolor-effe-texture-123047399.jpg';
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Flag_of_Libya_%281977%E2%80%932011%29.svg/300px-Flag_of_Libya_%281977%E2%80%932011%29.svg.png';
   static const String avatarDefault =
       'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg';
 }
@@ -47,9 +46,9 @@ List<Widget> screens = [
   //Search
   const SearchScreen(),
   //Events
-  const Events(),
+  const UpdatesScreen(),
   //Notifications
-  const Notifications(),
+  const NotificationsScreen(),
   //Messages
   const Messages()
 ];
