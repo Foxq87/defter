@@ -1,6 +1,7 @@
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/marketplace/screens/product_approval_view.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:toggle_list/toggle_list.dart';
+import 'package:unicons/unicons.dart';
 import '../../../theme/palette.dart';
 
 void navigateToProfile(BuildContext context, UserModel user) {
@@ -41,6 +44,9 @@ class DrawerView extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      height: 20,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -103,15 +109,15 @@ class DrawerView extends ConsumerWidget {
                           fontWeight: FontWeight.w500,
                           fontSize: 17),
                     ),
+                    const SizedBox(
+                      height: 7,
+                    ),
                     Text(
                       '@${user.username}',
                       style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.grey,
                           fontWeight: FontWeight.w500,
-                          fontSize: 17),
-                    ),
-                    const SizedBox(
-                      height: 7,
+                          fontSize: 15),
                     ),
                     Text(user.email,
                         style: const TextStyle(
@@ -140,28 +146,28 @@ class DrawerView extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                alertNotAvailable(context);
-              },
-              child: ListTile(
-                leading: SvgPicture.asset(
-                  Constants.bookmarkFilled,
-                  height: 25,
-                  width: 25,
-                  colorFilter:
-                      const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                ),
-                title: const Text(
-                  'kaydedilenler',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ),
-            ),
+            // const SizedBox(
+            //   height: 20,
+            // ),
+            // CupertinoButton(
+            //   padding: EdgeInsets.zero,
+            //   onPressed: () {
+            //     alertNotAvailable(context);
+            //   },
+            //   child: ListTile(
+            //     leading: SvgPicture.asset(
+            //       Constants.bookmarkFilled,
+            //       height: 25,
+            //       width: 25,
+            //       colorFilter:
+            //           const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            //     ),
+            //     title: const Text(
+            //       'kaydedilenler',
+            //       style: TextStyle(color: Colors.white, fontSize: 20),
+            //     ),
+            //   ),
+            // ),
 
 //***********DOES NOT EXIST IN  V1*************
             // //c) events
@@ -310,83 +316,96 @@ class DrawerView extends ConsumerWidget {
                 ),
               ),
 
-            // ToggleList(
-            //     innerPadding: const EdgeInsets.symmetric(horizontal: 15),
-            //     scrollPhysics: const NeverScrollableScrollPhysics(),
-            //     scrollPosition: AutoScrollPosition.end,
-            //     shrinkWrap: true,
-            //     toggleAnimationDuration: const Duration(milliseconds: 200),
-            //     scrollDuration: const Duration(milliseconds: 20),
-            //     trailing: const Padding(
-            //       padding: EdgeInsets.all(10),
-            //       child: Icon(
-            //         CupertinoIcons.chevron_down,
-            //         color: Colors.white,
-            //       ),
-            //     ),
-            //     children: [
-            //       ToggleListItem(
-            //         title: const Text(
-            //           'School Related',
-            //           style: TextStyle(
-            //               color: Colors.white,
-            //               fontSize: 18,
-            //               fontWeight: FontWeight.bold),
-            //         ),
-            //         content: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             const SizedBox(
-            //               height: 10,
-            //             ),
-            //             CupertinoButton(
-            //               padding: EdgeInsets.zero,
-            //               onPressed: () {
-            //                 // Get.to(() => Tests(
-            //                 //       previousPageTitle: 'Home',
-            //                 //     ));
-            //               },
-            //               child: const Row(
-            //                 children: [
-            //                   Icon(
-            //                     CupertinoIcons.book,
-            //                     color: Colors.white,
-            //                   ),
-            //                   SizedBox(
-            //                     width: 20,
-            //                   ),
-            //                   Text(
-            //                     'Tests',
-            //                     style:
-            //                         TextStyle(color: Colors.white, fontSize: 18),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //             CupertinoButton(
-            //               padding: EdgeInsets.zero,
-            //               onPressed: () {},
-            //               child: const Row(
-            //                 children: [
-            //                   // Icon(
-            //                   //   Icons.notebooks,
-            //                   //   color: Colors.white,
-            //                   // ),
-            //                   SizedBox(
-            //                     width: 20,
-            //                   ),
-            //                   Text(
-            //                     'Notes',
-            //                     style:
-            //                         TextStyle(color: Colors.white, fontSize: 18),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ]),
+            ToggleList(
+                innerPadding: const EdgeInsets.symmetric(horizontal: 15),
+                scrollPhysics: const NeverScrollableScrollPhysics(),
+                scrollPosition: AutoScrollPosition.end,
+                shrinkWrap: true,
+                toggleAnimationDuration: const Duration(milliseconds: 100),
+                scrollDuration: const Duration(milliseconds: 20),
+                trailing: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Icon(
+                    CupertinoIcons.chevron_down,
+                    color: Colors.white,
+                  ),
+                ),
+                children: [
+                  ToggleListItem(
+                    title: const Text(
+                      'Mod ayrıcalıkları',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            // Get.to(() => Tests(
+                            //       previousPageTitle: 'Home',
+                            //     ));
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(
+                                UniconsLine.book_reader,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'öğrenci onayı',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontFamily: 'JetBrainsMonoRegular'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) =>
+                                        ProductApprovalView()));
+                            // Get.to(() => Tests(
+                            //       previousPageTitle: 'Home',
+                            //     ));
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.tags,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'ürün onayı',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontFamily: 'JetBrainsMonoRegular'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ]),
           ],
         ),
       ),

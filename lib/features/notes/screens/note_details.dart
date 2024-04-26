@@ -14,21 +14,22 @@ import 'package:routemaster/routemaster.dart';
 import '../../../core/commons/nav_bar_button.dart';
 import '../../../core/utils.dart';
 
-class PostDetails extends ConsumerStatefulWidget {
-  final String postId;
-  const PostDetails({super.key, required this.postId});
+class NoteDetails extends ConsumerStatefulWidget {
+  final String noteId;
+  const NoteDetails({super.key, required this.noteId});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _PostDetailsState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NoteDetailsState();
 }
 
-class _PostDetailsState extends ConsumerState<PostDetails> {
+class _NoteDetailsState extends ConsumerState<NoteDetails> {
   TextEditingController commentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return ref.watch(getPostByIdProvider(widget.postId)).when(
+    return ref.watch(getNoteByIdProvider(widget.noteId)).when(
           data: (note) => Scaffold(
             appBar: CupertinoNavigationBar(
+              transitionBetweenRoutes: false,
               backgroundColor: Palette.backgroundColor,
               middle: const Text(
                 'not',
@@ -46,7 +47,7 @@ class _PostDetailsState extends ConsumerState<PostDetails> {
               padding: EdgeInsets.only(bottom: 60),
               children: [
                 DetailedNoteCard(note: note),
-                ref.watch(getPostCommentsProvider(widget.postId)).when(
+                ref.watch(getNoteCommentsProvider(widget.noteId)).when(
                       data: (data) {
                         return ListView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -55,7 +56,7 @@ class _PostDetailsState extends ConsumerState<PostDetails> {
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
                             final note = data[index];
-                            return PostCard(note: note);
+                            return NoteCard(note: note);
                           },
                         );
                       },
@@ -78,23 +79,25 @@ class _PostDetailsState extends ConsumerState<PostDetails> {
                 height: 35,
                 child: Row(
                   children: [
-                    Expanded(
-                      child: CupertinoTextField(
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'JetBrainsMonoRegular',
+                    Form(
+                      child: Expanded(
+                        child: CupertinoTextField(
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'JetBrainsMonoRegular',
+                          ),
+                          controller: commentController,
+                          placeholder: "Write your reply",
+                          placeholderStyle: const TextStyle(
+                            fontFamily: 'JetBrainsMonoRegular',
+                            color: Palette.placeholderColor,
+                          ),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(13.0),
+                              border: Border.all(
+                                  width: 0.6, color: Palette.noteIconColor),
+                              color: Palette.darkGreyColor),
                         ),
-                        controller: commentController,
-                        placeholder: "Write your reply",
-                        placeholderStyle: const TextStyle(
-                          fontFamily: 'JetBrainsMonoRegular',
-                          color: Palette.placeholderColor,
-                        ),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            border: Border.all(
-                                width: 0.6, color: Palette.postIconColor),
-                            color: Palette.darkGreyColor),
                       ),
                     ),
                     const SizedBox(
@@ -118,20 +121,20 @@ class _PostDetailsState extends ConsumerState<PostDetails> {
                                     content:
                                         "${currentUser.username} notuna yorum bıraktı",
                                     type: "comment",
-                                    id: "${note.id}-$currentUserUid-comment",
+                                    id: "${note.id}-comment",
                                     receiverUid: note.uid,
                                     senderId: currentUserUid,
-                                    postId: note.id,
+                                    noteId: note.id,
                                   );
                             }
                             ref
-                                .read(postControllerProvider.notifier)
-                                .shareTextPost(
+                                .read(noteControllerProvider.notifier)
+                                .shareTextNote(
                                   context: context,
                                   selectedSchoolId: note.schoolName,
                                   content: commentController.text.trim(),
                                   link: link,
-                                  repliedTo: widget.postId,
+                                  repliedTo: widget.noteId,
                                 );
                           }
                           commentController.clear();

@@ -7,13 +7,13 @@ class NotAvailable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(20.0),
       padding: const EdgeInsets.all(15.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          width: 1.0,
-          color: Palette.postIconColor,
+        border: Border(
+          bottom: BorderSide(
+            width: 0.35,
+            color: Palette.noteIconColor,
+          ),
         ),
       ),
       child: const Center(

@@ -1,13 +1,14 @@
+import 'package:acc/models/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-
 import '../../../core/constants/firebase_constants.dart';
 import '../../../core/failure.dart';
 import '../../../core/providers/firebase_providers.dart';
 import '../../../core/type_defs.dart';
 import '../../../models/note_model.dart';
 import '../../../models/update_model.dart';
+import '../../../models/user_model.dart';
 
 final updateRepositoryProvider = Provider((ref) {
   return UpdateRepository(firestore: ref.watch(firestoreProvider));
@@ -18,9 +19,14 @@ class UpdateRepository {
   UpdateRepository({required FirebaseFirestore firestore})
       : _firestore = firestore;
 
-  FutureVoid shareUpdate(Update update) async {
+  FutureVoid sendProductToApproval(
+      ProductModel product, UserModel vendor) async {
     try {
-      return right(_updates.doc(update.id).set(update.toMap()));
+      return right(_products
+          .doc(vendor.schoolId)
+          .collection('schoolProducts')
+          .doc(product.id)
+          .set(product.toMap()));
     } on FirebaseException catch (e) {
       throw e.message!;
     } catch (e) {
@@ -50,6 +56,24 @@ class UpdateRepository {
     }
   }
 
+  Stream<List<ProductModel>> getProductApplications(String schoolId) {
+    return _products
+        .doc(schoolId)
+        .collection('schoolProducts')
+        .where('approve', isEqualTo: 1)
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => ProductModel.fromMap(
+                  e.data(),
+                ),
+              )
+              .toList(),
+        );
+  }
+
   Stream<List<Update>> getUpdates() {
     return _updates.orderBy('creation', descending: true).snapshots().map(
           (event) => event.docs
@@ -62,9 +86,8 @@ class UpdateRepository {
         );
   }
 
-  Stream<List<Note>> getWorldPosts(String name) {
-    return _posts
-        .where('schoolName', isEqualTo: "")
+  Stream<List<Note>> getWorldNotes(String name) {
+    return _Notes.where('schoolName', isEqualTo: "")
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -79,12 +102,14 @@ class UpdateRepository {
         );
   }
 
-  CollectionReference get _posts =>
+  CollectionReference get _Notes =>
       _firestore.collection(FirebaseConstants.notesCollection);
   CollectionReference get _schools =>
       _firestore.collection(FirebaseConstants.schoolsCollection);
   CollectionReference get _updates =>
       _firestore.collection(FirebaseConstants.updatesCollection);
+  CollectionReference get _products =>
+      _firestore.collection(FirebaseConstants.productsCollection);
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
 }

@@ -65,6 +65,9 @@ dependencies:
   upgrader: ^9.0.0
   flutter_native_splash: ^2.3.10
   searchable_listview: ^2.10.2
+  toggle_list: ^0.3.1
+  flutter_card_swiper: ^7.0.0
+
 
 
 

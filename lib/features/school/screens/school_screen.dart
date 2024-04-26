@@ -1,5 +1,8 @@
 import 'package:acc/core/commons/not_available_card.dart';
+import 'package:acc/core/commons/view_users_by_uids.dart';
+
 import 'package:acc/features/school/controller/school_controller.dart';
+import 'package:acc/features/user_profile/follower_following_details.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,8 +10,10 @@ import 'package:routemaster/routemaster.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import '../../../core/commons/error_text.dart';
+import '../../../core/commons/image_view.dart';
 import '../../../core/commons/loader.dart';
 import '../../../core/commons/nav_bar_button.dart';
+import '../../../models/school_model.dart';
 import '../../notes/widgets/note_card.dart';
 import '../../../features/auth/controller/auth_controller.dart';
 import '../../../theme/palette.dart';
@@ -28,7 +33,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
   }
 
   List contentItems = [
-    ['postlar', true],
+    ['notlar', true],
     ['gazeteler', false],
   ];
   void selectAndUnselectOthers(int index) {
@@ -53,15 +58,24 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                   clipBehavior: Clip.none,
                   children: [
                     Positioned(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: AspectRatio(
-                            aspectRatio: 10 / 3.5,
-                            child: Image.network(
-                              school.banner,
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => ImageView(
+                                    imageUrls: [school.banner],
+                                    imageFiles: [],
+                                    index: 0))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: AspectRatio(
+                              aspectRatio: 10 / 3.5,
+                              child: Image.network(
+                                school.banner,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -91,13 +105,22 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                   padding: const EdgeInsets.all(8.0).copyWith(top: 0),
                   child: Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.network(
-                          school.avatar,
-                          fit: BoxFit.cover,
-                          height: 80,
-                          width: 80,
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => ImageView(
+                                    imageUrls: [school.avatar],
+                                    imageFiles: [],
+                                    index: 0))),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                            school.avatar,
+                            fit: BoxFit.cover,
+                            height: 80,
+                            width: 80,
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -120,7 +143,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                             const SizedBox(
                               height: 2,
                             ),
-                            buildStudentCount(school.students.length)
+                            buildStudentCount(school)
                           ],
                         ),
                       ),
@@ -131,19 +154,26 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: school.mods.contains(currentUser.uid)
-                      ? SizedBox(
-                          height: 40,
-                          child: CupertinoButton(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Palette.textFieldColor,
-                              padding: EdgeInsets.zero,
-                              onPressed: () => navigateToEditUser(context),
-                              child: const Text(
-                                'profili düzenle',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'JetBrainsMonoBold'),
-                              )),
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoButton(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Palette.textFieldColor,
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () =>
+                                        navigateToEditUser(context),
+                                    child: const Text(
+                                      'profili düzenle',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    )),
+                              ),
+                            ),
+                          ],
                         )
                       : const SizedBox(),
                 ),
@@ -179,7 +209,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
                               final Note note = data[index];
-                              return PostCard(note: note);
+                              return NoteCard(note: note);
                             },
                           );
                         },
@@ -189,13 +219,13 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                         loading: () => const Loader(),
                       )
                 else
-                  const NotAvailable(), //   body: ref.watch(getUserPostsProvider(uid)).when(
+                  const NotAvailable(), //   body: ref.watch(getUserNotesProvider(uid)).when(
                 //         data: (data) {
                 //           return ListView.builder(
                 //             itemCount: data.length,
                 //             itemBuilder: (BuildContext context, int index) {
                 //               final note = data[index];
-                //               return PostCard(note: note);
+                //               return NoteCard(note: note);
                 //             },
                 //           );
                 //         },
@@ -229,25 +259,35 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
     );
   }
 
-  Padding buildStudentCount(int studentCount) {
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0.0),
-        child: GestureDetector(
-          onTap: () {
-            // Routemaster.of(context).push();
-          },
-          child: RichText(
-              text: TextSpan(children: [
-            TextSpan(
-                text: studentCount.toString(),
-                style: const TextStyle(fontFamily: 'JetBrainsMonoRegular')),
-            const TextSpan(
-                text: ' students',
-                style: TextStyle(
-                    color: Palette.placeholderColor,
-                    fontFamily: 'JetBrainsMonoRegular')),
-          ])),
-        ));
+  SizedBox buildStudentCount(School school) {
+    return SizedBox(
+      height: 30,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () {
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) => ViewUsersByUids(
+                        uids: school.students,
+                        isLiker: false,
+                      )));
+        },
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: RichText(
+                text: TextSpan(children: [
+              TextSpan(
+                  text: school.students.length.toString(),
+                  style: const TextStyle(fontFamily: 'JetBrainsMonoRegular')),
+              const TextSpan(
+                  text: ' öğrenci',
+                  style: TextStyle(
+                      color: Palette.placeholderColor,
+                      fontFamily: 'JetBrainsMonoRegular')),
+            ]))),
+      ),
+    );
   }
 
   Padding buildContentItem({required String text, required bool isSelected}) {

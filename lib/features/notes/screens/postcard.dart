@@ -2,7 +2,7 @@
 // import 'package:cal/pages/new_scale.dart';
 // import 'package:flutter_svg/svg.dart';
 // import 'package:cal/constants.dart';
-// import 'package:cal/models/post_model.dart';
+// import 'package:cal/models/Note_model.dart';
 // import 'package:cal/models/user_model.dart';
 // import 'package:cal/pages/account.dart';
 // import 'package:cal/pages/home.dart';
@@ -25,10 +25,10 @@
 //   final String scaleId;
 //   final String writerId;
 //   final String content;
-//   final String repostedScaleId;
+//   final String renoteedScaleId;
 //   final dynamic likes;
 //   final String mediaUrl;
-//   final String postId;
+//   final String noteId;
 //   final List attachedScaleId;
 //   final Timestamp timestamp;
 //   final bool? dont;
@@ -44,9 +44,9 @@
 //     required this.likes,
 //     required this.timestamp,
 //     required this.mediaUrl,
-//     required this.postId,
+//     required this.noteId,
 //     required this.attachedScaleId,
-//     required this.repostedScaleId,
+//     required this.renoteedScaleId,
 //     this.dont,
 //     this.evenMe,
 //     required this.isReply,
@@ -86,7 +86,7 @@
 
 //   getReScaleCount() {
 //     scalesRef
-//         .where('repostedScaleId', isEqualTo: widget.scaleId)
+//         .where('renoteedScaleId', isEqualTo: widget.scaleId)
 //         .get()
 //         .then((doc) {
 //       setState(() {
@@ -174,10 +174,10 @@
 //                         timestamp: doc['timestamp'],
 //                         scaleId: doc['scaleId'],
 //                         mediaUrl: doc['mediaUrl'],
-//                         postId: doc['postId'],
+//                         noteId: doc['noteId'],
 //                         attachedScaleId: doc['attachedScaleId'],
 //                         isReply: doc['isReply'],
-//                         repostedScaleId: doc['repostedScaleId'],
+//                         renoteedScaleId: doc['renoteedScaleId'],
 //                         currentScreen: widget.currentScreen,
 //                       ))
 //                   .toList();
@@ -211,10 +211,10 @@
 //                       timestamp: doc['timestamp'],
 //                       scaleId: doc['scaleId'],
 //                       mediaUrl: doc['mediaUrl'],
-//                       postId: doc['postId'],
+//                       noteId: doc['noteId'],
 //                       attachedScaleId: doc['attachedScaleId'],
 //                       isReply: doc['isReply'],
-//                       repostedScaleId: doc['repostedScaleId'],
+//                       renoteedScaleId: doc['renoteedScaleId'],
 //                       currentScreen: widget.currentScreen,
 //                     ))
 //                 .toList();
@@ -243,7 +243,7 @@
 //       } else {
 //         bookmarkRef.doc(uid).collection('bookmarks').doc(scaleId).set({
 //           "id": scaleId,
-//           "postId": '',
+//           "noteId": '',
 //           "scaleId": scaleId,
 //         });
 //         setState(() {
@@ -261,11 +261,11 @@
 //       "timestamp": DateTime.now(),
 //       "notificationId": notificationId,
 //       "scaleId": widget.scaleId,
-//       "postId": '',
+//       "noteId": '',
 //     });
 //   }
 
-//   handleLikePost() {
+//   handleLikeNote() {
 //     bool isliked = widget.likes[uid] == true;
 //     if (isliked) {
 //       scalesRef.doc(widget.scaleId).update({"likes.$uid": false});
@@ -278,8 +278,8 @@
 //     } else if (!isliked) {
 //       scalesRef.doc(widget.scaleId).update({"likes.$uid": true});
 //       addToActivityFeed();
-//       bool isNotPostOwner = widget.writerId != uid;
-//       if (isNotPostOwner) {}
+//       bool isNotNoteOwner = widget.writerId != uid;
+//       if (isNotNoteOwner) {}
 //       setState(() {
 //         likeCount += 1;
 //         isLiked = true;
@@ -318,12 +318,12 @@
 //                           content: widget.content,
 //                           likes: widget.likes,
 //                           timestamp: widget.timestamp,
-//                           postId: widget.postId,
+//                           noteId: widget.noteId,
 //                           mediaUrl: widget.mediaUrl,
 //                           attachedScaleId: widget.attachedScaleId,
 //                           isReply: widget.isReply,
 //                           currentScreen: widget.currentScreen,
-//                           repostedScaleId: widget.repostedScaleId,
+//                           renoteedScaleId: widget.renoteedScaleId,
 //                         ),
 //                       ));
 //                 },
@@ -520,11 +520,11 @@
 //                             const SizedBox(
 //                               height: 10,
 //                             ),
-//                             widget.repostedScaleId.isEmpty
+//                             widget.renoteedScaleId.isEmpty
 //                                 ? const SizedBox()
 //                                 : FutureBuilder(
 //                                     future: scalesRef
-//                                         .doc(widget.repostedScaleId)
+//                                         .doc(widget.renoteedScaleId)
 //                                         .get(),
 //                                     builder: (context, snapshot) {
 //                                       if (!snapshot.hasData) {
@@ -551,9 +551,9 @@
 //                                                 Get.to(
 //                                                   () => ScaleDetails(
 //                                                     currentScreen: NewScale,
-//                                                     repostedScaleId:
+//                                                     renoteedScaleId:
 //                                                         documentSnapshot[
-//                                                             'repostedScaleId'],
+//                                                             'renoteedScaleId'],
 //                                                     isReply: documentSnapshot[
 //                                                         'isReply'],
 //                                                     attachedScaleId:
@@ -564,8 +564,8 @@
 //                                                     scaleId: documentSnapshot[
 //                                                         'scaleId'],
 //                                                     focus: false,
-//                                                     postId: documentSnapshot[
-//                                                         'postId'],
+//                                                     noteId: documentSnapshot[
+//                                                         'noteId'],
 //                                                     content: documentSnapshot[
 //                                                         'content'],
 //                                                     writerId: documentSnapshot[
@@ -596,9 +596,9 @@
 //                                                         MaterialPageRoute(
 //                                                           builder: (context) =>
 //                                                               ScaleDetails(
-//                                                             repostedScaleId:
+//                                                             renoteedScaleId:
 //                                                                 documentSnapshot[
-//                                                                     'repostedScaleId'],
+//                                                                     'renoteedScaleId'],
 //                                                             currentScreen:
 //                                                                 NewScale,
 //                                                             isReply:
@@ -614,9 +614,9 @@
 //                                                                 documentSnapshot[
 //                                                                     'scaleId'],
 //                                                             focus: false,
-//                                                             postId:
+//                                                             noteId:
 //                                                                 documentSnapshot[
-//                                                                     'postId'],
+//                                                                     'noteId'],
 //                                                             content:
 //                                                                 documentSnapshot[
 //                                                                     'content'],
@@ -757,13 +757,13 @@
 //                                                       const SizedBox(
 //                                                         height: 7,
 //                                                       ),
-//                                                       documentSnapshot['postId']
+//                                                       documentSnapshot['noteId']
 //                                                               .isEmpty
 //                                                           ? const SizedBox()
 //                                                           : FutureBuilder(
 //                                                               future: exploreRef
 //                                                                   .doc(documentSnapshot[
-//                                                                       'postId'])
+//                                                                       'noteId'])
 //                                                                   .get(),
 //                                                               builder: (context,
 //                                                                   snapshot) {
@@ -799,9 +799,9 @@
 //                                                                                 () {
 //                                                                               final documentSnapshot = snapshot.data!.data()!;
 //                                                                               Get.to(
-//                                                                                 () => PostDetailsMobile(
+//                                                                                 () => NoteDetailsMobile(
 //                                                                                   previousPageTitle: '',
-//                                                                                   postId: documentSnapshot['postId'],
+//                                                                                   noteId: documentSnapshot['noteId'],
 //                                                                                   title: documentSnapshot['title'],
 //                                                                                   thumbnailUrl: documentSnapshot['thumbnailUrl'],
 //                                                                                   content: documentSnapshot['content'],
@@ -987,10 +987,10 @@
 //                                             );
 //                                           });
 //                                     }),
-//                             widget.postId.isEmpty
+//                             widget.noteId.isEmpty
 //                                 ? const SizedBox()
 //                                 : FutureBuilder(
-//                                     future: exploreRef.doc(widget.postId).get(),
+//                                     future: exploreRef.doc(widget.noteId).get(),
 //                                     builder: (context, snapshot) {
 //                                       if (!snapshot.hasData) {
 //                                         return loading();
@@ -1018,11 +1018,11 @@
 //                                                     final documentSnapshot =
 //                                                         snapshot.data!.data()!;
 //                                                     Get.to(
-//                                                       () => PostDetailsMobile(
+//                                                       () => NoteDetailsMobile(
 //                                                         previousPageTitle: '',
-//                                                         postId:
+//                                                         noteId:
 //                                                             documentSnapshot[
-//                                                                 'postId'],
+//                                                                 'noteId'],
 //                                                         title: documentSnapshot[
 //                                                             'title'],
 //                                                         thumbnailUrl:
@@ -1282,7 +1282,7 @@
                                 //     );
                                 //   },
                                 //   onTap: (isLiked) async {
-                                //     handleLikePost();
+                                //     handleLikeNote();
                                 //     return !isLiked;
                                 //   },
                                 //   likeBuilder: (isLiked) {
@@ -1312,15 +1312,15 @@
 //                                           content: widget.content,
 //                                           likes: widget.likes,
 //                                           timestamp: widget.timestamp,
-//                                           postId: widget.postId,
+//                                           noteId: widget.noteId,
 //                                           mediaUrl: widget.mediaUrl,
 //                                           attachedScaleId:
 //                                               widget.attachedScaleId,
 //                                           isReply: widget.isReply,
 //                                           focus: true,
 //                                           currentScreen: widget.currentScreen,
-//                                           repostedScaleId:
-//                                               widget.repostedScaleId,
+//                                           renoteedScaleId:
+//                                               widget.renoteedScaleId,
 //                                         ),
 //                                         context);
 //                                     return isLiked;
@@ -1365,7 +1365,7 @@
 //                                   onTap: (isLiked) async {
 //                                     Get.to(
 //                                         () => NewScale(
-//                                             postId: '',
+//                                             noteId: '',
 //                                             scaleId: widget.scaleId),
 //                                         transition: Transition.downToUp);
 //                                   },
@@ -1452,11 +1452,11 @@
 //   final dynamic likes;
 //   final Timestamp timestamp;
 //   final String mediaUrl;
-//   final String postId;
+//   final String noteId;
 //   final List attachedScaleId;
 //   final bool isReply;
 //   final bool? focus;
-//   final String repostedScaleId;
+//   final String renoteedScaleId;
 //   final currentScreen;
 //   const ScaleDetails({
 //     super.key,
@@ -1466,12 +1466,12 @@
 //     required this.likes,
 //     required this.timestamp,
 //     required this.mediaUrl,
-//     required this.postId,
+//     required this.noteId,
 //     required this.attachedScaleId,
 //     required this.isReply,
 //     this.focus,
 //     required this.currentScreen,
-//     required this.repostedScaleId,
+//     required this.renoteedScaleId,
 //   });
 
 //   @override
@@ -1500,7 +1500,7 @@
 
 //   getReScaleCount() {
 //     scalesRef
-//         .where('repostedScaleId', isEqualTo: widget.scaleId)
+//         .where('renoteedScaleId', isEqualTo: widget.scaleId)
 //         .get()
 //         .then((doc) {
 //       setState(() {
@@ -1566,10 +1566,10 @@
 //                 timestamp: doc['timestamp'],
 //                 scaleId: doc['scaleId'],
 //                 mediaUrl: doc['mediaUrl'],
-//                 postId: doc['postId'],
+//                 noteId: doc['noteId'],
 //                 attachedScaleId: doc['attachedScaleId'],
 //                 isReply: doc['isReply'],
-//                 repostedScaleId: doc['repostedScaleId'],
+//                 renoteedScaleId: doc['renoteedScaleId'],
 //                 currentScreen: widget.currentScreen,
 //               ))
 //           .toList();
@@ -1577,11 +1577,11 @@
 //     });
 //   }
 
-//   String formattedDate(Timestamp timestamp) {
-//     final DateFormat formatter = DateFormat('HH:mm · dd.MM.yyyy');
-//     final String formatted = formatter.format(timestamp.toDate());
-//     return formatted; // something like 2013-04-20
-//   }
+  // String formattedDate(Timestamp timestamp) {
+  //   final DateFormat formatter = DateFormat('HH:mm · dd.MM.yyyy');
+  //   final String formatted = formatter.format(timestamp.toDate());
+  //   return formatted; // something like 2013-04-20
+  // }
 
 //   bool isLiked = false;
 
@@ -1619,7 +1619,7 @@
 //       } else {
 //         bookmarkRef.doc(uid).collection('bookmarks').doc(scaleId).set({
 //           "id": scaleId,
-//           "postId": '',
+//           "noteId": '',
 //           "scaleId": scaleId,
 //         });
 //         setState(() {
@@ -1629,7 +1629,7 @@
 //     });
 //   }
 
-//   handleLikePost() {
+//   handleLikeNote() {
 //     bool isliked = widget.likes[uid] == true;
 //     if (isliked) {
 //       scalesRef.doc(widget.scaleId).update({"likes.$uid": false});
@@ -1642,8 +1642,8 @@
 //     } else if (!isliked) {
 //       scalesRef.doc(widget.scaleId).update({"likes.$uid": true});
 //       // addToActivityFeed();
-//       bool isNotPostOwner = widget.writerId != uid;
-//       if (isNotPostOwner) {}
+//       bool isNotNoteOwner = widget.writerId != uid;
+//       if (isNotNoteOwner) {}
 //       setState(() {
 //         likeCount += 1;
 //         isLiked = true;
@@ -1665,25 +1665,25 @@
 //       "timestamp": DateTime.now(),
 //       "notificationId": notificationId,
 //       "scaleId": widget.scaleId,
-//       "postId": '',
+//       "noteId": '',
 //     });
 //   }
 
 //   addComment() {
 //     String scaleId = const Uuid().v4();
 //     if (commentTextController.text.isNotEmpty) {
-//       // if (isNotPostOwner) {}
+//       // if (isNotNoteOwner) {}
 
 //       scalesRef.doc(scaleId).set({
 //         "scaleId": scaleId,
 //         "writerId": uid,
 //         "content": commentTextController.text,
 //         "timestamp": DateTime.now(),
-//         "postId": '',
+//         "noteId": '',
 //         "likes": {},
 //         "mediaUrl": '',
 //         "isReply": true,
-//         "repostedScaleId": '',
+//         "renoteedScaleId": '',
 //         "attachedScaleId": [widget.scaleId],
 //       });
 
@@ -1932,11 +1932,11 @@
 //                                 const SizedBox(
 //                                   height: 10,
 //                                 ),
-//                                 widget.postId.isEmpty
+//                                 widget.noteId.isEmpty
 //                                     ? const SizedBox()
 //                                     : FutureBuilder(
 //                                         future:
-//                                             exploreRef.doc(widget.postId).get(),
+//                                             exploreRef.doc(widget.noteId).get(),
 //                                         builder: (context, snapshot) {
 //                                           if (!snapshot.hasData) {
 //                                             return loading();
@@ -1967,12 +1967,12 @@
 //                                                                 .data()!;
 //                                                         Get.to(
 //                                                           () =>
-//                                                               PostDetailsMobile(
+//                                                               NoteDetailsMobile(
 //                                                             previousPageTitle:
 //                                                                 '',
-//                                                             postId:
+//                                                             noteId:
 //                                                                 documentSnapshot[
-//                                                                     'postId'],
+//                                                                     'noteId'],
 //                                                             title:
 //                                                                 documentSnapshot[
 //                                                                     'title'],
@@ -2211,11 +2211,11 @@
 //                                           ),
 //                                         ],
 //                                       ),
-//                                 widget.repostedScaleId.isEmpty
+//                                 widget.renoteedScaleId.isEmpty
 //                                     ? const SizedBox()
 //                                     : FutureBuilder(
 //                                         future: scalesRef
-//                                             .doc(widget.repostedScaleId)
+//                                             .doc(widget.renoteedScaleId)
 //                                             .get(),
 //                                         builder: (context, snapshot) {
 //                                           if (!snapshot.hasData) {
@@ -2243,9 +2243,9 @@
 //                                                     Get.to(
 //                                                       () => ScaleDetails(
 //                                                         currentScreen: NewScale,
-//                                                         repostedScaleId:
+//                                                         renoteedScaleId:
 //                                                             documentSnapshot[
-//                                                                 'repostedScaleId'],
+//                                                                 'renoteedScaleId'],
 //                                                         isReply:
 //                                                             documentSnapshot[
 //                                                                 'isReply'],
@@ -2259,9 +2259,9 @@
 //                                                             documentSnapshot[
 //                                                                 'scaleId'],
 //                                                         focus: false,
-//                                                         postId:
+//                                                         noteId:
 //                                                             documentSnapshot[
-//                                                                 'postId'],
+//                                                                 'noteId'],
 //                                                         content:
 //                                                             documentSnapshot[
 //                                                                 'content'],
@@ -2297,9 +2297,9 @@
 //                                                             MaterialPageRoute(
 //                                                               builder: (context) =>
 //                                                                   ScaleDetails(
-//                                                                 repostedScaleId:
+//                                                                 renoteedScaleId:
 //                                                                     documentSnapshot[
-//                                                                         'repostedScaleId'],
+//                                                                         'renoteedScaleId'],
 //                                                                 currentScreen:
 //                                                                     NewScale,
 //                                                                 isReply:
@@ -2315,9 +2315,9 @@
 //                                                                     documentSnapshot[
 //                                                                         'scaleId'],
 //                                                                 focus: false,
-//                                                                 postId:
+//                                                                 noteId:
 //                                                                     documentSnapshot[
-//                                                                         'postId'],
+//                                                                         'noteId'],
 //                                                                 content:
 //                                                                     documentSnapshot[
 //                                                                         'content'],
@@ -2451,13 +2451,13 @@
 //                                                             height: 7,
 //                                                           ),
 //                                                           documentSnapshot[
-//                                                                       'postId']
+//                                                                       'noteId']
 //                                                                   .isEmpty
 //                                                               ? const SizedBox()
 //                                                               : FutureBuilder(
 //                                                                   future: exploreRef
 //                                                                       .doc(documentSnapshot[
-//                                                                           'postId'])
+//                                                                           'noteId'])
 //                                                                       .get(),
 //                                                                   builder: (context,
 //                                                                       snapshot) {
@@ -2490,9 +2490,9 @@
 //                                                                                 onPressed: () {
 //                                                                                   final documentSnapshot = snapshot.data!.data()!;
 //                                                                                   Get.to(
-//                                                                                     () => PostDetailsMobile(
+//                                                                                     () => NoteDetailsMobile(
 //                                                                                       previousPageTitle: '',
-//                                                                                       postId: documentSnapshot['postId'],
+//                                                                                       noteId: documentSnapshot['noteId'],
 //                                                                                       title: documentSnapshot['title'],
 //                                                                                       thumbnailUrl: documentSnapshot['thumbnailUrl'],
 //                                                                                       content: documentSnapshot['content'],
@@ -2707,7 +2707,7 @@
 //                             );
 //                           },
 //                           onTap: (isLiked) async {
-//                             handleLikePost();
+//                             handleLikeNote();
 //                             return !isLiked;
 //                           },
 //                           likeBuilder: (isLiked) {
@@ -2743,13 +2743,13 @@
 //                                   content: widget.content,
 //                                   likes: widget.likes,
 //                                   timestamp: widget.timestamp,
-//                                   postId: widget.postId,
+//                                   noteId: widget.noteId,
 //                                   mediaUrl: widget.mediaUrl,
 //                                   attachedScaleId: widget.attachedScaleId,
 //                                   isReply: widget.isReply,
 //                                   focus: true,
 //                                   currentScreen: widget.currentScreen,
-//                                   repostedScaleId: widget.repostedScaleId,
+//                                   renoteedScaleId: widget.renoteedScaleId,
 //                                 ),
 //                                 context);
 //                             return isLiked;
@@ -2794,7 +2794,7 @@
 //                           onTap: (isLiked) async {
 //                             Get.to(
 //                                 () => NewScale(
-//                                     postId: '', scaleId: widget.scaleId),
+//                                     noteId: '', scaleId: widget.scaleId),
 //                                 transition: Transition.downToUp);
 //                           },
 //                           likeCount: reScaleCount,

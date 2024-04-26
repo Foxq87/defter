@@ -4,6 +4,7 @@ import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/notes/screens/note_details.dart';
+import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/school_model.dart';
 import 'package:any_link_preview/any_link_preview.dart';
@@ -15,51 +16,69 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:like_button/like_button.dart';
 import 'package:routemaster/routemaster.dart';
 import '../../auth/controller/auth_controller.dart';
+import '../../user_profile/controller/user_profile_controller.dart';
 import '../controller/note_controller.dart';
 import '../../school/controller/school_controller.dart';
 import '../../../models/user_model.dart';
 import '../../../theme/palette.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class PostCard extends ConsumerStatefulWidget {
+class NoteCard extends ConsumerStatefulWidget {
   final Note note;
-  const PostCard({
+  const NoteCard({
     super.key,
     required this.note,
   });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _PostCardState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NoteCardState();
 }
 
-class _PostCardState extends ConsumerState<PostCard> {
-  void deletePost(WidgetRef ref, BuildContext context) async {
-    ref.read(postControllerProvider.notifier).deletePost(widget.note, context);
+class _NoteCardState extends ConsumerState<NoteCard> {
+  void deleteNote(
+      WidgetRef ref, String currentUid, BuildContext context) async {
+    ref
+        .read(noteControllerProvider.notifier)
+        .deleteNote(widget.note, currentUid, context);
   }
 
-  void likePost(WidgetRef ref) async {
-    ref.read(postControllerProvider.notifier).like(widget.note, context);
+  void likeNote(WidgetRef ref) async {
+    ref.read(noteControllerProvider.notifier).like(widget.note, context);
   }
 
   void navigateToUser(BuildContext context) {
     Routemaster.of(context).push('/user-profile/${widget.note.uid}');
   }
 
-  void navigateToSchool(BuildContext context) {
-    Routemaster.of(context).push('/school-profile/${widget.note.schoolName}');
+  void navigateToSchool(String schoolId, BuildContext context) {
+    Routemaster.of(context).push('/school-profile/${schoolId}');
   }
 
-  void navigateToPost(BuildContext context) {
+  void navigateToNote(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => PostDetails(postId: widget.note.id),
+      builder: (context) => NoteDetails(noteId: widget.note.id),
     ));
-//  PostDetails(postId: widget.note.id),
+//  NoteDetails(noteId: widget.note.id),
 
     // Routemaster.of(context).push('/note/${widget.note.id}/details');
   }
 
   bool isThread(Note note) {
-    return ref.read(postControllerProvider.notifier).isThread(note);
+    return ref.read(noteControllerProvider.notifier).isThread(note);
+  }
+
+  void followUser(BuildContext context, UserModel currentUser, UserModel user) {
+    ref
+        .read(userProfileControllerProvider.notifier)
+        .followUser(context, user, currentUser, ref);
+    showSnackBar(context, "${user.username}'i takip ediyorsun");
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    timeago.setLocaleMessages('tr_short', timeago.TrShortMessages());
   }
 
   @override
@@ -69,11 +88,11 @@ class _PostCardState extends ConsumerState<PostCard> {
     // final currentTheme = ref.watch(themeNotifierProvider);
 
     return GestureDetector(
-      onTap: () => navigateToPost(context),
+      onTap: () => navigateToNote(context),
       child: Container(
         decoration: const BoxDecoration(
             border: Border(
-                bottom: BorderSide(width: 0.25, color: Palette.postIconColor))),
+                bottom: BorderSide(width: 0.25, color: Palette.noteIconColor))),
         child: Padding(
           padding: const EdgeInsets.only(left: 10.0, top: 10.0, right: 10),
           child: IntrinsicHeight(
@@ -82,26 +101,79 @@ class _PostCardState extends ConsumerState<PostCard> {
             children: [
               Column(
                 children: [
-                  SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: GestureDetector(
-                      onTap: () => navigateToUser(context),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: ref
-                            .watch(getUserDataProvider(widget.note.uid))
-                            .when(
-                                data: (user) => Image.network(
-                                      user.profilePic,
-                                      fit: BoxFit.cover,
+                  ref.watch(getUserDataProvider(widget.note.uid)).when(
+                        data: (user) => GestureDetector(
+                          onTap: () => followUser,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (!user.followers
+                                      .contains(currentUser.uid)) {
+                                    followUser(context, currentUser, user);
+                                  } else {
+                                    navigateToUser(context);
+                                  }
+                                },
+                                child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                        color: Palette.iconBackgroundColor,
+                                        borderRadius: BorderRadius.circular(10),
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            user.profilePic,
+                                          ),
+                                          fit: BoxFit.cover,
+                                        )),
+                                    child: SizedBox()),
+                              ),
+                              if (!user.followers.contains(currentUser.uid) &&
+                                  currentUser.uid != user.uid)
+                                Positioned(
+                                  bottom: -5.5,
+                                  right: -8.5,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (!currentUser.following
+                                              .contains(user.uid) &&
+                                          currentUser.uid != user.uid) {
+                                        followUser(context, currentUser, user);
+                                      } else {
+                                        navigateToUser(context);
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 17,
+                                      width: 17,
+                                      margin: EdgeInsets.only(right: 5.0),
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 2.0),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1.5, color: Colors.black),
+                                        color: Palette.orangeColor,
+                                        borderRadius:
+                                            BorderRadius.circular(5.0),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          CupertinoIcons.add,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                error: (error, stackTrace) =>
-                                    ErrorText(error: error.toString()),
-                                loading: () => const Loader()),
+                                  ),
+                                )
+                            ],
+                          ),
+                        ),
+                        error: (error, stackTrace) => SizedBox(),
+                        loading: () => SizedBox(),
                       ),
-                    ),
-                  ),
                   const SizedBox(
                     height: 5,
                   ),
@@ -142,97 +214,86 @@ class _PostCardState extends ConsumerState<PostCard> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
                                             children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () =>
-                                                        navigateToUser(context),
-                                                    child: ref
-                                                        .watch(
-                                                            getUserDataProvider(
-                                                                widget
-                                                                    .note.uid))
-                                                        .when(
-                                                            data: (user) =>
-                                                                Text(
-                                                                  user.username,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      fontFamily:
-                                                                          'JetBrainsMonoExtraBold'),
-                                                                ),
-                                                            error: (error,
-                                                                    stackTrace) =>
-                                                                ErrorText(
-                                                                    error: error
-                                                                        .toString()),
-                                                            loading: () =>
-                                                                const Loader()),
-                                                  ),
-                                                  if (widget.note.schoolName
-                                                      .isNotEmpty)
-                                                    GestureDetector(
-                                                      onTap: () =>
-                                                          navigateToSchool(
-                                                              context),
-                                                      child: Row(children: [
-                                                        Text(
-                                                          " • ",
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 20.0,
-                                                          width: 20.0,
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5.0),
-                                                            child: ref.read(getSchoolByIdProvider(widget.note.schoolName)).when(
-                                                                data: (School school) =>
-                                                                    Image.network(
-                                                                        school
-                                                                            .avatar,
-                                                                        fit: BoxFit
-                                                                            .cover),
-                                                                error: (error,
-                                                                        stackTrace) =>
-                                                                    ErrorText(
-                                                                        error: error
-                                                                            .toString()),
-                                                                loading: () =>
-                                                                    const Loader()),
-                                                          ),
-                                                        ),
-                                                      ]),
-                                                    ),
-                                                ],
-                                              ),
-                                              Text(
-                                                " • ${timeago.format(widget.note.createdAt, locale: 'en_short')}",
-                                                style: TextStyle(
-                                                    color: Colors.white),
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    navigateToUser(context),
+                                                child: ref
+                                                    .watch(getUserDataProvider(
+                                                        widget.note.uid))
+                                                    .when(
+                                                        data: (user) => Text(
+                                                              user.username,
+                                                              style: const TextStyle(
+                                                                  fontSize: 15,
+                                                                  fontFamily:
+                                                                      'JetBrainsMonoBold'),
+                                                            ),
+                                                        error: (error,
+                                                                stackTrace) =>
+                                                            ErrorText(
+                                                                error: error
+                                                                    .toString()),
+                                                        loading: () =>
+                                                            const Loader()),
                                               ),
                                             ],
                                           ),
+                                          if (widget.note.schoolName.isEmpty)
+                                            ref
+                                                .read(getUserDataProvider(
+                                                    widget.note.uid))
+                                                .when(
+                                                    data: (UserModel user) =>
+                                                        GestureDetector(
+                                                          onTap: () =>
+                                                              navigateToSchool(
+                                                                  user.schoolId,
+                                                                  context),
+                                                          child: Text(
+                                                            "\t/" +
+                                                                user.schoolId,
+                                                            style: TextStyle(
+                                                                color: Palette
+                                                                    .themeColor,
+                                                                fontSize: 12),
+                                                          ),
+                                                        ),
+                                                    error: (error,
+                                                            stackTrace) =>
+                                                        ErrorText(
+                                                            error: error
+                                                                .toString()),
+                                                    loading: () =>
+                                                        const Loader()),
                                           const Spacer(),
+                                          Container(
+                                            margin: EdgeInsets.only(right: 5.0),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 2.0),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Palette.iconBackgroundColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
+                                            ),
+                                            child: Text(
+                                              "${timeago.format(widget.note.createdAt, locale: 'tr_short')}",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
                                           GestureDetector(
                                             child: const Icon(
                                               CupertinoIcons.ellipsis,
+                                              size: 18,
                                             ),
                                             onTap: () {
-                                              showMoreNoteActions(
+                                              showMorenoteActions(
                                                   context, currentUser);
                                             },
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
                                           ),
                                         ],
                                       ),
@@ -314,7 +375,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                           child: Container(
                                             decoration: BoxDecoration(
                                               border: Border.all(
-                                                color: Palette.postIconColor,
+                                                color: Palette.noteIconColor,
                                                 width: 0.5,
                                               ),
                                               borderRadius:
@@ -348,13 +409,13 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                 IconButton(
                                                   padding: EdgeInsets.zero,
                                                   onPressed: () =>
-                                                      navigateToPost(context),
+                                                      navigateToNote(context),
                                                   icon: SvgPicture.asset(
                                                     Constants.comment,
                                                     colorFilter:
                                                         const ColorFilter.mode(
                                                             Palette
-                                                                .postIconColor,
+                                                                .noteIconColor,
                                                             BlendMode.srcIn),
                                                     fit: BoxFit.cover,
                                                     width: 20,
@@ -363,7 +424,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                 ),
                                                 ref
                                                     .watch(
-                                                        getPostCommentsProvider(
+                                                        getNoteCommentsProvider(
                                                             widget.note.id))
                                                     .when(
                                                       data: (comments) => Text(
@@ -399,7 +460,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                 );
                                               },
                                               onTap: (isLiked) async {
-                                                likePost(ref);
+                                                likeNote(ref);
                                                 return !isLiked;
                                               },
                                               likeBuilder: (isLiked) {
@@ -416,7 +477,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                         isLiked
                                                             ? Palette.redColor
                                                             : Palette
-                                                                .postIconColor,
+                                                                .noteIconColor,
                                                         BlendMode.srcIn),
                                                   ),
                                                 );
@@ -438,7 +499,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                 fit: BoxFit.cover,
                                                 colorFilter:
                                                     const ColorFilter.mode(
-                                                        Palette.postIconColor,
+                                                        Palette.noteIconColor,
                                                         BlendMode.srcIn),
                                               ),
                                             ),
@@ -455,7 +516,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                     colorFilter:
                                                         const ColorFilter.mode(
                                                             Palette
-                                                                .postIconColor,
+                                                                .noteIconColor,
                                                             BlendMode.srcIn))),
                                             if (widget
                                                 .note.schoolName.isNotEmpty)
@@ -485,7 +546,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                                 ),
                                                                 content:
                                                                     const Text(
-                                                                  'bu postu siliyorsun',
+                                                                  'bu notu siliyorsun',
                                                                   style: TextStyle(
                                                                       fontFamily:
                                                                           'JetBrainsMonoBold'),
@@ -512,8 +573,10 @@ class _PostCardState extends ConsumerState<PostCard> {
                                                                         true,
                                                                     onPressed:
                                                                         () {
-                                                                      deletePost(
+                                                                      deleteNote(
                                                                           ref,
+                                                                          currentUser
+                                                                              .uid,
                                                                           context);
                                                                       Navigator.pop(
                                                                           context);
@@ -576,7 +639,7 @@ class _PostCardState extends ConsumerState<PostCard> {
     );
   }
 
-  Future<dynamic> showMoreNoteActions(
+  Future<dynamic> showMorenoteActions(
       BuildContext context, UserModel currentUser) {
     return showModalBottomSheet(
       backgroundColor: Palette.darkGreyColor,
@@ -588,7 +651,7 @@ class _PostCardState extends ConsumerState<PostCard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                height: 20,
+                height: 15,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -599,6 +662,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                   if (widget.note.uid == currentUser.uid)
                     Expanded(
                       child: CupertinoButton(
+                        borderRadius: BorderRadius.circular(17),
                         padding: EdgeInsets.symmetric(vertical: 7),
                         color: Palette.textFieldColor,
                         onPressed: () {
@@ -633,7 +697,7 @@ class _PostCardState extends ConsumerState<PostCard> {
                                 CupertinoDialogAction(
                                   isDestructiveAction: true,
                                   onPressed: () async {
-                                    deletePost(ref, context);
+                                    deleteNote(ref, currentUser.uid, context);
                                     Navigator.pop(context);
                                   },
                                   child: const Text(
@@ -667,15 +731,23 @@ class _PostCardState extends ConsumerState<PostCard> {
                         ),
                       ),
                     ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  if (widget.note.uid == currentUser.uid)
+                    SizedBox(
+                      width: 10,
+                    ),
                   Expanded(
                     child: CupertinoButton(
+                      borderRadius: BorderRadius.circular(17),
                       padding: EdgeInsets.symmetric(vertical: 7),
                       color: Palette.textFieldColor,
                       onPressed: () {
-                        // Share logic here
+                        showDialog(
+                          context: context,
+                          builder: (context) => ReportDialog(
+                            noteId: widget.note.id,
+                            accountId: '',
+                          ),
+                        );
                       },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

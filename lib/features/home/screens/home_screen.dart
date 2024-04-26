@@ -24,6 +24,23 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with AutomaticKeepAliveClientMixin<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Setup the listener.
+    scrollController.addListener(() {
+      if (scrollController.position.atEdge) {
+        bool isTop = scrollController.position.pixels == 0;
+        if (!isTop) {
+          setState(() {
+            noteLimit += 10;
+          });
+        }
+      }
+    });
+  }
+
   int segmentedValue = 2;
   int noteLimit = 10;
   final scrollController = ScrollController();
@@ -37,7 +54,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return Scaffold(
       appBar: CupertinoNavigationBar(
         border: const Border(
-            bottom: BorderSide(color: Palette.postIconColor, width: 0.25)),
+            bottom: BorderSide(color: Palette.noteIconColor, width: 0.25)),
         backgroundColor: Colors.black.withOpacity(0.4),
         padding: EdgeInsetsDirectional.zero,
         leading: Builder(
@@ -68,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             noteLimit > notes.length ? notes.length : noteLimit,
                         itemBuilder: (BuildContext context, int index) {
                           final note = notes[index];
-                          return PostCard(note: note);
+                          return NoteCard(note: note);
                         },
                       );
                     },
@@ -78,9 +95,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   )
               : ref.watch(getSchoolNotesProvider(user.schoolId)).when(
                     data: (notes) {
-                      // if (scrollController.position.atEdge) {
-                      //   noteLimit += 10;
-                      // }
                       return ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
@@ -88,7 +102,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             noteLimit > notes.length ? notes.length : noteLimit,
                         itemBuilder: (BuildContext context, int index) {
                           final note = notes[index];
-                          return PostCard(note: note);
+                          return NoteCard(note: note);
                         },
                       );
                     },
@@ -99,30 +113,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           SizedBox(
             height: 10,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CupertinoButton(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                color: Palette.orangeColor,
-                borderRadius: BorderRadius.circular(20),
-                child: Text(
-                  'daha fazla',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontFamily: 'JetBrainsMonoRegular',
-                  ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    noteLimit += 10;
-                  });
-                },
-              ),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     CupertinoButton(
+          //       padding: EdgeInsets.symmetric(horizontal: 20),
+          //       color: Palette.orangeColor,
+          //       borderRadius: BorderRadius.circular(20),
+          //       child: Text(
+          //         'daha fazla',
+          //         textAlign: TextAlign.center,
+          //         style: TextStyle(
+          //           fontSize: 18,
+          //           color: Colors.white,
+          //           fontFamily: 'JetBrainsMonoRegular',
+          //         ),
+          //       ),
+          //       onPressed: () {
+          //         setState(() {
+          //           noteLimit += 10;
+          //         });
+          //       },
+          //     ),
+          //   ],
+          // ),
+
+          CupertinoActivityIndicator(),
           SizedBox(
             height: 70,
           )

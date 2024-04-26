@@ -124,7 +124,7 @@ class _ArticleViewState extends State<ArticleView> {
                     const ColorFilter.mode(Colors.white, BlendMode.srcIn),
               ),
               SvgPicture.asset(
-                Constants.repost,
+                Constants.renote,
                 colorFilter:
                     const ColorFilter.mode(Colors.white, BlendMode.srcIn),
               ),

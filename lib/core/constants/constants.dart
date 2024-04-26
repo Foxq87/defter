@@ -30,7 +30,7 @@ class Constants {
       "assets/svgs/bottom-nav-bar-icons/heart-outlined.svg";
   static const String heartFilled =
       "assets/svgs/bottom-nav-bar-icons/heart-filled.svg";
-  static const String repost = "assets/svgs/bottom-nav-bar-icons/repost.svg";
+  static const String renote = "assets/svgs/bottom-nav-bar-icons/renote.svg";
   static const String upload = "assets/svgs/bottom-nav-bar-icons/upload.svg";
 
   //defaults

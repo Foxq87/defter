@@ -147,7 +147,6 @@ class AuthRepository {
         (event) => UserModel.fromMap(event.data() as Map<String, dynamic>));
   }
 
-
   List<String> getUsernames() {
     List<String> usernames = [];
     _users.get().then((value) {
@@ -185,7 +184,9 @@ class AuthRepository {
 
   bool isUserSetup(WidgetRef ref) {
     final UserModel myUser = ref.watch(userProvider)!;
-    return myUser.username.isEmpty || myUser.schoolId.isEmpty;
+    return myUser.name.isEmpty ||
+        myUser.username.isEmpty ||
+        myUser.schoolId.isEmpty;
   }
 
   void logOut() async {

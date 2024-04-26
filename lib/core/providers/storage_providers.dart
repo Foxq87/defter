@@ -44,11 +44,11 @@ class StorageRepository {
     }
   }
 
-  FutureEither<void> deletePostImages({required Note note}) async {
+  FutureEither<void> deleteNoteImages({required Note note}) async {
     try {
       return right(await _firebaseStorage
           .ref()
-          .child('posts/${note.schoolName}/${note.id}')
+          .child('notes/${note.schoolName}/${note.id}')
           .listAll()
           .then((value) {
         for (var element in value.items) {

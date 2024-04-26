@@ -13,8 +13,10 @@ import 'package:acc/core/utils.dart';
 import 'package:acc/features/user_profile/repository/user_profile_repository.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/user_model.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:routemaster/routemaster.dart';
 
+import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 
@@ -29,8 +31,8 @@ final userProfileControllerProvider =
   );
 });
 
-final getUserPostsProvider = StreamProvider.family((ref, String uid) {
-  return ref.read(userProfileControllerProvider.notifier).getUserPosts(uid);
+final getUserNotesProvider = StreamProvider.family((ref, String uid) {
+  return ref.read(userProfileControllerProvider.notifier).getUserNotes(uid);
 });
 
 final getUserFollowersProvider =
@@ -115,8 +117,8 @@ class UserProfileController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Note>> getUserPosts(String uid) {
-    return _userProfileRepository.getUserPosts(uid);
+  Stream<List<Note>> getUserNotes(String uid) {
+    return _userProfileRepository.getUserNotes(uid);
   }
 
   Stream<List<UserModel>> getUserFollowers(List<String> followerUids) {
@@ -133,13 +135,13 @@ class UserProfileController extends StateNotifier<bool> {
     UserModel currentUser,
     WidgetRef ref,
   ) async {
-    if (currentUser.following.contains(user.uid)/*if i am following him*/) {
-      user.followers.remove(currentUser.uid);//
-      currentUser.following.remove(user.uid);//
-    } else {
-      user.followers.add(currentUser.uid);
-      currentUser.following.add(user.uid);
-    }
+    // if (currentUser.following.contains(user.uid) /*if i am following him*/) {
+    //   user.followers.remove(currentUser.uid); //
+    //   currentUser.following.remove(user.uid); //
+    // } else {
+    //   user.followers.add(currentUser.uid);
+    //   currentUser.following.add(user.uid);
+    // }
     _ref.read(notificationControllerProvider.notifier).sendNotification(
           context: context,
           type: 'follow',

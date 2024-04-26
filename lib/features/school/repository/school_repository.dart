@@ -151,11 +151,10 @@ class SchoolRepository {
     }
   }
 
-  Stream<List<Note>> getSchoolPosts(
+  Stream<List<Note>> getSchoolNotes(
     String name,
   ) {
-    return _posts
-        .where('schoolName', isEqualTo: name)
+    return _Notes.where('schoolName', isEqualTo: name)
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -170,9 +169,8 @@ class SchoolRepository {
         );
   }
 
-  Stream<List<Note>> getWorldPosts(String name) {
-    return _posts
-        .where('schoolName', isEqualTo: "")
+  Stream<List<Note>> getWorldNotes(String name) {
+    return _Notes.where('schoolName', isEqualTo: "")
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -199,7 +197,7 @@ class SchoolRepository {
         );
   }
 
-  CollectionReference get _posts =>
+  CollectionReference get _Notes =>
       _firestore.collection(FirebaseConstants.notesCollection);
   CollectionReference get _schools =>
       _firestore.collection(FirebaseConstants.schoolsCollection);

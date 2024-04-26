@@ -1,4 +1,3 @@
-
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
@@ -8,6 +7,7 @@ import 'package:acc/theme/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -58,7 +58,6 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CupertinoNavigationBar(
-
         border: const Border(
             bottom: BorderSide(width: 1.0, color: Palette.textFieldColor)),
         backgroundColor: Palette.backgroundColor,
@@ -183,172 +182,181 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
               fontFamily: 'JetBrainsMonoExtraBold', color: Colors.white),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: ListView(
-          children: [
-            const SizedBox(
-              height: 30,
-            ),
-            if (errorText.isNotEmpty)
-              Text(
-                errorText,
+      body: Form(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: ListView(
+            children: [
+              const SizedBox(
+                height: 30,
+              ),
+              if (errorText.isNotEmpty)
+                Text(
+                  errorText,
+                  style: const TextStyle(
+                      color: Palette.redColor,
+                      fontSize: 16,
+                      fontFamily: 'JetBrainsMonoExtraBold'),
+                ),
+              const Text(
+                'kişisel bilgiler',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontFamily: 'JetBrainsMonoBold'),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              CupertinoTextField(
+                controller: fullnameController,
                 style: const TextStyle(
-                    color: Palette.redColor,
-                    fontSize: 16,
-                    fontFamily: 'JetBrainsMonoExtraBold'),
-              ),
-            const Text(
-              'kişisel bilgiler',
-              style: TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
-                  fontFamily: 'JetBrainsMonoBold'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            CupertinoTextField(
-              controller: fullnameController,
-              style: const TextStyle(
-                color: Colors.white,
-                fontFamily: 'JetBrainsMonoRegular',
+                  fontFamily: 'JetBrainsMonoRegular',
+                ),
+                decoration: BoxDecoration(
+                  color: Palette.textFieldColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                placeholder: 'tam isim',
+                placeholderStyle: const TextStyle(
+                    color: Palette.placeholderColor,
+                    fontFamily: 'JetBrainsMonoRegular'),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$')),
+                ],
               ),
-              decoration: BoxDecoration(
-                color: Palette.textFieldColor,
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(
+                height: 10,
               ),
-              placeholder: 'tam isim',
-              placeholderStyle: const TextStyle(
-                  color: Palette.placeholderColor,
-                  fontFamily: 'JetBrainsMonoRegular'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            CupertinoTextField(
-              controller: usernameController,
-              style: const TextStyle(
-                  color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
-              decoration: BoxDecoration(
-                color: Palette.textFieldColor,
-                borderRadius: BorderRadius.circular(10),
+              CupertinoTextField(
+                controller: usernameController,
+                style: const TextStyle(
+                    color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
+                decoration: BoxDecoration(
+                  color: Palette.textFieldColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                placeholder: 'kullanıcı adı',
+                placeholderStyle: const TextStyle(
+                    color: Palette.placeholderColor,
+                    fontFamily: 'JetBrainsMonoRegular'),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(
+                      r'^[a-zA-ZğüşıöçĞÜŞİÖÇ][a-zA-Z0-9ğüşıöçĞÜŞİÖÇ_]*$')),
+                ],
               ),
-              placeholder: 'kullanıcı adı',
-              placeholderStyle: const TextStyle(
-                  color: Palette.placeholderColor,
-                  fontFamily: 'JetBrainsMonoRegular'),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            const Text(
-              'okul',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontFamily: 'JetBrainsMonoBold'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Autocomplete<String>(
-              fieldViewBuilder: (context, textEditingController, focusNode,
-                  onFieldSubmitted) {
-                return SizedBox(
-                  height: 40,
-                  child: CupertinoTextField(
-                    onChanged: (val) => setState(() {
-                      textEditingController.text = val;
-                    }),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'JetBrainsMonoRegular'),
-                    placeholder: "Okul ör: BAIHL",
-                    placeholderStyle: const TextStyle(
-                      color: Palette.placeholderColor,
-                      fontFamily: 'JetBrainsMonoRegular',
+              const SizedBox(
+                height: 30,
+              ),
+              const Text(
+                'okul',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontFamily: 'JetBrainsMonoBold'),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Autocomplete<String>(
+                fieldViewBuilder: (context, textEditingController, focusNode,
+                    onFieldSubmitted) {
+                  return SizedBox(
+                    height: 40,
+                    child: CupertinoTextField(
+                      onChanged: (val) => setState(() {
+                        textEditingController.text = val;
+                      }),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'JetBrainsMonoRegular'),
+                      placeholder: "Okul ör: BAIHL",
+                      placeholderStyle: const TextStyle(
+                        color: Palette.placeholderColor,
+                        fontFamily: 'JetBrainsMonoRegular',
+                      ),
+                      focusNode: focusNode,
+                      controller: schoolController,
+                      decoration: BoxDecoration(
+                        color: Palette.textFieldColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    focusNode: focusNode,
-                    controller: schoolController,
-                    decoration: BoxDecoration(
-                      color: Palette.textFieldColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              },
-              optionsViewBuilder: (context, onSelected, options) {
-                return Material(
-                  color: Colors.transparent,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListView.builder(
-                        cacheExtent: 5,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: options.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) => Container(
-                          margin: const EdgeInsets.only(top: 10, right: 20),
-                          decoration: BoxDecoration(
-                            color: Palette.textFieldColor,
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          child: ListTile(
-                            onTap: () {
-                              setState(() {
-                                schoolController.text =
-                                    options.elementAt(index);
-                              });
-                            },
-                            title: Text(
-                              options.elementAt(index),
-                              style: const TextStyle(
-                                  fontSize: 19,
-                                  fontFamily: 'JetBrainsMonoExtraBold'),
+                  );
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListView.builder(
+                          cacheExtent: 5,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: options.length,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) => Container(
+                            margin: const EdgeInsets.only(top: 10, right: 20),
+                            decoration: BoxDecoration(
+                              color: Palette.textFieldColor,
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                            child: ListTile(
+                              onTap: () {
+                                setState(() {
+                                  schoolController.text =
+                                      options.elementAt(index);
+                                });
+                              },
+                              title: Text(
+                                options.elementAt(index),
+                                style: const TextStyle(
+                                    fontSize: 19,
+                                    fontFamily: 'JetBrainsMonoExtraBold'),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              optionsBuilder: (_) {
-                List<String> schoolIds = [];
-                if (schoolController.text.trim().isEmpty) {
-                  return const Iterable<String>.empty();
-                } else {
-                  ref.watch(getAllSchoolsProvider).when(
-                        data: (schools) {
-                          for (var element in schools) {
-                            schoolIds.add(element.id);
-                          }
-                        },
-                        error: (error, stackTrace) =>
-                            ErrorText(error: error.toString()),
-                        loading: () => const Loader(),
-                      );
-                  return schoolIds.where(
-                    (item) {
-                      return item
-                          .toUpperCase()
-                          .contains(schoolController.text.trim().toUpperCase());
-                    },
+                      ],
+                    ),
                   );
-                }
-              },
-              onSelected: (selection) {
-                setState(() {
-                  schoolController.text = selection;
-                });
-                debugPrint(selection);
-              },
-              displayStringForOption: ((option) =>
-                  option.characters.toString()),
-            ),
-          ],
+                },
+                optionsBuilder: (_) {
+                  List<String> schoolIds = [];
+                  if (schoolController.text.trim().isEmpty) {
+                    return const Iterable<String>.empty();
+                  } else {
+                    ref.watch(getAllSchoolsProvider).when(
+                          data: (schools) {
+                            for (var element in schools) {
+                              schoolIds.add(element.id);
+                            }
+                          },
+                          error: (error, stackTrace) =>
+                              ErrorText(error: error.toString()),
+                          loading: () => const Loader(),
+                        );
+                    return schoolIds.where(
+                      (item) {
+                        return item.toUpperCase().contains(
+                            schoolController.text.trim().toUpperCase());
+                      },
+                    );
+                  }
+                },
+                onSelected: (selection) {
+                  setState(() {
+                    schoolController.text = selection;
+                  });
+                  debugPrint(selection);
+                },
+                displayStringForOption: ((option) =>
+                    option.characters.toString()),
+              ),
+            ],
+          ),
         ),
       ),
     );

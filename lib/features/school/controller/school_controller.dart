@@ -46,11 +46,11 @@ final searchUserProvider = StreamProvider.family((ref, String query) {
 });
 
 final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
-  return ref.read(schoolControllerProvider.notifier).getSchoolPosts(name);
+  return ref.read(schoolControllerProvider.notifier).getSchoolNotes(name);
 });
 
 final getWorldNotesProvider = StreamProvider.family((ref, String name) {
-  return ref.read(schoolControllerProvider.notifier).getWorldPosts(name);
+  return ref.read(schoolControllerProvider.notifier).getWorldNotes(name);
 });
 
 final getAllSchoolsProvider = StreamProvider((ref) {
@@ -180,12 +180,12 @@ class SchoolController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Note>> getSchoolPosts(String name) {
-    return _schoolRepository.getSchoolPosts(name);
+  Stream<List<Note>> getSchoolNotes(String name) {
+    return _schoolRepository.getSchoolNotes(name);
   }
 
-  Stream<List<Note>> getWorldPosts(String name) {
-    return _schoolRepository.getWorldPosts(name);
+  Stream<List<Note>> getWorldNotes(String name) {
+    return _schoolRepository.getWorldNotes(name);
   }
 
   Stream<List<School>> getAllSchools() {

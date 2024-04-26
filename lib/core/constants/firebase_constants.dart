@@ -8,4 +8,6 @@ class FirebaseConstants {
   static const notificationsCollection = 'notifications';
   static const mailCollection = 'mail';
   static const updatesCollection = 'updates';
+  static const reportsCollection = 'reports';
+  static const productsCollection = 'products';
 }

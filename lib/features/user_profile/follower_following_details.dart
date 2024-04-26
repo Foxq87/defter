@@ -15,10 +15,12 @@ import '../../theme/palette.dart';
 class FollowerFollowingDetails extends ConsumerStatefulWidget {
   final List<String> followerUids;
   final List<String> followingUids;
+  final int initialPage;
   const FollowerFollowingDetails({
     super.key,
     required this.followerUids,
     required this.followingUids,
+    required this.initialPage,
   });
 
   @override
@@ -46,13 +48,27 @@ class _FollowerFollowingDetailsState
   }
 
   @override
+  void initState() {
+    pageController = PageController(initialPage: widget.initialPage);
+
+    contentItems = List.generate(
+        2,
+        (index) => [
+              contentItems[index][0],
+              index == widget.initialPage ? true : false
+            ]);
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: CupertinoNavigationBar(
           backgroundColor: Colors.transparent,
           border: const Border(
-              bottom: BorderSide(color: Palette.postIconColor, width: 0.25)),
+              bottom: BorderSide(color: Palette.noteIconColor, width: 0.25)),
           leading: JustIconButton(
               icon: CupertinoIcons.back,
               onPressed: () => Routemaster.of(context).pop(context)),
@@ -75,26 +91,23 @@ class _FollowerFollowingDetailsState
           children: [
             ref.watch(getUserFollowersProvider(widget.followerUids)).when(
                 data: (followers) {
-                  return Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: followers.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(followers[index].profilePic),
-                            ),
-                            title: Text(followers[index].name),
-                            subtitle: Text('@' + followers[index].username),
-                            onTap: () => Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) => UserProfileScreen(
-                                      uid: followers[index].uid),
-                                )));
-                      },
-                    ),
+                  return ListView.builder(
+                    itemCount: followers.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(followers[index].profilePic),
+                          ),
+                          title: Text(followers[index].name),
+                          subtitle: Text('@' + followers[index].username),
+                          onTap: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => UserProfileScreen(
+                                    uid: followers[index].uid),
+                              )));
+                    },
                   );
                 },
                 error: (error, stackTrace) =>
@@ -102,26 +115,23 @@ class _FollowerFollowingDetailsState
                 loading: () => Loader()),
             ref.watch(getUserFollowingsProvider(widget.followingUids)).when(
                 data: (followers) {
-                  return Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: followers.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage:
-                                  NetworkImage(followers[index].profilePic),
-                            ),
-                            title: Text(followers[index].name),
-                            subtitle: Text('@' + followers[index].username),
-                            onTap: () => Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) => UserProfileScreen(
-                                      uid: followers[index].uid),
-                                )));
-                      },
-                    ),
+                  return ListView.builder(
+                    itemCount: followers.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(followers[index].profilePic),
+                          ),
+                          title: Text(followers[index].name),
+                          subtitle: Text('@' + followers[index].username),
+                          onTap: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => UserProfileScreen(
+                                    uid: followers[index].uid),
+                              )));
+                    },
                   );
                 },
                 error: (error, stackTrace) =>

@@ -23,7 +23,7 @@ class NotificationCard extends ConsumerStatefulWidget {
 }
 
 class _NotificationCardState extends ConsumerState<NotificationCard> {
-  void deletePost(BuildContext context) async {
+  void deleteNote(BuildContext context) async {
     ref
         .read(notificationControllerProvider.notifier)
         .deleteNotification(widget.notification, context);
@@ -37,8 +37,15 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
   //   Routemaster.of(context).push('/school-profile/${widget.note.schoolName}');
   // }
 
-  void navigateToPost(BuildContext context, String postId) {
-    Routemaster.of(context).push('/note/$postId/details');
+  void navigateToNote(BuildContext context, String noteId) {
+    Routemaster.of(context).push('/note/$noteId/details');
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    timeago.setLocaleMessages('tr_short', timeago.TrShortMessages());
   }
 
   @override
@@ -54,9 +61,9 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
               if (isTypeFollow) {
                 navigateToUser(context, widget.notification.senderUid);
               } else if (isTypeLike) {
-                navigateToPost(context, widget.notification.postId);
+                navigateToNote(context, widget.notification.postId);
               } else if (isTypeComment) {
-                navigateToPost(context, widget.notification.postId);
+                navigateToNote(context, widget.notification.postId);
               }
             },
             leading: Stack(
@@ -110,7 +117,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
               style: TextStyle(fontSize: 15),
             ),
             subtitle: Text(
-              "${timeago.format(widget.notification.createdAt, locale: 'en_short')}",
+              "${timeago.format(widget.notification.createdAt, locale: 'tr_short')}",
               style: TextStyle(color: Colors.grey),
             ),
             trailing: CupertinoButton(
@@ -118,10 +125,10 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                 child: const Icon(
                   CupertinoIcons.clear,
                   size: 22,
-                  color: Palette.postIconColor,
+                  color: Palette.noteIconColor,
                 ),
                 onPressed: () {
-                  deletePost(context);
+                  deleteNote(context);
                 }),
           ),
           error: (error, stackTrace) => ErrorText(error: error.toString()),

@@ -17,11 +17,11 @@ class _SuggestFeatureState extends ConsumerState<SuggestFeature> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CupertinoNavigationBar(
-
+        transitionBetweenRoutes: false,
         leading: JustIconButton(
           icon: CupertinoIcons.back,
           onPressed: () {
-            Routemaster.of(context).pop();
+            Navigator.pop(context);
           },
         ),
         backgroundColor: Colors.black,

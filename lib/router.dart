@@ -13,7 +13,7 @@ import 'package:routemaster/routemaster.dart';
 import 'core/commons/waiting_to_log_in.dart';
 import 'features/school/screens/school_screen.dart';
 import 'features/suggest_feature/screens/suggest_feature_screen.dart';
-import 'features/updates/screens/create_update_screen.dart';
+import 'features/marketplace/screens/create_product_screen.dart';
 import 'features/user_profile/screens/edit_user_profile.dart';
 import 'features/user_profile/screens/user_profile_screen.dart';
 
@@ -51,15 +51,17 @@ final loggedInRoute = RouteMap(routes: {
         ),
       ),
   '/create-note': (routeData) => const MaterialPage(
-        child: CreatePost(),
+        child: CreateNote(),
       ),
-  '/note/:postId/details': (routeData) => MaterialPage(
-        child: PostDetails(postId: routeData.pathParameters['postId']!),
+  '/note/:noteId/details': (routeData) => MaterialPage(
+        child: NoteDetails(noteId: routeData.pathParameters['noteId']!),
       ),
   '/suggest-feature-screen': (routeData) => const MaterialPage(
         child: SuggestFeature(),
       ),
   '/create-update-screen': (routeData) => const MaterialPage(
-        child: CreateUpdateScreen(),
+        child: CreateUpdateScreen(
+          product: null,
+        ),
       ),
 });

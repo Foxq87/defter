@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:acc/core/utils.dart';
-import 'package:acc/features/updates/repository/update_repository.dart';
+import 'package:acc/features/marketplace/repository/marketplace_repository.dart';
+import 'package:acc/features/marketplace/widgets/product_card.dart';
+import 'package:acc/models/product_model.dart';
 import 'package:acc/models/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,9 +41,12 @@ final updateControllerProvider =
 final getUpdatesProvider = StreamProvider((ref) {
   return ref.read(updateControllerProvider.notifier).getUpdates();
 });
+final getProductApplications = StreamProvider.family((ref,String schoolId) {
+  return ref.read(updateControllerProvider.notifier).getProductApplications(schoolId);
+});
 
 // final getWorldNotesProvider = StreamProvider.family((ref, String name) {
-//   return ref.read(schoolControllerProvider.notifier).getWorldPosts(name);
+//   return ref.read(schoolControllerProvider.notifier).getWorldNotes(name);
 // });
 
 // final getAllSchoolsProvider = StreamProvider((ref) {
@@ -61,23 +66,31 @@ class UpdateController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-  void shareUpdate(UserModel currentUser, String title, String description,
-      List<File> imageFiles, BuildContext context) async {
+  void sendProductToApproval({
+    required UserModel currentUser,
+    required String title,
+    required double price,
+    required int stock,
+    required String description,
+    required String categorie,
+    required String subcategorie,
+    required List<File> imageFiles,
+    required BuildContext context,
+  }) async {
     state = true;
-    // Remove the unused variable 'errorCounter'
     int errorCounter = 0;
     List<String> imageLinks = [];
     Either imageRes;
-    String updateId = const Uuid().v4();
+    String productId = const Uuid().v4();
     final uid = _ref.read(userProvider)?.uid ?? '';
     for (int i = 0; i < imageFiles.length; i++) {
       var file = imageFiles[i];
       String imageId = const Uuid().v4();
 
       imageRes = await _storageRepository.storeFile(
-        path: 'updates/$uid/$updateId',
+        path: 'products/${currentUser.schoolId}/$uid/$productId',
         id: imageId,
-        file: await compressImage(updateId, file, i),
+        file: file,
       );
 
       imageRes.fold((l) => showSnackBar(context, l.message), (r) {
@@ -86,19 +99,25 @@ class UpdateController extends StateNotifier<bool> {
       });
       print(imageLinks);
     }
-    Update update = Update(
-      id: Uuid().v4(),
+    ProductModel product = ProductModel(
+      id: productId,
       uid: currentUser.uid,
       title: title,
+      price: price,
+      stock: stock,
+      categorie: categorie,
+      subcategorie: subcategorie,
+      approve: 1,
       description: description,
-      imageLinks: imageLinks,
-      creation: DateTime.now(),
+      images: imageLinks,
+      createdAt: DateTime.now(),
     );
 
-    final res = await _updateRepository.shareUpdate(update);
+    final res =
+        await _updateRepository.sendProductToApproval(product, currentUser);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'yenilik başarıyla paylaşıldı');
+      showSnackBar(context, 'ürün onaya gönderildi, sonucu sana bildireceğiz.');
       Routemaster.of(context).pop();
     });
   }
@@ -226,12 +245,16 @@ class UpdateController extends StateNotifier<bool> {
   //   );
   // }
 
+  Stream<List<ProductModel>> getProductApplications(String schoolId) {
+    return _updateRepository.getProductApplications(schoolId);
+  }
+
   Stream<List<Update>> getUpdates() {
     return _updateRepository.getUpdates();
   }
 
-  // Stream<List<Note>> getWorldPosts(String name) {
-  //   return _updateRepository.getWorldPosts(name);
+  // Stream<List<Note>> getWorldNotes(String name) {
+  //   return _updateRepository.getWorldNotes(name);
   // }
 
   // Stream<List<School>> getAllSchools() {

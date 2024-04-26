@@ -1,4 +1,6 @@
+import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/utils.dart';
+import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/features/user_profile/follower_following_details.dart';
 import 'package:acc/models/user_model.dart';
@@ -8,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:unicons/unicons.dart';
 import '../../../core/commons/error_text.dart';
 import '../../../core/commons/loader.dart';
-// import 'package:acc/core/common/post_card.dart';
+// import 'package:acc/core/common/Note_card.dart';
 import '../../../core/commons/nav_bar_button.dart';
 import '../../../core/commons/not_available_card.dart';
 import '../../notes/widgets/note_card.dart';
@@ -35,7 +37,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   List contentItems = [
-    ['postlar', true],
+    ['notlar', true],
     ['gazeteler', false],
     ['okul', false],
   ];
@@ -66,15 +68,24 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   clipBehavior: Clip.none,
                   children: [
                     Positioned(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: AspectRatio(
-                            aspectRatio: 10 / 3.5,
-                            child: Image.network(
-                              user.banner,
-                              fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => ImageView(
+                                    imageUrls: [user.banner],
+                                    imageFiles: [],
+                                    index: 0))),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: AspectRatio(
+                              aspectRatio: 10 / 3.5,
+                              child: Image.network(
+                                user.banner,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -119,6 +130,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                               .contains('admin'))
                                             Expanded(
                                               child: CupertinoButton(
+                                                borderRadius:
+                                                    BorderRadius.circular(17),
                                                 padding: EdgeInsets.symmetric(
                                                     vertical: 7),
                                                 color: Palette.textFieldColor,
@@ -205,16 +218,27 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                                 ),
                                               ),
                                             ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
+                                          if (currentUser.roles
+                                              .contains('admin'))
+                                            SizedBox(
+                                              width: 10,
+                                            ),
                                           Expanded(
                                             child: CupertinoButton(
+                                              borderRadius:
+                                                  BorderRadius.circular(17),
                                               padding: EdgeInsets.symmetric(
                                                   vertical: 7),
                                               color: Palette.textFieldColor,
                                               onPressed: () {
-                                                // Share logic here
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      ReportDialog(
+                                                    noteId: '',
+                                                    accountId: widget.uid,
+                                                  ),
+                                                );
                                               },
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -228,7 +252,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                                     height: 5,
                                                   ),
                                                   Text(
-                                                    'notu şikayet et',
+                                                    'hesabı şikayet et',
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
@@ -254,16 +278,26 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0).copyWith(top: 0),
+                  padding:
+                      const EdgeInsets.all(8.0).copyWith(top: 0, bottom: 4),
                   child: Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          user.profilePic,
-                          fit: BoxFit.cover,
-                          height: 80,
-                          width: 80,
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => ImageView(
+                                    imageUrls: [user.profilePic],
+                                    imageFiles: [],
+                                    index: 0))),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            user.profilePic,
+                            fit: BoxFit.cover,
+                            height: 80,
+                            width: 80,
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -333,10 +367,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                 height: 40,
                                 child: CupertinoButton(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: currentUser.following
-                                            .contains(widget.uid)
-                                        ? Palette.redColor
-                                        : Palette.themeColor,
+                                    color:
+                                        user.followers.contains(currentUser.uid)
+                                            ? Palette.redColor
+                                            : Palette.themeColor,
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
                                       print(
@@ -350,7 +384,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                               context, user, currentUser, ref);
                                     },
                                     child: Text(
-                                      currentUser.following.contains(widget.uid)
+                                      user.followers.contains(currentUser.uid)
                                           ? 'takipten çık'
                                           : 'takip et',
                                       style: const TextStyle(
@@ -399,7 +433,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   height: 0,
                 ),
                 if (contentItems[0][1])
-                  ref.watch(getUserPostsProvider(user.uid)).when(
+                  ref.watch(getUserNotesProvider(user.uid)).when(
                         data: (data) {
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
@@ -407,7 +441,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
                               final note = data[index];
-                              return PostCard(note: note);
+                              return NoteCard(note: note);
                             },
                           );
                         },
@@ -428,13 +462,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                   .push('/school-profile/${school.id}/');
                             },
                             child: Container(
-                              margin: const EdgeInsets.all(20.0),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  width: 2.0,
-                                  color: Palette.postIconColor,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    width: 0.35,
+                                    color: Palette.noteIconColor,
+                                  ),
                                 ),
                               ),
                               child: Center(
@@ -478,8 +512,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                               fontFamily: 'JetBrainsMonoBold',
                                             )),
                                         TextSpan(
-                                            text:
-                                                "\tstudent${school.students.length > 1 ? "s" : ''}",
+                                            text: "\tkayıtlı öğrenci",
                                             style: const TextStyle(
                                                 fontSize: 15,
                                                 fontFamily: 'JetBrainsMonoBold',
@@ -529,10 +562,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(user.bio),
-            GestureDetector(
-              onTap: () {
-                // Routemaster.of(context).push();
-              },
+            SizedBox(
+              height: 20,
               child: Row(
                 children: [
                   CupertinoButton(
@@ -542,8 +573,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                           context,
                           CupertinoPageRoute(
                               builder: (context) => FollowerFollowingDetails(
-                                  followerUids: user.followers,
-                                  followingUids: user.following)));
+                                    followerUids: user.followers,
+                                    followingUids: user.following,
+                                    initialPage: 0,
+                                  )));
                     },
                     child: RichText(
                         text: TextSpan(children: [
@@ -552,24 +585,37 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                           style: const TextStyle(
                               fontFamily: 'JetBrainsMonoRegular')),
                       const TextSpan(
-                          text: ' followers',
+                          text: ' takipçi',
                           style: TextStyle(
                               color: Palette.placeholderColor,
                               fontFamily: 'JetBrainsMonoRegular')),
                     ])),
                   ),
-                  RichText(
-                      text: TextSpan(children: [
-                    TextSpan(
-                        text: '\t${user.following.length}',
-                        style: const TextStyle(
-                            fontFamily: 'JetBrainsMonoRegular')),
-                    const TextSpan(
-                        text: ' following',
-                        style: TextStyle(
-                            color: Palette.placeholderColor,
-                            fontFamily: 'JetBrainsMonoRegular')),
-                  ])),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => FollowerFollowingDetails(
+                                    followerUids: user.followers,
+                                    followingUids: user.following,
+                                    initialPage: 1,
+                                  )));
+                    },
+                    child: RichText(
+                        text: TextSpan(children: [
+                      TextSpan(
+                          text: '\t${user.following.length}',
+                          style: const TextStyle(
+                              fontFamily: 'JetBrainsMonoRegular')),
+                      const TextSpan(
+                          text: ' takip edilen',
+                          style: TextStyle(
+                              color: Palette.placeholderColor,
+                              fontFamily: 'JetBrainsMonoRegular')),
+                    ])),
+                  ),
                 ],
               ),
             ),

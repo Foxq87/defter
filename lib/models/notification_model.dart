@@ -65,7 +65,8 @@ class NotificationModel {
 
   String toJson() => json.encode(toMap());
 
-  factory NotificationModel.fromJson(String source) => NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory NotificationModel.fromJson(String source) =>
+      NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -75,25 +76,24 @@ class NotificationModel {
   @override
   bool operator ==(covariant NotificationModel other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.id == id &&
-      other.type == type &&
-      other.senderUid == senderUid &&
-      other.receiverUid == receiverUid &&
-      other.content == content &&
-      other.postId == postId &&
-      other.createdAt == createdAt;
+
+    return other.id == id &&
+        other.type == type &&
+        other.senderUid == senderUid &&
+        other.receiverUid == receiverUid &&
+        other.content == content &&
+        other.postId == postId &&
+        other.createdAt == createdAt;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      type.hashCode ^
-      senderUid.hashCode ^
-      receiverUid.hashCode ^
-      content.hashCode ^
-      postId.hashCode ^
-      createdAt.hashCode;
+        type.hashCode ^
+        senderUid.hashCode ^
+        receiverUid.hashCode ^
+        content.hashCode ^
+        postId.hashCode ^
+        createdAt.hashCode;
   }
 }

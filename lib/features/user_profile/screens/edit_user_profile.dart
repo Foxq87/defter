@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -283,45 +284,92 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               SizedBox(
                                 height: 5,
                               ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  'isim',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'JetBrainsMonoBold',
+                                  ),
+                                ),
+                              ),
                               CupertinoTextField(
-                                maxLength: 50,
+                                maxLength: 32,
                                 controller: nameController,
-                                placeholder: 'Name',
+                                placeholder: 'isim',
                                 style: const TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'JetBrainsMonoRegular'),
+                                  color: Colors.white,
+                                  fontFamily: 'JetBrainsMonoRegular',
+                                ),
                                 placeholderStyle: const TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'JetBrainsMonoRegular'),
+                                  color: Colors.grey,
+                                  fontFamily: 'JetBrainsMonoRegular',
+                                ),
                                 decoration: BoxDecoration(
-                                    color: Palette.textFieldColor,
-                                    borderRadius: BorderRadius.circular(10)),
+                                  color: Palette.textFieldColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$')),
+                                ],
                               ),
                               const SizedBox(
                                 height: 10,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  'kullanıcı adı',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'JetBrainsMonoBold',
+                                  ),
+                                ),
                               ),
                               CupertinoTextField(
-                                maxLength: 20,
+                                maxLength: 32,
                                 controller: usernameController,
-                                placeholder: 'username',
+                                placeholder: 'kullanıcı adı',
                                 style: const TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: 'JetBrainsMonoRegular'),
+                                  color: Colors.white,
+                                  fontFamily: 'JetBrainsMonoRegular',
+                                ),
                                 placeholderStyle: const TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'JetBrainsMonoRegular'),
+                                  color: Colors.grey,
+                                  fontFamily: 'JetBrainsMonoRegular',
+                                ),
                                 decoration: BoxDecoration(
-                                    color: Palette.textFieldColor,
-                                    borderRadius: BorderRadius.circular(10)),
+                                  color: Palette.textFieldColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(
+                                      r'^[a-zA-ZğüşıöçĞÜŞİÖÇ][a-zA-Z0-9ğüşıöçĞÜŞİÖÇ_]*$')),
+                                ],
                               ),
                               const SizedBox(
                                 height: 10,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  'hakkında',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'JetBrainsMonoBold',
+                                  ),
+                                ),
                               ),
                               CupertinoTextField(
                                 maxLines: 4,
                                 maxLength: 100,
                                 controller: bioController,
-                                placeholder: 'Bio',
+                                placeholder: 'hakkında',
                                 textAlign: TextAlign.start,
                                 textAlignVertical: TextAlignVertical.top,
                                 style: const TextStyle(

@@ -18,7 +18,6 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen>
     with AutomaticKeepAliveClientMixin<SearchScreen> {
-      
   @override
   bool get wantKeepAlive => true;
 
@@ -66,34 +65,37 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     super.build(context);
     return Scaffold(
       appBar: CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
         backgroundColor: Palette.backgroundColor,
         middle: largeText('ara', false),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: SizedBox(
-              height: 40,
-              child: CupertinoTextField(
-                onChanged: (text) {
-                  setState(() {
-                    query = text;
-                  });
-                },
-                controller: searchController,
-                decoration: BoxDecoration(
-                  color: Palette.textFieldColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: "JetBrainsMonoRegular",
-                ),
-                placeholder: 'ara',
-                placeholderStyle: const TextStyle(
-                  color: Palette.placeholderColor,
-                  fontFamily: 'JetBrainsMonoBold',
+          Form(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: SizedBox(
+                height: 40,
+                child: CupertinoTextField(
+                  onChanged: (text) {
+                    setState(() {
+                      query = text;
+                    });
+                  },
+                  controller: searchController,
+                  decoration: BoxDecoration(
+                    color: Palette.textFieldColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: "JetBrainsMonoRegular",
+                  ),
+                  placeholder: 'ara',
+                  placeholderStyle: const TextStyle(
+                    color: Palette.placeholderColor,
+                    fontFamily: 'JetBrainsMonoBold',
+                  ),
                 ),
               ),
             ),

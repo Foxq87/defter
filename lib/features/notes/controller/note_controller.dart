@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
+import 'package:acc/models/report_model.dart';
 import 'package:acc/models/school_model.dart';
+import 'package:acc/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:acc/core/enums/enums.dart';
 // import 'package:acc/core/providers/storage_repository_provider.dart';
 import 'package:acc/core/utils.dart';
 // import 'package:acc/features/auth/controlller/auth_controller.dart';
-// import 'package:acc/features/note/repository/post_repository.dart';
+// import 'package:acc/features/note/repository/note_repository.dart';
 // import 'package:acc/models/comment_model.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:fpdart/fpdart.dart';
@@ -18,73 +20,78 @@ import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../repository/note_repository.dart';
 
-final postControllerProvider =
-    StateNotifierProvider<PostController, bool>((ref) {
-  final postRepository = ref.watch(postRepositoryProvider);
+final noteControllerProvider =
+    StateNotifierProvider<NoteController, bool>((ref) {
+  final noteRepository = ref.watch(noteRepositoryProvider);
   final storageRepository = ref.watch(storageRepositoryProvider);
-  return PostController(
-    postRepository: postRepository,
+  return NoteController(
+    noteRepository: noteRepository,
     storageRepository: storageRepository,
     ref: ref,
   );
 });
 
-// final userPostsProvider =
+// final userNotesProvider =
 //     StreamProvider.family((ref, List<School> schools) {
-//   final postController = ref.watch(postControllerProvider.notifier);
-//   return postController.fetchUserPosts(schools);
+//   final noteController = ref.watch(noteControllerProvider.notifier);
+//   return noteController.fetchUserNotes(schools);
 // });
 
-// final guestPostsProvider = StreamProvider((ref) {
-//   final postController = ref.watch(postControllerProvider.notifier);
-//   return postController.fetchGuestPosts();
+// final guestNotesProvider = StreamProvider((ref) {
+//   final noteController = ref.watch(noteControllerProvider.notifier);
+//   return noteController.fetchGuestNotes();
 // });
 
-final getPostByIdProvider = StreamProvider.family((ref, String postId) {
-  final postController = ref.watch(postControllerProvider.notifier);
-  return postController.getPostById(postId);
+final getNoteByIdProvider = StreamProvider.family((ref, String noteId) {
+  final noteController = ref.watch(noteControllerProvider.notifier);
+  return noteController.getNoteById(noteId);
 });
 
-final getPostCommentsProvider = StreamProvider.family((ref, String postId) {
-  final postController = ref.watch(postControllerProvider.notifier);
-  return postController.fetchPostComments(postId);
+final getNoteCommentsProvider = StreamProvider.family((ref, String noteId) {
+  final noteController = ref.watch(noteControllerProvider.notifier);
+  return noteController.getNoteComments(noteId);
 });
 
-class PostController extends StateNotifier<bool> {
-  final PostRepository _postRepository;
+final getNoteLikersProvider =
+    StreamProvider.family((ref, List<String> likerUids) {
+  final noteController = ref.watch(noteControllerProvider.notifier);
+  return noteController.getNoteLikers(likerUids);
+});
+
+class NoteController extends StateNotifier<bool> {
+  final NoteRepository _noteRepository;
   final Ref _ref;
   final StorageRepository _storageRepository;
-  PostController({
-    required PostRepository postRepository,
+  NoteController({
+    required NoteRepository noteRepository,
     required Ref ref,
     required StorageRepository storageRepository,
-  })  : _postRepository = postRepository,
+  })  : _noteRepository = noteRepository,
         _ref = ref,
         _storageRepository = storageRepository,
         super(false);
 
-  // Stream<List<Note>> fetchUserPosts(List<School> communities) {
+  // Stream<List<Note>> fetchUserNotes(List<School> communities) {
   //   if (communities.isNotEmpty) {
-  //     return _postRepository.fetchUserPosts(communities);
+  //     return _noteRepository.fetchUserNotes(communities);
   //   }
   //   return Stream.value([]);
   // }
 
-  // Stream<List<Note>> fetchGuestPosts() {
-  //   return _postRepository.fetchGuestPosts();
+  // Stream<List<Note>> fetchGuestNotes() {
+  //   return _noteRepository.fetchGuestNotes();
   // }
 
   bool isThread(Note note) {
-    return _postRepository.isThread(note);
+    return _noteRepository.isThread(note);
   }
 
-  void deletePost(Note note, BuildContext context) async {
+  void deleteNote(Note note, String currentUid, BuildContext context) async {
     try {
-      await _postRepository.deleteNote(note);
+      await _noteRepository.deleteNote(note, currentUid);
       if (note.type == "image") {
-        await _storageRepository.deletePostImages(note: note);
+        await _storageRepository.deleteNoteImages(note: note);
       }
-      
     } catch (e) {
       showSnackBar(context, 'hata oluştu, lütfen daha sonra tekrar deneyin');
     }
@@ -97,21 +104,51 @@ class PostController extends StateNotifier<bool> {
             context: context,
             content: "${currentUser.username} notunu beğendi",
             type: 'like',
-            postId: note.id,
-            id: "${note.id}-${currentUser.uid}-like",
+            noteId: note.id,
+            id: "${note.id}-like",
             receiverUid: note.uid,
             senderId: currentUser.uid,
           );
     }
 
-    _postRepository.like(note, currentUser.uid);
+    _noteRepository.like(note, currentUser.uid);
   }
 
-  Stream<Note> getPostById(String postId) {
-    return _postRepository.getPostById(postId);
+  Stream<Note> getNoteById(String noteId) {
+    return _noteRepository.getNoteById(noteId);
   }
 
-  void shareTextPost({
+  void reportNote({
+    required BuildContext context,
+    required String uid,
+    required String noteId,
+    required String accountId,
+    required String reason,
+    required String detail,
+  }) async {
+    state = true;
+    String noteId = const Uuid().v1();
+    final user = _ref.read(userProvider)!;
+
+    final Report report = Report(
+      uid: uid,
+      noteId: noteId,
+      accountId: accountId,
+      reason: reason,
+      detail: detail,
+      createdAt: DateTime.now(),
+    );
+
+    final res = await _noteRepository.addReport(report);
+    state = false;
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      showSnackBar(context, 'şikayetin için teşekkürler, ilgileneceğiz.');
+    });
+  }
+
+  void shareTextNote({
     required BuildContext context,
     required String selectedSchoolId,
     required String content,
@@ -119,11 +156,11 @@ class PostController extends StateNotifier<bool> {
     required String repliedTo,
   }) async {
     state = true;
-    String postId = const Uuid().v1();
+    String noteId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
 
     final Note note = Note(
-      id: postId,
+      id: noteId,
       schoolName: selectedSchoolId,
       imageLinks: [],
       likes: [],
@@ -136,21 +173,25 @@ class PostController extends StateNotifier<bool> {
       repliedTo: repliedTo,
     );
 
-    final res = await _postRepository.addPost(note);
+    final res = await _noteRepository.addNote(note);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
-      // showSnackBar(context, 'Posted successfully!');
+      // showSnackBar(context, 'Noteed successfully!');
       if (repliedTo.isEmpty) {
         Routemaster.of(context).pop();
       }
     });
   }
 
-  Stream<List<Note>> fetchPostComments(String postId) {
-    return _postRepository.getCommentsOfPost(postId);
+  Stream<List<Note>> getNoteComments(String noteId) {
+    return _noteRepository.getCommentsOfNote(noteId);
   }
 
-  void shareImagePost({
+  Stream<List<UserModel>> getNoteLikers(List<String> likerUids) {
+    return _noteRepository.getNoteLikers(likerUids);
+  }
+
+  void shareImageNote({
     required BuildContext context,
     required String selectedSchoolId,
     required String content,
@@ -163,7 +204,7 @@ class PostController extends StateNotifier<bool> {
     int errorCounter = 0;
     List<String> imageLinks = [];
     state = true;
-    String postId = const Uuid().v1();
+    String noteId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
     Either imageRes;
     for (int i = 0; i < files.length; i++) {
@@ -171,9 +212,9 @@ class PostController extends StateNotifier<bool> {
       String imageId = const Uuid().v4();
 
       imageRes = await _storageRepository.storeFile(
-        path: 'posts/${user.schoolId}/$postId',
+        path: 'notes/${user.schoolId}/$noteId',
         id: imageId,
-        file: await compressImage(postId, file, i),
+        file: file,
       );
 
       imageRes.fold((l) => showSnackBar(context, l.message), (r) {
@@ -186,7 +227,7 @@ class PostController extends StateNotifier<bool> {
     if (errorCounter == imageLinks.length) {
       final Note note = Note(
         content: content,
-        id: postId,
+        id: noteId,
         schoolName: selectedSchoolId,
         likes: [],
         imageLinks: imageLinks,
@@ -197,11 +238,11 @@ class PostController extends StateNotifier<bool> {
         link: link,
         repliedTo: repliedTo,
       );
-      final res = await _postRepository.addPost(note);
+      final res = await _noteRepository.addNote(note);
 
       state = false;
       res.fold((l) => showSnackBar(context, l.message), (r) {
-        // showSnackBar(context, 'Posted successfully!');
+        // showSnackBar(context, 'Noteed successfully!');
         Routemaster.of(context).pop();
       });
     }

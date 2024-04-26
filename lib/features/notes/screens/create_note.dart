@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:acc/core/commons/debounced_button.dart';
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/loader.dart';
@@ -21,17 +22,18 @@ import 'package:routemaster/routemaster.dart';
 import '../../../core/utils.dart';
 import '../../../models/user_model.dart';
 
-class CreatePost extends ConsumerStatefulWidget {
-  const CreatePost({
+class CreateNote extends ConsumerStatefulWidget {
+  const CreateNote({
     super.key,
   });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CreatePostState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _CreateNoteState();
 }
 
-class _CreatePostState extends ConsumerState<CreatePost> {
+class _CreateNoteState extends ConsumerState<CreateNote> {
   bool isLoading = false;
+  int counter = 0;
   List<Note> threads = [];
   int textLength = 0;
   FocusNode focusNode = FocusNode();
@@ -39,10 +41,10 @@ class _CreatePostState extends ConsumerState<CreatePost> {
   // List<Uint8List> webImages = [];
   int segmentedControlValue = 2;
 
-  final postTextController = TextEditingController();
+  final noteTextController = TextEditingController();
   @override
   void dispose() {
-    postTextController.dispose();
+    noteTextController.dispose();
     super.dispose();
   }
 
@@ -59,7 +61,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = ref.watch(postControllerProvider);
+    bool isLoading = ref.watch(noteControllerProvider);
     final user = ref.read(userProvider)!;
     return Scaffold(
       bottomSheet: isLoading ? const SizedBox() : bottomSheet(user),
@@ -93,21 +95,17 @@ class _CreatePostState extends ConsumerState<CreatePost> {
                                 width: 5,
                               ),
                               const Spacer(),
-                              SizedBox(
-                                height: 35,
-                                child: CupertinoButton(
-                                  onPressed: isLoading ? null : sharePost,
-                                  color: Palette.themeColor,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
-                                  borderRadius: BorderRadius.circular(40),
-                                  child: const Text(
-                                    'not al',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 19,
-                                      fontFamily: 'JetBrainsMonoExtraBold',
-                                    ),
+                              DebouncedButton(
+                                
+                                onPressed: () async {
+                                  await sharenote();
+                                },
+                                child: const Text(
+                                  'not al',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 19,
+                                    fontFamily: 'JetBrainsMonoExtraBold',
                                   ),
                                 ),
                               ),
@@ -140,7 +138,7 @@ class _CreatePostState extends ConsumerState<CreatePost> {
                                   },
                                   maxLengthEnforcement:
                                       MaxLengthEnforcement.enforced,
-                                  controller: postTextController,
+                                  controller: noteTextController,
                                   focusNode: focusNode,
                                   maxLines: null,
                                   maxLength: 1000,
@@ -341,18 +339,19 @@ class _CreatePostState extends ConsumerState<CreatePost> {
     );
   }
 
-  void sharePost() async {
+  Future sharenote() async {
     setState(() {
       isLoading = true;
+      counter += 1;
     });
 
-    String link = getLinkFromText(postTextController.text);
+    String link = getLinkFromText(noteTextController.text);
     final user = ref.read(userProvider)!;
 
     if (images.isNotEmpty) {
       ref.read(getSchoolByIdProvider(user.schoolId)).when(
           data: (school) {
-            ref.read(postControllerProvider.notifier).shareImagePost(
+            ref.read(noteControllerProvider.notifier).shareImageNote(
                   context: context,
                   selectedSchoolId: segmentedControlValue ==
                           1 /* 1 means world, :2 means school */
@@ -360,24 +359,24 @@ class _CreatePostState extends ConsumerState<CreatePost> {
                       : user.schoolId,
                   files: images,
                   link: link,
-                  content: postTextController.text.trim(),
+                  content: noteTextController.text.trim(),
                   school: school,
                   repliedTo: '',
                 );
           },
           error: (error, stackTrace) => ErrorText(error: error.toString()),
           loading: () => const Loader());
-    } else if (postTextController.text.isNotEmpty) {
+    } else if (noteTextController.text.isNotEmpty) {
       ref.read(getSchoolByIdProvider(user.schoolId)).when(
             data: (school) {
-              ref.read(postControllerProvider.notifier).shareTextPost(
+              ref.read(noteControllerProvider.notifier).shareTextNote(
                     repliedTo: '',
                     context: context,
                     selectedSchoolId: segmentedControlValue ==
                             1 /* 1 means world, :2 means school */
                         ? ""
                         : user.schoolId,
-                    content: postTextController.text.trim(),
+                    content: noteTextController.text.trim(),
                     link: link,
                   );
             },
@@ -387,8 +386,5 @@ class _CreatePostState extends ConsumerState<CreatePost> {
     } else {
       showSnackBar(context, 'Please enter all the fields');
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 }

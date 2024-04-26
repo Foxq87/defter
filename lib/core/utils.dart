@@ -20,7 +20,8 @@ void showSnackBar(BuildContext context, String text) {
 }
 
 Future<FilePickerResult?> pickImage() async {
-  final image = await FilePicker.platform.pickFiles(type: FileType.image);
+  final image = await FilePicker.platform.pickFiles(
+      type: FileType.image, allowCompression: true, compressionQuality: 40);
   return image;
 }
 
@@ -29,6 +30,8 @@ Future<List<File>> pickImages({required bool allowMultiple}) async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     allowMultiple: allowMultiple,
     type: FileType.image,
+    allowCompression: true,
+    compressionQuality: 25,
   );
 
   if (result != null) {
@@ -42,14 +45,14 @@ Future<List<File>> pickImages({required bool allowMultiple}) async {
   }
 }
 
-Future<File> compressImage(String postId, File file, int index) async {
-  final tempDir = await getTemporaryDirectory();
-  final path = tempDir.path;
-  Im.Image? imageFile = Im.decodeImage(file.readAsBytesSync());
-  File compressedImage = File('$path/img_${postId}${index}.jpg')
-    ..writeAsBytesSync(Im.encodeJpg(imageFile!, quality: 25));
-  return compressedImage;
-}
+// Future<File> compressImage(String noteId, File file, int index) async {
+//   final tempDir = await getTemporaryDirectory();
+//   final path = tempDir.path;
+//   Im.Image? imageFile = Im.decodeImage(file.readAsBytesSync());
+//   File compressedImage = File('$path/img_${noteId}${index}.jpg')
+//     ..writeAsBytesSync(Im.encodeJpg(imageFile!, quality: 25));
+//   return compressedImage;
+// }
 
 String getLinkFromText(String text) {
   String link = '';
@@ -97,4 +100,3 @@ Future<dynamic> alertNotAvailable(BuildContext context) {
             ],
           ));
 }
-

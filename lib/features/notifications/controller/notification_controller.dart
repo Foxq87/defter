@@ -56,7 +56,7 @@ class NotificationController extends StateNotifier<bool> {
     required String id,
     required String receiverUid,
     required String senderId,
-    String postId = '',
+    String noteId = '',
   }) async {
     NotificationModel notification = NotificationModel(
       id: id,
@@ -64,7 +64,7 @@ class NotificationController extends StateNotifier<bool> {
       senderUid: senderId,
       receiverUid: receiverUid,
       content: content,
-      postId: postId,
+      postId: noteId,
       createdAt: DateTime.now(),
     );
     final res = await _notificationRepository.sendNotification(notification);

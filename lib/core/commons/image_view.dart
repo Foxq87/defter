@@ -85,14 +85,10 @@ class _ImageViewState extends State<ImageView> {
                         width: screenWidth,
                         child: widget.imageUrls.isNotEmpty
                             ? InteractiveViewer(
-                                panEnabled: false, // Set it to false
-
                                 minScale: 1.0,
                                 maxScale: 5.0,
                                 child: Image.network(widget.imageUrls[index]))
                             : InteractiveViewer(
-                                panEnabled: false, // Set it to false
-
                                 minScale: 1.0,
                                 maxScale: 5.0,
                                 child: Image.file(widget.imageFiles[index]),

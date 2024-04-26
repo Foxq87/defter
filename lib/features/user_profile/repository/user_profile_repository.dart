@@ -21,7 +21,7 @@ class UserProfileRepository {
 
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
-  CollectionReference get _posts =>
+  CollectionReference get _Notes =>
       _firestore.collection(FirebaseConstants.notesCollection);
 
   FutureVoid editProfile(UserModel user) async {
@@ -34,9 +34,8 @@ class UserProfileRepository {
     }
   }
 
-  Stream<List<Note>> getUserPosts(String uid) {
-    return _posts
-        .where('uid', isEqualTo: uid)
+  Stream<List<Note>> getUserNotes(String uid) {
+    return _Notes.where('uid', isEqualTo: uid)
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -134,6 +133,8 @@ class UserProfileRepository {
       return left(Failure(e.toString()));
     }
   }
+
+
 
   // FutureVoid updateUserKarma(UserModel user) async {
   //   try {
