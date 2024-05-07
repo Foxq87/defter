@@ -80,7 +80,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                             children: [
                               CupertinoButton(
                                 onPressed: () {
-                                  Routemaster.of(context).pop();
+                                  Navigator.of(context).pop();
                                 },
                                 padding: EdgeInsets.zero,
                                 child: const Text(
@@ -96,7 +96,6 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                               ),
                               const Spacer(),
                               DebouncedButton(
-                                
                                 onPressed: () async {
                                   await sharenote();
                                 },
@@ -132,6 +131,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                               ),
                               Expanded(
                                 child: CupertinoTextField(
+                                  cursorColor: Palette.themeColor,
                                   onChanged: (val) {
                                     textLength = val.trim().length;
                                     setState(() {});
@@ -364,7 +364,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                   repliedTo: '',
                 );
           },
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
+          error: (error, stackTrace) => Text(error.toString()),
           loading: () => const Loader());
     } else if (noteTextController.text.isNotEmpty) {
       ref.read(getSchoolByIdProvider(user.schoolId)).when(
@@ -380,7 +380,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                     link: link,
                   );
             },
-            error: (error, stackTrace) => ErrorText(error: error.toString()),
+            error: (error, stackTrace) => Text(error.toString()),
             loading: () => const Loader(),
           );
     } else {

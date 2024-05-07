@@ -1768,7 +1768,7 @@
 //       flex: 2,
 //       child: Material(
 //           color: Colors.transparent,
-//           child: CupertinoTextField(
+//           child: CupertinoTextField(cursorColor:Palette.themeColor,
 //             onChanged: (val) {
 //               if (val.isNotEmpty) {
 //                 setState(() {

@@ -66,12 +66,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA1Z5Iy97xhoyUR1fJzxalEW8pfU97Sw0g',
-    appId: '1:256943613795:ios:883c2922b02cd44e8bd556',
+    appId: '1:256943613795:ios:58b6e42058f660618bd556',
     messagingSenderId: '256943613795',
     projectId: 'appbeyoglu',
     storageBucket: 'appbeyoglu.appspot.com',
-    androidClientId: '256943613795-9kg09in3nmgpmpdfabrnsfbfoci58o8p.apps.googleusercontent.com',
-    iosClientId: '256943613795-smovev68lhdh1mov5qg71p2kllhqf2gn.apps.googleusercontent.com',
-    iosBundleId: 'com.bey.acc',
+    androidClientId: '256943613795-3h7u25osv8r2shf6eo108o2itughavij.apps.googleusercontent.com',
+    iosClientId: '256943613795-7fko52ge8qlmgdh2odpfpo50c1g8dk2s.apps.googleusercontent.com',
+    iosBundleId: 'com.app.acc',
   );
+
 }

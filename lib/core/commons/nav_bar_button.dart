@@ -1,3 +1,4 @@
+import 'package:acc/theme/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class JustIconButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
+          color: Palette.darkGreyColor2.withOpacity(0.5),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Icon(

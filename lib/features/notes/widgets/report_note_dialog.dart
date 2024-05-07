@@ -90,6 +90,7 @@ class _ReportNoteDialogState extends ConsumerState<ReportDialog> {
             height: 10.0,
           ),
           CupertinoTextField(
+            cursorColor: Palette.themeColor,
             controller: detailController,
             maxLength: 300,
             textAlignVertical: TextAlignVertical.top,

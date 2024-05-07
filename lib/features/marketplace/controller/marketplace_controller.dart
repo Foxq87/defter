@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/marketplace/repository/marketplace_repository.dart';
 import 'package:acc/features/marketplace/widgets/product_card.dart';
@@ -14,16 +15,23 @@ import 'package:uuid/uuid.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../../models/user_model.dart';
 import '../../auth/controller/auth_controller.dart';
+import '../../notifications/controller/notification_controller.dart';
 
-final updateControllerProvider =
-    StateNotifierProvider<UpdateController, bool>((ref) {
-  final updateRepository = ref.watch(updateRepositoryProvider);
+final marketplaceControllerProvider =
+    StateNotifierProvider<MarketplaceController, bool>((ref) {
+  final marketplaceRepository = ref.watch(marketplaceRepositoryProvider);
   final storageRepository = ref.watch(storageRepositoryProvider);
-  return UpdateController(
-    updateRepository: updateRepository,
+  return MarketplaceController(
+    marketplaceRepository: marketplaceRepository,
     storageRepository: storageRepository,
     ref: ref,
   );
+});
+
+final getSchoolProductsProvider = StreamProvider.family((ref, String schoolId) {
+  return ref
+      .read(marketplaceControllerProvider.notifier)
+      .getSchoolProducts(schoolId);
 });
 
 // final getSchoolByIdProvider = StreamProvider.family((ref, String id) {
@@ -38,11 +46,19 @@ final updateControllerProvider =
 //   return ref.watch(schoolControllerProvider.notifier).searchUser(query);
 // });
 
-final getUpdatesProvider = StreamProvider((ref) {
-  return ref.read(updateControllerProvider.notifier).getUpdates();
+final getProductByIdProvider = StreamProvider.family((ref, String productId) {
+  final marketplaceController =
+      ref.watch(marketplaceControllerProvider.notifier);
+  return marketplaceController.getProductById(productId);
 });
-final getProductApplications = StreamProvider.family((ref,String schoolId) {
-  return ref.read(updateControllerProvider.notifier).getProductApplications(schoolId);
+
+// final getUpdatesProvider = StreamProvider((ref) {
+//   return ref.read(marketplaceControllerProvider.notifier).getUpdates();
+// });
+final getProductApplications = StreamProvider.family((ref, String schoolId) {
+  return ref
+      .read(marketplaceControllerProvider.notifier)
+      .getSchoolsProductApplications(schoolId);
 });
 
 // final getWorldNotesProvider = StreamProvider.family((ref, String name) {
@@ -53,21 +69,21 @@ final getProductApplications = StreamProvider.family((ref,String schoolId) {
 //   return ref.watch(schoolControllerProvider.notifier).getAllSchools();
 // });
 
-class UpdateController extends StateNotifier<bool> {
-  final UpdateRepository _updateRepository;
+class MarketplaceController extends StateNotifier<bool> {
+  final MarketplaceRepository _marketplaceRepository;
   final Ref _ref;
   final StorageRepository _storageRepository;
-  UpdateController({
-    required UpdateRepository updateRepository,
+  MarketplaceController({
+    required MarketplaceRepository marketplaceRepository,
     required Ref ref,
     required StorageRepository storageRepository,
-  })  : _updateRepository = updateRepository,
+  })  : _marketplaceRepository = marketplaceRepository,
         _ref = ref,
         _storageRepository = storageRepository,
         super(false);
 
   void sendProductToApproval({
-    required UserModel currentUser,
+    required UserModel vendor,
     required String title,
     required double price,
     required int stock,
@@ -88,7 +104,7 @@ class UpdateController extends StateNotifier<bool> {
       String imageId = const Uuid().v4();
 
       imageRes = await _storageRepository.storeFile(
-        path: 'products/${currentUser.schoolId}/$uid/$productId',
+        path: 'products/${vendor.schoolId}/$uid/$productId',
         id: imageId,
         file: file,
       );
@@ -101,8 +117,9 @@ class UpdateController extends StateNotifier<bool> {
     }
     ProductModel product = ProductModel(
       id: productId,
-      uid: currentUser.uid,
+      uid: vendor.uid,
       title: title,
+      schoolId: vendor.schoolId,
       price: price,
       stock: stock,
       categorie: categorie,
@@ -110,21 +127,21 @@ class UpdateController extends StateNotifier<bool> {
       approve: 1,
       description: description,
       images: imageLinks,
+      bookmarks: [],
       createdAt: DateTime.now(),
     );
 
-    final res =
-        await _updateRepository.sendProductToApproval(product, currentUser);
+    final res = await _marketplaceRepository.uploadProduct(product, vendor);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       showSnackBar(context, 'ürün onaya gönderildi, sonucu sana bildireceğiz.');
-      Routemaster.of(context).pop();
+      Navigator.of(context).pop();
     });
   }
 
   void deleteUpdate(Update update, BuildContext context) async {
     try {
-      await _updateRepository.deleteUpdate(update);
+      await _marketplaceRepository.deleteUpdate(update);
       if (update.imageLinks.isNotEmpty) {
         final res = await _storageRepository.deleteUpdateImages(update: update);
         res.fold((l) => showSnackBar(context, l.message),
@@ -135,6 +152,60 @@ class UpdateController extends StateNotifier<bool> {
     }
   }
 
+  void approveProduct({
+    required UserModel vendor,
+    required String productId,
+    required String title,
+    required double price,
+    required int stock,
+    required String description,
+    required String categorie,
+    required String subcategorie,
+    required List<String> imageLinks,
+    required DateTime createdAt,
+    required BuildContext context,
+  }) async {
+    state = true;
+
+    ProductModel product = ProductModel(
+      id: productId,
+      uid: vendor.uid,
+      title: title,
+      schoolId: vendor.schoolId,
+      price: price,
+      stock: stock,
+      categorie: categorie,
+      subcategorie: subcategorie,
+      approve: 2,
+      description: description,
+      images: imageLinks,
+      bookmarks: [],
+      createdAt: createdAt,
+    );
+
+    final res = await _marketplaceRepository.uploadProduct(product, vendor);
+    _ref.read(notificationControllerProvider.notifier).sendNotification(
+          context: context,
+          content: "${categorie} ürünün onaylandı ve satışa hazır!",
+          type: "product-approval",
+          id: productId + 'approval',
+          productId: productId,
+          receiverUid: vendor.uid,
+          senderId: Constants.systemUid,
+        );
+    state = false;
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      showSnackBar(context, 'ürün onaylandı.');
+    });
+  }
+
+  Stream<ProductModel> getProductById(String productId) {
+    return _marketplaceRepository.getProductById(productId);
+  }
+
+  Stream<List<ProductModel>> getSchoolsProductApplications(String schoolId) {
+    return _marketplaceRepository.getSchoolsProductApplications(schoolId);
+  }
   // void createSchool(String name, BuildContext context) async {
   //   state = true;
   //   final uid = _ref.read(userProvider)?.uid ?? '';
@@ -151,7 +222,7 @@ class UpdateController extends StateNotifier<bool> {
   //   state = false;
   //   res.fold((l) => showSnackBar(context, l.message), (r) {
   //     showSnackBar(context, 'School created successfully!');
-  //     Routemaster.of(context).pop();
+  //     Navigator.of(context).pop();
   //   });
   // }
 
@@ -224,7 +295,7 @@ class UpdateController extends StateNotifier<bool> {
   //   state = false;
   //   res.fold(
   //     (l) => showSnackBar(context, l.message),
-  //     (r) => Routemaster.of(context).pop(),
+  //     (r) => Navigator.of(context).pop(),
   //   );
   // }
 
@@ -241,16 +312,12 @@ class UpdateController extends StateNotifier<bool> {
   //   final res = await _updateRepository.addMods(schoolName, uids);
   //   res.fold(
   //     (l) => showSnackBar(context, l.message),
-  //     (r) => Routemaster.of(context).pop(),
+  //     (r) => Navigator.of(context).pop(),
   //   );
   // }
 
-  Stream<List<ProductModel>> getProductApplications(String schoolId) {
-    return _updateRepository.getProductApplications(schoolId);
-  }
-
-  Stream<List<Update>> getUpdates() {
-    return _updateRepository.getUpdates();
+  Stream<List<ProductModel>> getSchoolProducts(String schoolId) {
+    return _marketplaceRepository.getSchoolProducts(schoolId);
   }
 
   // Stream<List<Note>> getWorldNotes(String name) {

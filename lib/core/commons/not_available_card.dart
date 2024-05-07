@@ -22,7 +22,7 @@ class NotAvailable extends StatelessWidget {
             Icon(
               CupertinoIcons.alarm,
               size: 40,
-              color: Palette.themeColor,
+              color: Palette.orangeColor,
             ),
             SizedBox(
               width: 10,

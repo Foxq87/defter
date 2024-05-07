@@ -22,7 +22,7 @@ TextButton smallTextButton(
         // minimumSize: Size(50, 30),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         alignment: Alignment.centerRight),
-    onPressed: () {},
+    onPressed: onPressed,
     child: Text(
       title,
       style: TextStyle(

@@ -1,10 +1,12 @@
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
+import 'package:acc/features/marketplace/screens/product_details.dart';
+import 'package:acc/features/notes/screens/note_details.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
+import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:routemaster/routemaster.dart';
 import '../../../models/notification_model.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../../theme/palette.dart';
@@ -29,17 +31,31 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
         .deleteNotification(widget.notification, context);
   }
 
-  void navigateToUser(BuildContext context, String uid) {
-    Routemaster.of(context).push('/user-profile/$uid');
-  }
+  void navigateToUser(BuildContext context, String uid) => Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (context) => UserProfileScreen(uid: uid)));
+
+  //  {
+  //   // Routemaster.of(context).push('/user-profile/$uid');
+  // }
 
   // void navigateToSchool(BuildContext context) {
   //   Routemaster.of(context).push('/school-profile/${widget.note.schoolName}');
   // }
 
-  void navigateToNote(BuildContext context, String noteId) {
-    Routemaster.of(context).push('/note/$noteId/details');
-  }
+  void navigateToNote(BuildContext context, String noteId) => Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (context) => NoteDetails(noteId: noteId)));
+
+  //  {
+  //   Routemaster.of(context).push('/note/$noteId/details');
+  // }
+
+  void navigateToProduct(BuildContext context, String productId) =>
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => ProductDetails(productId: productId)));
 
   @override
   void initState() {
@@ -53,6 +69,10 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
     final isTypeFollow = widget.notification.type == 'follow';
     final isTypeLike = widget.notification.type == 'like';
     final isTypeComment = widget.notification.type == 'comment';
+    final isTypeProductApproval =
+        widget.notification.type == 'product-approval';
+    final isTypeProductRejection =
+        widget.notification.type == 'product-rejection';
     final isTypeEmpty = widget.notification.type.isEmpty;
 
     return ref.watch(getUserDataProvider(widget.notification.senderUid)).when(
@@ -61,9 +81,12 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
               if (isTypeFollow) {
                 navigateToUser(context, widget.notification.senderUid);
               } else if (isTypeLike) {
-                navigateToNote(context, widget.notification.postId);
+                navigateToNote(context, widget.notification.postId!);
               } else if (isTypeComment) {
-                navigateToNote(context, widget.notification.postId);
+                navigateToNote(context, widget.notification.postId!);
+              } else if (isTypeProductApproval || isTypeProductRejection) {
+                print(widget.notification.productId);
+                navigateToProduct(context, widget.notification.productId!);
               }
             },
             leading: Stack(
@@ -91,20 +114,25 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                     child: Icon(
                       isTypeEmpty
                           ? CupertinoIcons.app
-                          : isTypeFollow
-                              ? CupertinoIcons.person_solid
-                              : isTypeLike
-                                  ? CupertinoIcons.heart_fill
+                          : isTypeProductRejection
+                              ? CupertinoIcons.clear
+                              : isTypeProductApproval
+                                  ? CupertinoIcons.checkmark
+                                  : isTypeFollow
+                                      ? CupertinoIcons.person_solid
+                                      : isTypeLike
+                                          ? CupertinoIcons.heart_fill
+                                          : isTypeComment
+                                              ? CupertinoIcons.bubble_left_fill
+                                              : CupertinoIcons.alarm,
+                      color:
+                          isTypeFollow || isTypeEmpty || isTypeProductApproval
+                              ? Palette.themeColor
+                              : isTypeLike || isTypeProductRejection
+                                  ? Palette.redColor
                                   : isTypeComment
-                                      ? CupertinoIcons.bubble_left_fill
-                                      : CupertinoIcons.alarm,
-                      color: isTypeFollow || isTypeEmpty
-                          ? Palette.themeColor
-                          : isTypeLike
-                              ? Palette.redColor
-                              : isTypeComment
-                                  ? Colors.blue
-                                  : Colors.white,
+                                      ? Colors.blue
+                                      : Colors.white,
                       size: 16,
                     ),
                   ),
@@ -131,7 +159,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                   deleteNote(context);
                 }),
           ),
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
+          error: (error, stackTrace) => Text(error.toString()),
           loading: () => const Loader(),
         );
   }

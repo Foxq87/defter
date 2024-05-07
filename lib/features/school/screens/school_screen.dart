@@ -2,7 +2,6 @@ import 'package:acc/core/commons/not_available_card.dart';
 import 'package:acc/core/commons/view_users_by_uids.dart';
 
 import 'package:acc/features/school/controller/school_controller.dart';
-import 'package:acc/features/user_profile/follower_following_details.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,7 +86,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                       child: JustIconButton(
                         icon: CupertinoIcons.back,
                         onPressed: () {
-                          Routemaster.of(context).pop();
+                          Navigator.of(context).pop();
                         },
                       ),
                     ),
@@ -97,7 +96,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                         child: JustIconButton(
                             icon: CupertinoIcons.ellipsis,
                             onPressed: () {
-                              Routemaster.of(context).pop();
+                              Navigator.of(context).pop();
                             })),
                   ],
                 ),
@@ -214,7 +213,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                           );
                         },
                         error: (error, stackTrace) {
-                          return ErrorText(error: error.toString());
+                          return Text(error.toString());
                         },
                         loading: () => const Loader(),
                       )
@@ -230,13 +229,13 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                 //           );
                 //         },
                 //         error: (error, stackTrace) {
-                //           return ErrorText(error: error.toString());
+                //           return Text(error.toString());
                 //         },
                 //         loading: () => const Loader(),
                 //       ),
               ],
             ),
-            error: (error, stackTrace) => ErrorText(error: error.toString()),
+            error: (error, stackTrace) => Text(error.toString()),
             loading: () => const Loader(),
           ),
     );

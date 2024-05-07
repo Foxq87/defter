@@ -38,7 +38,7 @@ class _ViewUsersByUidsState extends ConsumerState<ViewUsersByUids> {
                             color: Palette.noteIconColor, width: 0.25)),
                     leading: JustIconButton(
                         icon: CupertinoIcons.back,
-                        onPressed: () => Routemaster.of(context).pop(context)),
+                        onPressed: () => Navigator.of(context).pop()),
                     middle: Text(
                       widget.isLiker
                           ? widget.uids.isEmpty
@@ -112,7 +112,7 @@ class _ViewUsersByUidsState extends ConsumerState<ViewUsersByUids> {
               ],
             ),
           ),
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
+          error: (error, stackTrace) => Text(error.toString()),
           loading: () => Loader(),
         );
   }

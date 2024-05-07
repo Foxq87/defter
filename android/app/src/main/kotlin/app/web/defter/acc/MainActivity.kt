@@ -1,4 +1,4 @@
-package app.web.defter.acc
+package com.app.acc
 
 import io.flutter.embedding.android.FlutterActivity
 

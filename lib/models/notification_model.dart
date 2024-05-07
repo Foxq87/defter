@@ -7,7 +7,9 @@ class NotificationModel {
   final String senderUid;
   final String receiverUid;
   final String content;
-  final String postId;
+  final String? postId;
+  final String? productId;
+  final String? articleId;
   final DateTime createdAt;
   NotificationModel({
     required this.id,
@@ -15,7 +17,9 @@ class NotificationModel {
     required this.senderUid,
     required this.receiverUid,
     required this.content,
-    required this.postId,
+    this.postId,
+    this.productId,
+    this.articleId,
     required this.createdAt,
   });
 
@@ -26,6 +30,8 @@ class NotificationModel {
     String? receiverUid,
     String? content,
     String? postId,
+    String? productId,
+    String? articleId,
     DateTime? createdAt,
   }) {
     return NotificationModel(
@@ -35,6 +41,8 @@ class NotificationModel {
       receiverUid: receiverUid ?? this.receiverUid,
       content: content ?? this.content,
       postId: postId ?? this.postId,
+      productId: productId ?? this.productId,
+      articleId: articleId ?? this.articleId,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -47,6 +55,8 @@ class NotificationModel {
       'receiverUid': receiverUid,
       'content': content,
       'postId': postId,
+      'productId': productId,
+      'articleId': articleId,
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
   }
@@ -58,42 +68,48 @@ class NotificationModel {
       senderUid: map['senderUid'] as String,
       receiverUid: map['receiverUid'] as String,
       content: map['content'] as String,
-      postId: map['postId'] as String,
+      postId: map['postId'] != null ? map['postId'] as String : null,
+      productId: map['productId'] != null ? map['productId'] as String : null,
+      articleId: map['articleId'] != null ? map['articleId'] as String : null,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory NotificationModel.fromJson(String source) =>
-      NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory NotificationModel.fromJson(String source) => NotificationModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'NotificationModel(id: $id, type: $type, senderUid: $senderUid, receiverUid: $receiverUid, content: $content, postId: $postId, createdAt: $createdAt)';
+    return 'NotificationModel(id: $id, type: $type, senderUid: $senderUid, receiverUid: $receiverUid, content: $content, postId: $postId, productId: $productId, articleId: $articleId, createdAt: $createdAt)';
   }
 
   @override
   bool operator ==(covariant NotificationModel other) {
     if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.type == type &&
-        other.senderUid == senderUid &&
-        other.receiverUid == receiverUid &&
-        other.content == content &&
-        other.postId == postId &&
-        other.createdAt == createdAt;
+  
+    return 
+      other.id == id &&
+      other.type == type &&
+      other.senderUid == senderUid &&
+      other.receiverUid == receiverUid &&
+      other.content == content &&
+      other.postId == postId &&
+      other.productId == productId &&
+      other.articleId == articleId &&
+      other.createdAt == createdAt;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        type.hashCode ^
-        senderUid.hashCode ^
-        receiverUid.hashCode ^
-        content.hashCode ^
-        postId.hashCode ^
-        createdAt.hashCode;
+      type.hashCode ^
+      senderUid.hashCode ^
+      receiverUid.hashCode ^
+      content.hashCode ^
+      postId.hashCode ^
+      productId.hashCode ^
+      articleId.hashCode ^
+      createdAt.hashCode;
   }
 }

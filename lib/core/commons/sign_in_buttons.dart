@@ -24,7 +24,7 @@ class SignInButton extends ConsumerWidget {
         ),
         onPressed: () => signInWithGoogle(ref, context),
         label: const Text(
-          "continue with google",
+          "google ile devam et",
           style: TextStyle(fontSize: 20, color: Colors.black),
         ),
         style: ElevatedButton.styleFrom(

@@ -55,6 +55,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     authController.suspendAccount(uid, context);
   }
 
+  ScrollController scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     final UserModel currentUser = ref.watch(userProvider)!;
@@ -62,72 +63,175 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       //build edit profile
 
       body: ref.watch(getUserDataProvider(widget.uid)).when(
-            data: (user) => ListView(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned(
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) => ImageView(
-                                    imageUrls: [user.banner],
-                                    imageFiles: [],
-                                    index: 0))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: AspectRatio(
-                              aspectRatio: 10 / 3.5,
-                              child: Image.network(
-                                user.banner,
-                                fit: BoxFit.cover,
+            data: (user) => Scrollbar(
+              scrollbarOrientation: ScrollbarOrientation.right,
+              thumbVisibility: true,
+              trackVisibility: true,
+              controller: scrollController,
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => ImageView(
+                                      imageUrls: [user.banner],
+                                      imageFiles: [],
+                                      index: 0))),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: AspectRatio(
+                                aspectRatio: 10 / 3.5,
+                                child: Image.network(
+                                  user.banner,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: JustIconButton(
-                        icon: CupertinoIcons.back,
-                        onPressed: () {
-                          Routemaster.of(context).pop();
-                        },
-                      ),
-                    ),
-                    Positioned(
+                      Positioned(
                         top: 10,
-                        right: 10,
+                        left: 10,
                         child: JustIconButton(
-                          icon: CupertinoIcons.ellipsis,
+                          icon: CupertinoIcons.back,
                           onPressed: () {
-                            showModalBottomSheet(
-                              backgroundColor: Palette.darkGreyColor,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          SizedBox(
-                                            width: 15,
-                                          ),
-                                          if (currentUser.roles
-                                              .contains('admin'))
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                      Positioned(
+                          top: 10,
+                          right: 10,
+                          child: JustIconButton(
+                            icon: CupertinoIcons.ellipsis,
+                            onPressed: () {
+                              showModalBottomSheet(
+                                backgroundColor: Palette.darkGreyColor,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            SizedBox(
+                                              width: 15,
+                                            ),
+                                            if (currentUser.roles
+                                                .contains('admin'))
+                                              Expanded(
+                                                child: CupertinoButton(
+                                                  borderRadius:
+                                                      BorderRadius.circular(17),
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 7),
+                                                  color: Palette.textFieldColor,
+                                                  onPressed: () {
+                                                    showCupertinoDialog(
+                                                      barrierDismissible: true,
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          CupertinoAlertDialog(
+                                                        title: const Text(
+                                                          "emin misin?",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'JetBrainsMonoExtraBold'),
+                                                        ),
+                                                        content: const Text(
+                                                          'bu hesabı askıya alıyorsun',
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'JetBrainsMonoBold'),
+                                                        ),
+                                                        actions: <CupertinoDialogAction>[
+                                                          CupertinoDialogAction(
+                                                            isDefaultAction:
+                                                                true,
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                              'geri',
+                                                              style: TextStyle(
+                                                                color: Palette
+                                                                    .themeColor,
+                                                                fontFamily:
+                                                                    'JetBrainsMonoRegular',
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          CupertinoDialogAction(
+                                                            isDestructiveAction:
+                                                                true,
+                                                            onPressed:
+                                                                () async {
+                                                              suspendAccount(
+                                                                user.uid,
+                                                                context,
+                                                              );
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                              'evet',
+                                                              style: TextStyle(
+                                                                color: Palette
+                                                                    .redColor,
+                                                                fontFamily:
+                                                                    'JetBrainsMonoRegular',
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .report_gmailerrorred_outlined,
+                                                        color: Palette.redColor,
+                                                        size: 22,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Text(
+                                                        'hesabı askıya al',
+                                                        style: TextStyle(
+                                                            color: Palette
+                                                                .redColor),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            if (currentUser.roles
+                                                .contains('admin'))
+                                              SizedBox(
+                                                width: 10,
+                                              ),
                                             Expanded(
                                               child: CupertinoButton(
                                                 borderRadius:
@@ -136,62 +240,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                                     vertical: 7),
                                                 color: Palette.textFieldColor,
                                                 onPressed: () {
-                                                  showCupertinoDialog(
-                                                    barrierDismissible: true,
+                                                  showDialog(
                                                     context: context,
                                                     builder: (context) =>
-                                                        CupertinoAlertDialog(
-                                                      title: const Text(
-                                                        "emin misin?",
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                'JetBrainsMonoExtraBold'),
-                                                      ),
-                                                      content: const Text(
-                                                        'bu hesabı askıya alıyorsun',
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                'JetBrainsMonoBold'),
-                                                      ),
-                                                      actions: <CupertinoDialogAction>[
-                                                        CupertinoDialogAction(
-                                                          isDefaultAction: true,
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: const Text(
-                                                            'geri',
-                                                            style: TextStyle(
-                                                              color: Palette
-                                                                  .themeColor,
-                                                              fontFamily:
-                                                                  'JetBrainsMonoRegular',
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        CupertinoDialogAction(
-                                                          isDestructiveAction:
-                                                              true,
-                                                          onPressed: () async {
-                                                            suspendAccount(
-                                                              user.uid,
-                                                              context,
-                                                            );
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: const Text(
-                                                            'evet',
-                                                            style: TextStyle(
-                                                              color: Palette
-                                                                  .redColor,
-                                                              fontFamily:
-                                                                  'JetBrainsMonoRegular',
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
+                                                        ReportDialog(
+                                                      noteId: '',
+                                                      accountId: widget.uid,
                                                     ),
                                                   );
                                                 },
@@ -200,339 +254,378 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                                       MainAxisSize.min,
                                                   children: [
                                                     Icon(
-                                                      Icons
-                                                          .report_gmailerrorred_outlined,
-                                                      color: Palette.redColor,
-                                                      size: 22,
+                                                      UniconsLine.megaphone,
+                                                      color: Colors.white,
+                                                      size: 19,
                                                     ),
                                                     SizedBox(
-                                                      width: 5,
+                                                      height: 5,
                                                     ),
                                                     Text(
-                                                      'hesabı askıya al',
+                                                      'hesabı şikayet et',
                                                       style: TextStyle(
-                                                          color:
-                                                              Palette.redColor),
+                                                          color: Colors.white),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                          if (currentUser.roles
-                                              .contains('admin'))
                                             SizedBox(
-                                              width: 10,
+                                              width: 15,
                                             ),
-                                          Expanded(
-                                            child: CupertinoButton(
-                                              borderRadius:
-                                                  BorderRadius.circular(17),
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 7),
-                                              color: Palette.textFieldColor,
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      ReportDialog(
-                                                    noteId: '',
-                                                    accountId: widget.uid,
-                                                  ),
-                                                );
-                                              },
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    UniconsLine.megaphone,
-                                                    color: Colors.white,
-                                                    size: 19,
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Text(
-                                                    'hesabı şikayet et',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 15,
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 50,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        )),
-                  ],
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.all(8.0).copyWith(top: 0, bottom: 4),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) => ImageView(
-                                    imageUrls: [user.profilePic],
-                                    imageFiles: [],
-                                    index: 0))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            user.profilePic,
-                            fit: BoxFit.cover,
-                            height: 80,
-                            width: 80,
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 50,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          )),
+                    ],
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.all(8.0).copyWith(top: 0, bottom: 4),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => ImageView(
+                                      imageUrls: [user.profilePic],
+                                      imageFiles: [],
+                                      index: 0))),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              user.profilePic,
+                              fit: BoxFit.cover,
+                              height: 80,
+                              width: 80,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      user.name,
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontFamily: 'JetBrainsMonoExtraBold'),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        user.name,
+                                        style: const TextStyle(
+                                            fontSize: 20,
+                                            fontFamily:
+                                                'JetBrainsMonoExtraBold'),
+                                      ),
                                     ),
+                                  ],
+                                ),
+                                Text(
+                                  '@${user.username}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Palette.placeholderColor,
                                   ),
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  buildFollowerAndFollowingCount(user),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: user.uid == currentUser.uid
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: CupertinoButton(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Palette.textFieldColor,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () =>
+                                          navigateToEditUser(context),
+                                      child: const Text(
+                                        'profili düzenle',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'JetBrainsMonoBold'),
+                                      )),
+                                ),
                               ),
-                              Text(
-                                '@${user.username}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Palette.placeholderColor,
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: CupertinoButton(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: user.followers
+                                              .contains(currentUser.uid)
+                                          ? Palette.redColor
+                                          : Palette.themeColor,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        print(
+                                            "${currentUser.following.contains(user.uid)} sa" +
+                                                widget.uid +
+                                                user.uid);
+                                        ref
+                                            .read(userProfileControllerProvider
+                                                .notifier)
+                                            .followUser(context, user,
+                                                currentUser, ref);
+                                      },
+                                      child: Text(
+                                        user.followers.contains(currentUser.uid)
+                                            ? 'takipten çık'
+                                            : 'takip et',
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'JetBrainsMonoBold'),
+                                      )),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: CupertinoButton(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Palette.textFieldColor,
+                                      padding: EdgeInsets.zero,
+                                      onPressed: () {
+                                        alertNotAvailable(context);
+                                      },
+                                      child: const Text(
+                                        'mesaj at',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'JetBrainsMonoBold'),
+                                      )),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-                buildFollowerAndFollowingCount(user),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: user.uid == currentUser.uid
-                      ? Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: CupertinoButton(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Palette.textFieldColor,
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () =>
-                                        navigateToEditUser(context),
-                                    child: const Text(
-                                      'Edit Profile',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'JetBrainsMonoBold'),
-                                    )),
-                              ),
-                            ),
-                          ],
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(contentItems.length, (index) {
+                        return CupertinoButton(
+                          onPressed: () => selectAndUnselectOthers(index),
+                          padding: EdgeInsets.zero,
+                          child: buildContentItem(
+                              text: contentItems[index][0],
+                              isSelected: contentItems[index][1]),
+                        );
+                      })),
+                  const Divider(
+                    thickness: 0.6,
+                    height: 0,
+                  ),
+                  if (contentItems[0][1])
+                    ref.watch(getUserNotesProvider(user.uid)).when(
+                          data: (data) {
+                            return ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: data.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                final note = data[index];
+                                return NoteCard(note: note);
+                              },
+                            );
+                          },
+                          error: (error, stackTrace) {
+                            return Text(error.toString());
+                          },
+                          loading: () => const Loader(),
                         )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: CupertinoButton(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color:
-                                        user.followers.contains(currentUser.uid)
-                                            ? Palette.redColor
-                                            : Palette.themeColor,
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      print(
-                                          "${currentUser.following.contains(user.uid)} sa" +
-                                              widget.uid +
-                                              user.uid);
-                                      ref
-                                          .read(userProfileControllerProvider
-                                              .notifier)
-                                          .followUser(
-                                              context, user, currentUser, ref);
-                                    },
-                                    child: Text(
-                                      user.followers.contains(currentUser.uid)
-                                          ? 'takipten çık'
-                                          : 'takip et',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'JetBrainsMonoBold'),
-                                    )),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: CupertinoButton(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Palette.textFieldColor,
-                                    padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      alertNotAvailable(context);
-                                    },
-                                    child: const Text(
-                                      'mesaj at',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'JetBrainsMonoBold'),
-                                    )),
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(contentItems.length, (index) {
-                      return CupertinoButton(
-                        onPressed: () => selectAndUnselectOthers(index),
-                        padding: EdgeInsets.zero,
-                        child: buildContentItem(
-                            text: contentItems[index][0],
-                            isSelected: contentItems[index][1]),
-                      );
-                    })),
-                const Divider(
-                  thickness: 0.6,
-                  height: 0,
-                ),
-                if (contentItems[0][1])
-                  ref.watch(getUserNotesProvider(user.uid)).when(
-                        data: (data) {
-                          return ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: data.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final note = data[index];
-                              return NoteCard(note: note);
-                            },
-                          );
-                        },
-                        error: (error, stackTrace) {
-                          return ErrorText(error: error.toString());
-                        },
-                        loading: () => const Loader(),
-                      )
-                else if (contentItems[1][1])
-                  const NotAvailable()
-                else
-                  ref.read(getSchoolByIdProvider(user.schoolId)).when(
-                        data: (School school) => GestureDetector(
-                          onTap: () {},
-                          child: GestureDetector(
-                            onTap: () {
-                              Routemaster.of(context)
-                                  .push('/school-profile/${school.id}/');
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    width: 0.35,
-                                    color: Palette.noteIconColor,
+                  else if (contentItems[1][1])
+                    const NotAvailable()
+                  else
+                    ref.watch(getSchoolByIdProvider(user.schoolId)).when(
+                          data: (School school) {
+                            if (user.schoolId.contains('onay bekliyor:')) {
+                              return Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      width: 0.35,
+                                      color: Palette.noteIconColor,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(13),
-                                          child: Image.network(
-                                            school.avatar,
-                                            height: 50,
-                                            width: 50,
+                                child: Center(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'onay bekliyor ... ',
+                                        style:
+                                            TextStyle(color: Palette.redColor),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(13),
+                                            child: Image.network(
+                                              school.avatar,
+                                              height: 50,
+                                              width: 50,
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(
-                                          width: 15.0,
-                                        ),
-                                        Expanded(
-                                            child: Text(
-                                          "${school.title} • ${school.id}",
-                                          style: const TextStyle(
-                                              fontSize: 18,
-                                              fontFamily:
-                                                  'JetBrainsMonoExtraBold'),
-                                        )),
-                                      ],
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    RichText(
-                                      text: TextSpan(children: [
-                                        TextSpan(
-                                            text: school.students.length
-                                                .toString(),
+                                          const SizedBox(
+                                            width: 15.0,
+                                          ),
+                                          Expanded(
+                                              child: Text(
+                                            "${school.title} • ${school.id}",
                                             style: const TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: 'JetBrainsMonoBold',
-                                            )),
-                                        TextSpan(
-                                            text: "\tkayıtlı öğrenci",
-                                            style: const TextStyle(
-                                                fontSize: 15,
+                                                fontSize: 18,
+                                                fontFamily:
+                                                    'JetBrainsMonoExtraBold'),
+                                          )),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      RichText(
+                                        text: TextSpan(children: [
+                                          TextSpan(
+                                              text: school.students.length
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                fontSize: 16,
                                                 fontFamily: 'JetBrainsMonoBold',
-                                                color:
-                                                    Palette.placeholderColor)),
-                                      ]),
-                                    )
-                                  ],
+                                              )),
+                                          TextSpan(
+                                              text: "\tkayıtlı öğrenci",
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontFamily:
+                                                      'JetBrainsMonoBold',
+                                                  color: Palette
+                                                      .placeholderColor)),
+                                        ]),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
+                              );
+                            } else {
+                              return GestureDetector(
+                                onTap: () {},
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Routemaster.of(context)
+                                        .push('/school-profile/${school.id}/');
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          width: 0.35,
+                                          color: Palette.noteIconColor,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(13),
+                                                child: Image.network(
+                                                  school.avatar,
+                                                  height: 50,
+                                                  width: 50,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 15.0,
+                                              ),
+                                              Expanded(
+                                                  child: Text(
+                                                "${school.title} • ${school.id}",
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontFamily:
+                                                        'JetBrainsMonoExtraBold'),
+                                              )),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          RichText(
+                                            text: TextSpan(children: [
+                                              TextSpan(
+                                                  text: school.students.length
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontFamily:
+                                                        'JetBrainsMonoBold',
+                                                  )),
+                                              TextSpan(
+                                                  text: "\tkayıtlı öğrenci",
+                                                  style: const TextStyle(
+                                                      fontSize: 15,
+                                                      fontFamily:
+                                                          'JetBrainsMonoBold',
+                                                      color: Palette
+                                                          .placeholderColor)),
+                                            ]),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          error: (error, stackTrace) => Text(error.toString()),
+                          loading: () => const Loader(),
                         ),
-                        error: (error, stackTrace) =>
-                            ErrorText(error: error.toString()),
-                        loading: () => const Loader(),
-                      ),
-              ],
+                ],
+              ),
             ),
-            error: (error, stackTrace) => ErrorText(error: error.toString()),
+            error: (error, stackTrace) => Text(error.toString()),
             loading: () => const Loader(),
           ),
     );

@@ -8,7 +8,12 @@ class WaitingToLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Palette.backgroundColor,
-      body: Center(child: Image.asset('assets/defter-icons_foreground.png')),
+      body: Center(
+          child: Image.asset(
+        'assets/defter-icon-rounded.png',
+        height: 150,
+        width: 150,
+      )),
     );
   }
 }

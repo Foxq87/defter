@@ -87,11 +87,17 @@ class _ImageViewState extends State<ImageView> {
                             ? InteractiveViewer(
                                 minScale: 1.0,
                                 maxScale: 5.0,
-                                child: Image.network(widget.imageUrls[index]))
+                                child: Image.network(
+                                  widget.imageUrls[index],
+                                  fit: BoxFit.contain,
+                                ))
                             : InteractiveViewer(
                                 minScale: 1.0,
                                 maxScale: 5.0,
-                                child: Image.file(widget.imageFiles[index]),
+                                child: Image.file(
+                                  widget.imageFiles[index],
+                                  fit: BoxFit.contain,
+                                ),
                               )),
                   )),
           isTapped ? _navBar(screenWidth) : const SizedBox(),

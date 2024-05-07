@@ -9,5 +9,7 @@ class FirebaseConstants {
   static const mailCollection = 'mail';
   static const updatesCollection = 'updates';
   static const reportsCollection = 'reports';
+  static const chatsCollection = 'chats';
   static const productsCollection = 'products';
+  // static const bookmarksCollection = 'bookmarks';
 }

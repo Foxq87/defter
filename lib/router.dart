@@ -60,7 +60,7 @@ final loggedInRoute = RouteMap(routes: {
         child: SuggestFeature(),
       ),
   '/create-update-screen': (routeData) => const MaterialPage(
-        child: CreateUpdateScreen(
+        child: CreateProductScreen(
           product: null,
         ),
       ),

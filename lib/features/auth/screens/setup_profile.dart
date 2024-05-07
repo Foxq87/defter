@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
@@ -45,17 +47,26 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
 
   CollectionReference get _schools => FirebaseFirestore.instance
       .collection(FirebaseConstants.schoolsCollection);
-
+  String schoolId = '';
   @override
   void initState() {
     fullnameController = TextEditingController(text: widget.user.name);
     usernameController = TextEditingController(text: widget.user.username);
-    schoolController = TextEditingController(text: widget.user.schoolId);
+
+    if (widget.user.schoolId.contains('onay bekliyor:')) {
+      schoolId = widget.user.schoolId.trim().replaceAll('onay bekliyor: ', '');
+      print("testing school id : " + schoolId);
+    } else {
+      schoolId = widget.user.schoolId;
+    }
+    schoolController = TextEditingController(text: schoolId);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isAppBeyogluUser = widget.user.roles.contains('appbeyoglu-user');
     return Scaffold(
       appBar: CupertinoNavigationBar(
         border: const Border(
@@ -67,18 +78,26 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               borderRadius: BorderRadius.circular(100),
               color: Palette.themeColor,
-              child: Text(
-                isLoading ? '...' : 'kaydet',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'JetBrainsMonoBold',
-                ),
-              ),
+              child: isLoading
+                  ? CupertinoActivityIndicator()
+                  : Text(
+                      'kaydet',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'JetBrainsMonoBold',
+                      ),
+                    ),
               onPressed: () async {
                 setState(() {
                   isLoading = true;
                 });
 
+                //minimize same username selection at the same time
+                final random = Random();
+                final randomNumber = random.nextInt(3) + 1;
+                await Future.delayed(Duration(seconds: randomNumber));
+
+                //write usernames to a list
                 await _users.get().then((value) {
                   for (var element in value.docs) {
                     if (element.get('username').toString().isNotEmpty) {
@@ -87,9 +106,10 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                     }
                   }
                 });
-
+//remove this users username from the list
                 usernames.remove(widget.user.username);
 
+                //write schoolids to a list
                 await _schools.get().then((value) {
                   for (var element in value.docs) {
                     if (element.get('id').toString().isNotEmpty) {
@@ -120,6 +140,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 }
 
                 //is the username available? if not show an error text
+
                 else if (usernames
                     .contains(usernameController.text.trim().toLowerCase())) {
                   setState(() {
@@ -152,14 +173,24 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                         context,
                         widget.user.uid,
                         fullnameController.text.trim(),
+                        fullnameController.text.trim().toLowerCase(),
                         usernameController.text.trim(),
-                        schoolController.text.trim(),
+                        usernameController.text.trim().toLowerCase(),
+                        "onay bekliyor: " +
+                            schoolController.text.trim(), //onay bekliyor
                       );
                   ref.read(userProvider.notifier).update(
                         (state) => widget.user.copyWith(
                           username: usernameController.text.trim(),
+                          username_insensitive:
+                              usernameController.text.trim().toLowerCase(),
                           name: fullnameController.text.trim(),
-                          schoolId: schoolController.text.trim(),
+                          name_insensitive:
+                              fullnameController.text.trim().toLowerCase(),
+                          schoolId: isAppBeyogluUser
+                              ? "BAIHL"
+                              : "onay bekliyor: " +
+                                  schoolController.text.trim(), //onay bekliyor
                         ),
                       );
 
@@ -209,6 +240,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 height: 10,
               ),
               CupertinoTextField(
+                cursorColor: Palette.themeColor,
                 controller: fullnameController,
                 style: const TextStyle(
                   color: Colors.white,
@@ -231,6 +263,8 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 height: 10,
               ),
               CupertinoTextField(
+                maxLength: 32,
+                cursorColor: Palette.themeColor,
                 controller: usernameController,
                 style: const TextStyle(
                     color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
@@ -266,6 +300,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                   return SizedBox(
                     height: 40,
                     child: CupertinoTextField(
+                      cursorColor: Palette.themeColor,
                       onChanged: (val) => setState(() {
                         textEditingController.text = val;
                       }),
@@ -334,8 +369,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                               schoolIds.add(element.id);
                             }
                           },
-                          error: (error, stackTrace) =>
-                              ErrorText(error: error.toString()),
+                          error: (error, stackTrace) => Text(error.toString()),
                           loading: () => const Loader(),
                         );
                     return schoolIds.where(

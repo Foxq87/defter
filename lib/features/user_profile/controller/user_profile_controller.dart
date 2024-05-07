@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +11,8 @@ import 'package:acc/core/utils.dart';
 import 'package:acc/features/user_profile/repository/user_profile_repository.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/user_model.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:routemaster/routemaster.dart';
 
-import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 
@@ -112,7 +108,7 @@ class UserProfileController extends StateNotifier<bool> {
       (l) => showSnackBar(context, l.message),
       (r) {
         _ref.read(userProvider.notifier).update((state) => user);
-        Routemaster.of(context).pop();
+        Navigator.of(context).pop();
       },
     );
   }
@@ -128,6 +124,8 @@ class UserProfileController extends StateNotifier<bool> {
   Stream<List<UserModel>> getUserFollowings(List<String> followingUids) {
     return _userProfileRepository.getUserFollowings(followingUids);
   }
+
+
 
   void followUser(
     BuildContext context,

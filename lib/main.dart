@@ -51,9 +51,10 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   Future<void> getData(WidgetRef ref, User data) async {
     userModel = await ref
-        .watch(authControllerProvider.notifier)
+        .read(authControllerProvider.notifier)
         .getUserData(data.uid)
         .first;
+
     ref.read(userProvider.notifier).update((state) => userModel);
     configurePushNotifications(data);
     // print(userModel?.email);
@@ -132,23 +133,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             : FutureBuilder(
                 future: getData(ref, data),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return MaterialApp.router(
-                      title: 'defter',
-                      debugShowCheckedModeBanner: false,
-                      theme: ThemeData(
-                        brightness: Brightness.dark,
-                        scaffoldBackgroundColor: Palette.backgroundColor,
-                        fontFamily: "JetBrainsMonoRegular",
-                      ),
-                      // ... other properties ...
-                      routerDelegate: RoutemasterDelegate(
-                        navigatorKey: Get.key,
-                        routesBuilder: (context) => waitingToLoginRoute,
-                      ),
-                      routeInformationParser: const RoutemasterParser(),
-                    );
-                  } else {
+                  if (snapshot.connectionState == ConnectionState.done) {
                     return MaterialApp.router(
                       // ... other properties ...
                       title: 'defter',
@@ -165,6 +150,22 @@ class _MyAppState extends ConsumerState<MyApp> {
                                 ? suspendedAccountRoute
                                 : loggedInRoute
                             : waitingToLoginRoute,
+                      ),
+                      routeInformationParser: const RoutemasterParser(),
+                    );
+                  } else {
+                    return MaterialApp.router(
+                      title: 'defter',
+                      debugShowCheckedModeBanner: false,
+                      theme: ThemeData(
+                        brightness: Brightness.dark,
+                        scaffoldBackgroundColor: Palette.backgroundColor,
+                        fontFamily: "JetBrainsMonoRegular",
+                      ),
+                      // ... other properties ...
+                      routerDelegate: RoutemasterDelegate(
+                        navigatorKey: Get.key,
+                        routesBuilder: (context) => waitingToLoginRoute,
                       ),
                       routeInformationParser: const RoutemasterParser(),
                     );

@@ -1,6 +1,6 @@
 import 'package:acc/core/commons/error_text.dart';
-import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/marketplace/screens/product_details.dart';
 import 'package:acc/models/product_model.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +19,11 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) =>
+                  ProductDetails(productId: widget.product.id))),
       child: Container(
         width: 155,
         decoration: BoxDecoration(
@@ -80,7 +85,8 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                                       fontFamily: 'JetBrainsMonoBold'),
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                Text('${widget.product.price} ₺',
+                                Text(
+                                    '${widget.product.price.toStringAsFixed(2)} ₺',
                                     style: const TextStyle(
                                         color: Palette.justGrayColor,
                                         fontSize: 12,
@@ -91,8 +97,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                         ),
                       ],
                     )),
-                error: (error, stackTrace) =>
-                    ErrorText(error: error.toString()),
+                error: (error, stackTrace) => Text(error.toString()),
                 loading: () => Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: CupertinoActivityIndicator(),
@@ -106,18 +111,27 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                 height: 30,
                 child: CupertinoButton(
                   padding: EdgeInsets.zero,
-                  color: widget.product.categorie == "snack" &&
-                          widget.product.stock >= 0
+                  color: widget.product.stock > 0
                       ? Palette.themeColor
-                      : Palette.placeholderColor,
+                      : Palette.darkGreyColor2,
                   borderRadius: BorderRadius.circular(10),
                   child: Center(
-                    child: Text(
-                      'detay',
-                      style: const TextStyle(color: Colors.white),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.product.stock > 0 ? 'detay' : 'stokta yok',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'JetBrainsMonoRegular'),
+                      ),
                     ),
                   ),
                   onPressed: () {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) =>
+                                ProductDetails(productId: widget.product.id)));
                     // if (type == "editProduct") {
                     //   try {
                     //     Get.to(() => CreatePage(

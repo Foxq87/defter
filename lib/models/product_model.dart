@@ -7,6 +7,7 @@ class ProductModel {
   final String id;
   final String uid;
   final String title;
+  final String schoolId;
   final double price;
   final int stock;
   final String categorie;
@@ -14,11 +15,13 @@ class ProductModel {
   final int approve;
   final String description;
   final List<String> images;
+  final List<String> bookmarks;
   final DateTime createdAt;
   ProductModel({
     required this.id,
     required this.uid,
     required this.title,
+    required this.schoolId,
     required this.price,
     required this.stock,
     required this.categorie,
@@ -26,6 +29,7 @@ class ProductModel {
     required this.approve,
     required this.description,
     required this.images,
+    required this.bookmarks,
     required this.createdAt,
   });
 
@@ -33,6 +37,7 @@ class ProductModel {
     String? id,
     String? uid,
     String? title,
+    String? schoolId,
     double? price,
     int? stock,
     String? categorie,
@@ -40,12 +45,14 @@ class ProductModel {
     int? approve,
     String? description,
     List<String>? images,
+    List<String>? bookmarks,
     DateTime? createdAt,
   }) {
     return ProductModel(
       id: id ?? this.id,
       uid: uid ?? this.uid,
       title: title ?? this.title,
+      schoolId: schoolId ?? this.schoolId,
       price: price ?? this.price,
       stock: stock ?? this.stock,
       categorie: categorie ?? this.categorie,
@@ -53,6 +60,7 @@ class ProductModel {
       approve: approve ?? this.approve,
       description: description ?? this.description,
       images: images ?? this.images,
+      bookmarks: bookmarks ?? this.bookmarks,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -62,6 +70,7 @@ class ProductModel {
       'id': id,
       'uid': uid,
       'title': title,
+      'schoolId': schoolId,
       'price': price,
       'stock': stock,
       'categorie': categorie,
@@ -69,6 +78,7 @@ class ProductModel {
       'approve': approve,
       'description': description,
       'images': images,
+      'bookmarks': bookmarks,
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
   }
@@ -78,6 +88,7 @@ class ProductModel {
       id: map['id'] as String,
       uid: map['uid'] as String,
       title: map['title'] as String,
+      schoolId: map['schoolId'] as String,
       price: map['price'] as double,
       stock: map['stock'] as int,
       categorie: map['categorie'] as String,
@@ -85,6 +96,7 @@ class ProductModel {
       approve: map['approve'] as int,
       description: map['description'] as String,
       images: List<String>.from((map['images'] as List<dynamic>)),
+      bookmarks: List<String>.from((map['bookmarks'] as List<dynamic>)),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
     );
   }
@@ -96,7 +108,7 @@ class ProductModel {
 
   @override
   String toString() {
-    return 'ProductModel(id: $id, uid: $uid, title: $title, price: $price, stock: $stock, categorie: $categorie, subcategorie: $subcategorie, approve: $approve, description: $description, images: $images, createdAt: $createdAt)';
+    return 'ProductModel(id: $id, uid: $uid, title: $title, schoolId: $schoolId, price: $price, stock: $stock, categorie: $categorie, subcategorie: $subcategorie, approve: $approve, description: $description, images: $images, bookmarks: $bookmarks, createdAt: $createdAt)';
   }
 
   @override
@@ -106,6 +118,7 @@ class ProductModel {
     return other.id == id &&
         other.uid == uid &&
         other.title == title &&
+        other.schoolId == schoolId &&
         other.price == price &&
         other.stock == stock &&
         other.categorie == categorie &&
@@ -113,6 +126,7 @@ class ProductModel {
         other.approve == approve &&
         other.description == description &&
         listEquals(other.images, images) &&
+        listEquals(other.bookmarks, bookmarks) &&
         other.createdAt == createdAt;
   }
 
@@ -121,6 +135,7 @@ class ProductModel {
     return id.hashCode ^
         uid.hashCode ^
         title.hashCode ^
+        schoolId.hashCode ^
         price.hashCode ^
         stock.hashCode ^
         categorie.hashCode ^
@@ -128,6 +143,7 @@ class ProductModel {
         approve.hashCode ^
         description.hashCode ^
         images.hashCode ^
+        bookmarks.hashCode ^
         createdAt.hashCode;
   }
 }

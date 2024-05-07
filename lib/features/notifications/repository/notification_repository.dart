@@ -44,6 +44,26 @@ class NotificationRepository {
         );
   }
 
+  FutureVoid clearNotifications(String uid) async {
+    try {
+      final instance = FirebaseFirestore.instance;
+      final batch = instance.batch();
+      var collection = instance
+          .collection('notifications')
+          .doc(uid)
+          .collection('userNotifications');
+      var snapshots = await collection.get();
+      for (var doc in snapshots.docs) {
+        batch.delete(doc.reference);
+      }
+      return right(await batch.commit());
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   FutureVoid deleteNotification(NotificationModel notification) async {
     try {
       return right(_notifications

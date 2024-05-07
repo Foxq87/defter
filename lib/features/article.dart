@@ -43,7 +43,7 @@ class _ArticleViewState extends State<ArticleView> {
             backgroundColor: Colors.transparent,
             leading: JustIconButton(
                 icon: CupertinoIcons.back,
-                onPressed: () => Routemaster.of(context).pop(context)),
+                onPressed: () => Navigator.of(context).pop()),
             actions: [
               JustIconButton(icon: Icons.more_horiz, onPressed: () {}),
               const SizedBox(

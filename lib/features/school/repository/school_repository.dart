@@ -72,10 +72,19 @@ class SchoolRepository {
   }
 
   Stream<School> getSchoolById(String id) {
-    return _schools
-        .doc(id)
-        .snapshots()
-        .map((event) => School.fromMap(event.data() as Map<String, dynamic>));
+    if (id.contains('onay bekliyor:')) {
+      String schoolId = id.replaceAll('onay bekliyor: ', '');
+      print("testing school id : " + schoolId);
+      return _schools
+          .doc(schoolId)
+          .snapshots()
+          .map((event) => School.fromMap(event.data() as Map<String, dynamic>));
+    } else {
+      return _schools
+          .doc(id)
+          .snapshots()
+          .map((event) => School.fromMap(event.data() as Map<String, dynamic>));
+    }
   }
 
   FutureVoid editSchool(School school) async {

@@ -12,8 +12,12 @@ void showSnackBar(BuildContext context, String text) {
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        content: Text(text),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(400)),
+        content: Text(
+          text,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Palette.darkGreyColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -31,7 +35,7 @@ Future<List<File>> pickImages({required bool allowMultiple}) async {
     allowMultiple: allowMultiple,
     type: FileType.image,
     allowCompression: true,
-    compressionQuality: 25,
+    compressionQuality: 15,
   );
 
   if (result != null) {

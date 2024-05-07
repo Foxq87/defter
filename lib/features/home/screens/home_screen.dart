@@ -24,6 +24,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with AutomaticKeepAliveClientMixin<HomeScreen> {
+  ScrollController scrollController = ScrollController();
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -34,16 +36,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         bool isTop = scrollController.position.pixels == 0;
         if (!isTop) {
           setState(() {
+            isLoading = true;
             noteLimit += 10;
           });
         }
+        // if (scrollController.position.pixels ==
+        //     scrollController.position.maxScrollExtent) {
+        //   setState(() {
+        //     isLoading = false;
+        //   });
+        //   // Page is all the way down
+        //   // Add your code here
+        // }
       }
     });
   }
 
   int segmentedValue = 2;
   int noteLimit = 10;
-  final scrollController = ScrollController();
+
   @override
   bool get wantKeepAlive => true;
 
@@ -53,8 +64,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final user = ref.read(userProvider)!;
     return Scaffold(
       appBar: CupertinoNavigationBar(
-        border: const Border(
-            bottom: BorderSide(color: Palette.noteIconColor, width: 0.25)),
+        border: Border(
+            bottom: BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
         backgroundColor: Colors.black.withOpacity(0.4),
         padding: EdgeInsetsDirectional.zero,
         leading: Builder(
@@ -69,80 +80,104 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         middle: largeText("defter", true),
       ),
       drawer: const DrawerView(),
-      body: ListView(
+      body: Scrollbar(
+        scrollbarOrientation: ScrollbarOrientation.right,
+        thumbVisibility: true,
+        trackVisibility: true,
         controller: scrollController,
-        children: [
-          segmentedValue == 1
-              ? ref.watch(getWorldNotesProvider(user.schoolId)).when(
-                    data: (notes) {
-                      // if (scrollController.position.atEdge) {
-                      //   noteLimit += 10;
-                      // }
-                      return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount:
-                            noteLimit > notes.length ? notes.length : noteLimit,
-                        itemBuilder: (BuildContext context, int index) {
-                          final note = notes[index];
-                          return NoteCard(note: note);
-                        },
-                      );
-                    },
-                    error: (error, stackTrace) =>
-                        ErrorText(error: error.toString()),
-                    loading: () => const Loader(),
-                  )
-              : ref.watch(getSchoolNotesProvider(user.schoolId)).when(
-                    data: (notes) {
-                      return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount:
-                            noteLimit > notes.length ? notes.length : noteLimit,
-                        itemBuilder: (BuildContext context, int index) {
-                          final note = notes[index];
-                          return NoteCard(note: note);
-                        },
-                      );
-                    },
-                    error: (error, stackTrace) =>
-                        ErrorText(error: error.toString()),
-                    loading: () => const Loader(),
-                  ),
-          SizedBox(
-            height: 10,
-          ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     CupertinoButton(
-          //       padding: EdgeInsets.symmetric(horizontal: 20),
-          //       color: Palette.orangeColor,
-          //       borderRadius: BorderRadius.circular(20),
-          //       child: Text(
-          //         'daha fazla',
-          //         textAlign: TextAlign.center,
-          //         style: TextStyle(
-          //           fontSize: 18,
-          //           color: Colors.white,
-          //           fontFamily: 'JetBrainsMonoRegular',
-          //         ),
-          //       ),
-          //       onPressed: () {
-          //         setState(() {
-          //           noteLimit += 10;
-          //         });
-          //       },
-          //     ),
-          //   ],
-          // ),
+        child: ListView(
+          controller: scrollController,
+          children: [
+            segmentedValue == 1
+                ? ref.watch(getWorldNotesProvider(user.schoolId)).when(
+                      data: (notes) {
+                        // if (scrollController.position.atEdge) {
+                        //   noteLimit += 10;
+                        // }
+                        if (notes.length <= noteLimit) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        } else {
+                          setState(() {
+                            isLoading = true;
+                          });
+                        }
+                        return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: noteLimit > notes.length
+                              ? notes.length
+                              : noteLimit,
+                          itemBuilder: (BuildContext context, int index) {
+                            final note = notes[index];
+                            return NoteCard(note: note);
+                          },
+                        );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => const Loader(),
+                    )
+                : ref.watch(getSchoolNotesProvider(user.schoolId)).when(
+                      data: (notes) {
+                        if (notes.length <= noteLimit) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        } else {
+                          setState(() {
+                            isLoading = true;
+                          });
+                        }
 
-          CupertinoActivityIndicator(),
-          SizedBox(
-            height: 70,
-          )
-        ],
+                        return ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: noteLimit > notes.length
+                              ? notes.length
+                              : noteLimit,
+                          itemBuilder: (BuildContext context, int index) {
+                            final note = notes[index];
+                            return NoteCard(note: note);
+                          },
+                        );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => const Loader(),
+                    ),
+            SizedBox(
+              height: 10,
+            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     CupertinoButton(
+            //       padding: EdgeInsets.symmetric(horizontal: 20),
+            //       color: Palette.orangeColor,
+            //       borderRadius: BorderRadius.circular(20),
+            //       child: Text(
+            //         'daha fazla',
+            //         textAlign: TextAlign.center,
+            //         style: TextStyle(
+            //           fontSize: 18,
+            //           color: Colors.white,
+            //           fontFamily: 'JetBrainsMonoRegular',
+            //         ),
+            //       ),
+            //       onPressed: () {
+            //         setState(() {
+            //           noteLimit += 10;
+            //         });
+            //       },
+            //     ),
+            //   ],
+            // ),
+            if (isLoading) CupertinoActivityIndicator(),
+            SizedBox(
+              height: 70,
+            )
+          ],
+        ),
       ),
       //Articles
       // Padding(
@@ -354,7 +389,7 @@ CircleAvatar bookmarkButton() {
     radius: 17,
     backgroundColor: Colors.white.withOpacity(0.3),
     child: SvgPicture.asset(
-      Constants.bookmarkFilled,
+      Constants.bookmarkOutlined,
       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
       height: 20,
     ),

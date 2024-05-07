@@ -1,4 +1,3 @@
-import 'package:acc/core/utils.dart';
 import 'package:acc/models/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +6,6 @@ import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/core/failure.dart';
 import 'package:acc/core/providers/firebase_providers.dart';
 import 'package:acc/core/type_defs.dart';
-// import 'package:acc/models/comment_model.dart';
 import 'package:acc/models/school_model.dart';
 import 'package:acc/models/note_model.dart';
 

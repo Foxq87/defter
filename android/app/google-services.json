@@ -112,45 +112,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:256943613795:android:5ef63cd686f757b58bd556",
+        "mobilesdk_app_id": "1:256943613795:android:a1b916e1109d647e8bd556",
         "android_client_info": {
-          "package_name": "com.example.simpel"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB13XAt1HFpA1HBc469uKYnj9yAJKsnBKw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "256943613795-29cc705crac16cnt76qb2ap7t2vo4mk9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.appbeygolu"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:256943613795:android:c722ccb0427b25bc8bd556",
-        "android_client_info": {
-          "package_name": "justcom.bey.just"
+          "package_name": "com.defter.defter"
         }
       },
       "oauth_client": [

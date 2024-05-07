@@ -1,5 +1,6 @@
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
 import 'package:acc/features/notes/widgets/detailed_note_card.dart';
@@ -8,7 +9,9 @@ import 'package:acc/features/notes/widgets/note_card.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:routemaster/routemaster.dart';
 
 import '../../../core/commons/nav_bar_button.dart';
@@ -23,89 +26,105 @@ class NoteDetails extends ConsumerStatefulWidget {
 }
 
 class _NoteDetailsState extends ConsumerState<NoteDetails> {
+  ScrollController scrollController = ScrollController();
   TextEditingController commentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return ref.watch(getNoteByIdProvider(widget.noteId)).when(
-          data: (note) => Scaffold(
-            appBar: CupertinoNavigationBar(
-              transitionBetweenRoutes: false,
-              backgroundColor: Palette.backgroundColor,
-              middle: const Text(
-                'not',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'JetBrainsMonoRegular',
-                    fontSize: 18),
+          data: (note) => SafeArea(
+            child: Scaffold(
+              appBar: CupertinoNavigationBar(
+                transitionBetweenRoutes: false,
+                backgroundColor: Colors.black,
+                middle: const Text(
+                  'not',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'JetBrainsMonoRegular',
+                      fontSize: 18),
+                ),
+                leading: JustIconButton(
+                    icon: CupertinoIcons.back,
+                    onPressed: () => Navigator.of(context).pop()),
+                border: Border(
+                    bottom:
+                        BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
+                // trailing: JustIconButton(icon: Icons.more_horiz, onPressed: () {}),
               ),
-              leading: JustIconButton(
-                  icon: CupertinoIcons.back,
-                  onPressed: () => Routemaster.of(context).pop(context)),
-              // trailing: JustIconButton(icon: Icons.more_horiz, onPressed: () {}),
-            ),
-            body: ListView(
-              padding: EdgeInsets.only(bottom: 60),
-              children: [
-                DetailedNoteCard(note: note),
-                ref.watch(getNoteCommentsProvider(widget.noteId)).when(
-                      data: (data) {
-                        return ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          itemCount: data.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final note = data[index];
-                            return NoteCard(note: note);
-                          },
-                        );
-                      },
-                      error: (error, stackTrace) {
-                        return ErrorText(
-                          error: error.toString(),
-                        );
-                      },
-                      loading: () => const Loader(),
-                    ),
-              ],
-            ),
-            bottomSheet: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: const BoxDecoration(
-                  color: Palette.darkGreyColor,
-                  border:
-                      Border(top: BorderSide(width: 0.1, color: Colors.grey))),
-              child: SizedBox(
-                height: 35,
+              body: ListView(
+                padding: EdgeInsets.only(bottom: 60),
+                children: [
+                  DetailedNoteCard(note: note),
+                  ref.watch(getNoteCommentsProvider(widget.noteId)).when(
+                        data: (data) {
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final note = data[index];
+                              return NoteCard(note: note);
+                            },
+                          );
+                        },
+                        error: (error, stackTrace) {
+                          return ErrorText(
+                            error: error.toString(),
+                          );
+                        },
+                        loading: () => const Loader(),
+                      ),
+                ],
+              ),
+              bottomSheet: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: const BoxDecoration(
+                    color: Colors.black,
+                    border: Border(
+                        top: BorderSide(
+                            width: 0.5, color: Palette.darkGreyColor2))),
                 child: Row(
                   children: [
                     Form(
                       child: Expanded(
-                        child: CupertinoTextField(
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'JetBrainsMonoRegular',
+                        child: Scrollbar(
+                          scrollbarOrientation: ScrollbarOrientation.right,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          controller: scrollController,
+                          child: CupertinoTextField(
+                            cursorColor: Palette.themeColor,
+                            scrollController: scrollController,
+                            maxLines: 4,
+                            minLines: 1,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'JetBrainsMonoRegular',
+                            ),
+                            controller: commentController,
+                            placeholder: "yorum at",
+                            placeholderStyle: const TextStyle(
+                              fontFamily: 'JetBrainsMonoRegular',
+                              color: Palette.placeholderColor,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                            ),
                           ),
-                          controller: commentController,
-                          placeholder: "Write your reply",
-                          placeholderStyle: const TextStyle(
-                            fontFamily: 'JetBrainsMonoRegular',
-                            color: Palette.placeholderColor,
-                          ),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(13.0),
-                              border: Border.all(
-                                  width: 0.6, color: Palette.noteIconColor),
-                              color: Palette.darkGreyColor),
                         ),
                       ),
                     ),
                     const SizedBox(
                       width: 6.0,
                     ),
-                    CupertinoButton(
-                        borderRadius: BorderRadius.circular(13.0),
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    SizedBox(
+                      width: 35,
+                      height: 35,
+                      child: CupertinoButton(
+                        borderRadius: BorderRadius.circular(130.0),
+                        padding: EdgeInsets.zero,
                         color: Palette.themeColor,
                         onPressed: () {
                           final currentUser = ref.read(userProvider)!;
@@ -139,18 +158,23 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
                           }
                           commentController.clear();
                         },
-                        child: const Text(
-                          'ok',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'JetBrainsMonoBold'),
-                        )),
+                        child: SvgPicture.asset(
+                          Constants.send,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                          height: 20,
+                          width: 20,
+                          colorFilter: const ColorFilter.mode(
+                              Colors.black, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          error: (error, stackTrace) => ErrorText(error: error.toString()),
+          error: (error, stackTrace) => Text(error.toString()),
           loading: () => const Loader(),
         );
   }

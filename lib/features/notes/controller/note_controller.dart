@@ -128,7 +128,6 @@ class NoteController extends StateNotifier<bool> {
   }) async {
     state = true;
     String noteId = const Uuid().v1();
-    final user = _ref.read(userProvider)!;
 
     final Report report = Report(
       uid: uid,
@@ -164,6 +163,7 @@ class NoteController extends StateNotifier<bool> {
       schoolName: selectedSchoolId,
       imageLinks: [],
       likes: [],
+      bookmarks: [],
       commentCount: 0,
       uid: user.uid,
       type: 'text',
@@ -178,7 +178,7 @@ class NoteController extends StateNotifier<bool> {
     res.fold((l) => showSnackBar(context, l.message), (r) {
       // showSnackBar(context, 'Noteed successfully!');
       if (repliedTo.isEmpty) {
-        Routemaster.of(context).pop();
+        Navigator.of(context).pop();
       }
     });
   }
@@ -230,6 +230,7 @@ class NoteController extends StateNotifier<bool> {
         id: noteId,
         schoolName: selectedSchoolId,
         likes: [],
+        bookmarks: [],
         imageLinks: imageLinks,
         commentCount: 0,
         uid: user.uid,
@@ -243,7 +244,7 @@ class NoteController extends StateNotifier<bool> {
       state = false;
       res.fold((l) => showSnackBar(context, l.message), (r) {
         // showSnackBar(context, 'Noteed successfully!');
-        Routemaster.of(context).pop();
+        Navigator.of(context).pop();
       });
     }
   }

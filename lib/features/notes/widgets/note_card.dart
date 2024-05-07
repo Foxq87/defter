@@ -3,10 +3,10 @@ import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
+import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
 import 'package:acc/features/notes/screens/note_details.dart';
 import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/models/note_model.dart';
-import 'package:acc/models/school_model.dart';
 import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +76,6 @@ class _NoteCardState extends ConsumerState<NoteCard> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     timeago.setLocaleMessages('tr_short', timeago.TrShortMessages());
   }
@@ -85,6 +84,9 @@ class _NoteCardState extends ConsumerState<NoteCard> {
   Widget build(BuildContext context) {
     final isTypeImage = widget.note.type == 'image';
     final UserModel currentUser = ref.watch(userProvider)!;
+    bool isLiked = widget.note.likes.contains(currentUser.uid);
+    bool isBookmarked = widget.note.bookmarks.contains(currentUser.uid);
+
     // final currentTheme = ref.watch(themeNotifierProvider);
 
     return GestureDetector(
@@ -482,8 +484,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                   ),
                                                 );
                                               },
-                                              isLiked: widget.note.likes
-                                                  .contains(currentUser.uid),
+                                              isLiked: isLiked,
                                               likeCount:
                                                   widget.note.likes.length,
                                             ),
@@ -504,20 +505,30 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                               ),
                                             ),
                                             IconButton(
-                                                padding: EdgeInsets.zero,
-                                                onPressed: () {
-                                                  alertNotAvailable(context);
-                                                },
-                                                icon: SvgPicture.asset(
-                                                    Constants.bookmarkFilled,
-                                                    width: 20,
-                                                    height: 20,
-                                                    fit: BoxFit.cover,
-                                                    colorFilter:
-                                                        const ColorFilter.mode(
-                                                            Palette
-                                                                .noteIconColor,
-                                                            BlendMode.srcIn))),
+                                              padding: EdgeInsets.zero,
+                                              onPressed: () {
+                                                ref
+                                                    .read(
+                                                        bookmarkControllerProvider
+                                                            .notifier)
+                                                    .bookmarkNote(
+                                                        widget.note, context);
+                                              },
+                                              icon: SvgPicture.asset(
+                                                isBookmarked
+                                                    ? Constants.bookmarkFilled
+                                                    : Constants
+                                                        .bookmarkOutlined,
+                                                width: 20,
+                                                height: 20,
+                                                fit: BoxFit.cover,
+                                                colorFilter: ColorFilter.mode(
+                                                    isBookmarked
+                                                        ? Palette.themeColor
+                                                        : Palette.noteIconColor,
+                                                    BlendMode.srcIn),
+                                              ),
+                                            ),
                                             if (widget
                                                 .note.schoolName.isNotEmpty)
                                               ref

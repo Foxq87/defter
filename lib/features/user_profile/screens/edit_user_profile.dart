@@ -158,10 +158,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             padding: EdgeInsets.zero,
                             child: const Icon(CupertinoIcons.back),
                             onPressed: () {
-                              Routemaster.of(context).pop();
+                              Navigator.of(context).pop();
                             }),
                         middle: const Text(
-                          'Edit Profile',
+                          'profili düzenle',
                           style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'JetBrainsMonoExtraBold'),
@@ -170,8 +170,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           onPressed: () async {
                             await save(user);
                           },
-                          child: const Text(
-                            'kaydet',
+                          child: Text(
+                            isLoading ? '...' : 'kaydet',
                             style: TextStyle(
                                 color: Palette.themeColor,
                                 fontFamily: 'JetBrainsMonoBold'),
@@ -296,6 +296,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                               CupertinoTextField(
+                                cursorColor: Palette.themeColor,
                                 maxLength: 32,
                                 controller: nameController,
                                 placeholder: 'isim',
@@ -331,6 +332,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                               CupertinoTextField(
+                                cursorColor: Palette.themeColor,
                                 maxLength: 32,
                                 controller: usernameController,
                                 placeholder: 'kullanıcı adı',
@@ -366,6 +368,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                               ),
                               CupertinoTextField(
+                                cursorColor: Palette.themeColor,
                                 maxLines: 4,
                                 maxLength: 100,
                                 controller: bioController,

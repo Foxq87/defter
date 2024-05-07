@@ -71,7 +71,8 @@ class AuthRepository {
         followers: [],
         following: [],
       );
-      String formattedEmail = await emailFormatter(userCredential.user!.email!);
+      // String formattedEmail = await emailFormatter(userCredential.user!.email!);
+
       // _users.get().then((value) {
       //   for (var element in value.docs) {
       //     element.reference.update(
@@ -103,13 +104,22 @@ class AuthRepository {
             userCredential.additionalUserInfo!.isNewUser) {
           appbeyogluUserUid = await value.docs.first.get('uid');
 
+          //get appbeyoglu user data
           userModel = await getUserData(appbeyogluUserUid).first;
 
-          await _users.doc(userCredential.user!.uid).set(userModel
-              .copyWith(uid: userCredential.user!.uid, email: formattedEmail)
-              .toMap());
-          userModel = await getUserData(userCredential.user!.uid).first;
-          userModel = userModel.copyWith(username: '');
+          //change uid, username, creation, roles and schoolId
+          userModel = userModel.copyWith(
+            uid: userCredential.user!.uid,
+            username: '',
+            creation: userModel.creation,
+            roles: ['appbeyoglu-user'],
+            schoolId: 'BAIHL',
+          );
+
+          //update database values
+          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+
+          //delete old user
           await _users.doc(appbeyogluUserUid).delete();
         } else /* this is defter user */ {
           userModel = await getUserData(userCredential.user!.uid).first;
@@ -121,6 +131,7 @@ class AuthRepository {
         //       ));
         // }
       });
+      //return user
       return await right(userModel);
     } on FirebaseException catch (e) {
       throw e.message!;
@@ -163,11 +174,18 @@ class AuthRepository {
   }
 
   FutureEither setupUser(
-      String uid, String fullName, String username, String schoolId) async {
+      String uid,
+      String fullName,
+      String fullNameInsensitive,
+      String username,
+      String usernameInsensitive,
+      String schoolId) async {
     try {
       _users.doc(uid).update({
         "username": username,
+        "username_insensitive": usernameInsensitive,
         "name": fullName,
+        "name_insensitive": fullNameInsensitive,
         "schoolId": schoolId,
       });
       _schools.doc(schoolId).update({
@@ -182,12 +200,12 @@ class AuthRepository {
     }
   }
 
-  bool isUserSetup(WidgetRef ref) {
-    final UserModel myUser = ref.watch(userProvider)!;
-    return myUser.name.isEmpty ||
-        myUser.username.isEmpty ||
-        myUser.schoolId.isEmpty;
-  }
+  // bool isUserSetup(WidgetRef ref) {
+  //   final UserModel myUser = ref.watch(userProvider)!;
+  //   return myUser.name.isEmpty ||
+  //       myUser.username.isEmpty ||
+  //       myUser.schoolId.isEmpty;
+  // }
 
   void logOut() async {
     await _googleSignIn.signOut();

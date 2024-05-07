@@ -40,7 +40,7 @@ class AuthController extends StateNotifier<bool> {
     final user = await _authRepository.signInWithGoogle();
     state = false;
     user.fold(
-        (l) => print(l.message),//showSnackBar(context, l.message),
+        (l) => print(l.message), //showSnackBar(context, l.message),
         (userModel) =>
             _ref.read(userProvider.notifier).update((state) => userModel));
   }
@@ -67,10 +67,17 @@ class AuthController extends StateNotifier<bool> {
     return _authRepository.getUsernames();
   }
 
-  void setupUser(BuildContext context, String uid, String fullName,
-      String username, String schoolId) async {
+  void setupUser(
+    BuildContext context,
+    String uid,
+    String fullName,
+    String fullNameInsensitive,
+    String username,
+    String usernameInsensitive,
+    String schoolId,
+  ) async {
     String defterUid = 'vchV88dY6FMdXcT1mwac8VWFPG73';
-    state = true;
+    // state = true;
     _ref.read(notificationControllerProvider.notifier).sendNotification(
           context: context,
           content: "aramıza hoşgeldin!",
@@ -79,13 +86,17 @@ class AuthController extends StateNotifier<bool> {
           receiverUid: uid,
           senderId: defterUid,
         );
-    final res =
-        await _authRepository.setupUser(uid, fullName, username, schoolId);
-    state = false;
+    final res = await _authRepository.setupUser(uid, fullName,
+        fullNameInsensitive, username, usernameInsensitive, schoolId);
+
     res.fold((l) => print(l.message), (r) => null);
+    // state = false;
   }
 
-  bool isUserNoSetup(WidgetRef ref) {
-    return _authRepository.isUserSetup(ref);
+  bool isUserNotSetup(WidgetRef ref) {
+    final UserModel myUser = ref.watch(userProvider)!;
+    return myUser.name.isEmpty ||
+        myUser.username.isEmpty ||
+        myUser.schoolId.isEmpty;
   }
 }

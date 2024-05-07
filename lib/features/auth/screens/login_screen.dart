@@ -20,6 +20,19 @@ class LoginScreen extends ConsumerWidget {
                   const SizedBox(
                     height: 30,
                   ),
+
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Spacer(),
+                  Image.asset(
+                    'assets/defter-icon-rounded.png',
+                    height: 150,
+                    width: 150,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Center(
                     child: RichText(
                       text: const TextSpan(children: [
@@ -37,48 +50,45 @@ class LoginScreen extends ConsumerWidget {
                       ]),
                     ),
                   ),
-                  const SizedBox(
-                    height: 40,
-                  ),
+                  Spacer(),
+                  Divider(),
                   const SignInButton(),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          endIndent: 10,
-                          indent: 20,
-                          thickness: 0.5,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Text(
-                        "or",
-                        style: TextStyle(fontSize: 17),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          endIndent: 20,
-                          indent: 10,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  CreateAccButton(
-                    ref: ref,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  agreements(),
-                  const Spacer(),
-                  const LogInButton(),
+
+                  // const Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Divider(
+                  //         endIndent: 10,
+                  //         indent: 20,
+                  //         thickness: 0.5,
+                  //         color: Colors.grey,
+                  //       ),
+                  //     ),
+                  //     Text(
+                  //       "or",
+                  //       style: TextStyle(fontSize: 17),
+                  //     ),
+                  //     Expanded(
+                  //       child: Divider(
+                  //         endIndent: 20,
+                  //         indent: 10,
+                  //         color: Colors.grey,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // CreateAccButton(
+                  //   ref: ref,
+                  // ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  // agreements(),
+                  // const Spacer(),
+                  // const LogInButton(),
                 ],
               ),
       ),

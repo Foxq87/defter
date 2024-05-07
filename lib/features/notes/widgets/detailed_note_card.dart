@@ -3,12 +3,10 @@ import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/commons/view_users_by_uids.dart';
 import 'package:acc/core/constants/constants.dart';
+import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
 import 'package:acc/features/notes/widgets/report_note_dialog.dart';
-
 import 'package:acc/models/note_model.dart';
-import 'package:acc/models/school_model.dart';
 import 'package:any_link_preview/any_link_preview.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,7 +71,6 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     timeago.setLocaleMessages('tr_short', timeago.TrShortMessages());
   }
@@ -82,6 +79,10 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
   Widget build(BuildContext context) {
     final isTypeImage = widget.note.type == 'image';
     final UserModel currentUser = ref.watch(userProvider)!;
+    bool isLiked = widget.note.likes.contains(currentUser.uid);
+
+    bool isBookmarked = widget.note.bookmarks.contains(currentUser.uid);
+
     // final currentTheme = ref.watch(themeNotifierProvider);
 
     return Container(
@@ -443,9 +444,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                     return !isLiked;
                   },
                   likeBuilder: (isLiked) {
-                    return SizedBox(
-                      width: 22,
-                      height: 22,
+                    return Center(
                       child: SvgPicture.asset(
                         isLiked
                             ? Constants.heartFilled
@@ -454,10 +453,12 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                         colorFilter: ColorFilter.mode(
                             isLiked ? Palette.redColor : Palette.noteIconColor,
                             BlendMode.srcIn),
+                        width: 22,
+                        height: 22,
                       ),
                     );
                   },
-                  isLiked: widget.note.likes.contains(currentUser.uid),
+                  isLiked: isLiked,
                   // likeCount: widget.note.likes.length,
                 ),
                 IconButton(
@@ -475,16 +476,26 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                   ),
                 ),
                 IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      alertNotAvailable(context);
-                    },
-                    icon: SvgPicture.asset(Constants.bookmarkFilled,
-                        width: 22,
-                        height: 22,
-                        fit: BoxFit.cover,
-                        colorFilter: const ColorFilter.mode(
-                            Palette.noteIconColor, BlendMode.srcIn))),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    ref
+                        .read(bookmarkControllerProvider.notifier)
+                        .bookmarkNote(widget.note, context);
+                  },
+                  icon: SvgPicture.asset(
+                    isBookmarked
+                        ? Constants.bookmarkFilled
+                        : Constants.bookmarkOutlined,
+                    width: 22,
+                    height: 22,
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                        isBookmarked
+                            ? Palette.themeColor
+                            : Palette.noteIconColor,
+                        BlendMode.srcIn),
+                  ),
+                ),
                 if (widget.note.schoolName.isNotEmpty)
                   ref.watch(getSchoolByIdProvider(widget.note.schoolName)).when(
                         data: (data) {

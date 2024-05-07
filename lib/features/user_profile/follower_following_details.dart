@@ -71,7 +71,7 @@ class _FollowerFollowingDetailsState
               bottom: BorderSide(color: Palette.noteIconColor, width: 0.25)),
           leading: JustIconButton(
               icon: CupertinoIcons.back,
-              onPressed: () => Routemaster.of(context).pop(context)),
+              onPressed: () => Navigator.of(context).pop()),
           middle: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(contentItems.length, (index) {
@@ -110,8 +110,7 @@ class _FollowerFollowingDetailsState
                     },
                   );
                 },
-                error: (error, stackTrace) =>
-                    ErrorText(error: error.toString()),
+                error: (error, stackTrace) => Text(error.toString()),
                 loading: () => Loader()),
             ref.watch(getUserFollowingsProvider(widget.followingUids)).when(
                 data: (followers) {
@@ -134,8 +133,7 @@ class _FollowerFollowingDetailsState
                     },
                   );
                 },
-                error: (error, stackTrace) =>
-                    ErrorText(error: error.toString()),
+                error: (error, stackTrace) => Text(error.toString()),
                 loading: () => Loader())
           ],
         ),

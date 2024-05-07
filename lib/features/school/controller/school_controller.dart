@@ -86,7 +86,7 @@ class SchoolController extends StateNotifier<bool> {
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       showSnackBar(context, 'School created successfully!');
-      Routemaster.of(context).pop();
+      Navigator.of(context).pop();
     });
   }
 
@@ -159,7 +159,7 @@ class SchoolController extends StateNotifier<bool> {
     state = false;
     res.fold(
       (l) => showSnackBar(context, l.message),
-      (r) => Routemaster.of(context).pop(),
+      (r) => Navigator.of(context).pop(),
     );
   }
 
@@ -176,7 +176,7 @@ class SchoolController extends StateNotifier<bool> {
     final res = await _schoolRepository.addMods(schoolName, uids);
     res.fold(
       (l) => showSnackBar(context, l.message),
-      (r) => Routemaster.of(context).pop(),
+      (r) => Navigator.of(context).pop(),
     );
   }
 

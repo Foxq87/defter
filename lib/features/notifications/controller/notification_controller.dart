@@ -36,12 +36,22 @@ class NotificationController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
+  void clearNotifications(String uid, BuildContext context) async {
+    try {
+      await _notificationRepository.clearNotifications(uid);
+      Navigator.pop(context);
+      showSnackBar(context, 'bildirimler temizlendi');
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
   void deleteNotification(
       NotificationModel notification, BuildContext context) async {
     try {
       await _notificationRepository.deleteNotification(notification);
     } catch (e) {
-      showSnackBar(context, 'Notification Deleted successfully!');
+      showSnackBar(context, e.toString());
     }
   }
 
@@ -56,7 +66,9 @@ class NotificationController extends StateNotifier<bool> {
     required String id,
     required String receiverUid,
     required String senderId,
-    String noteId = '',
+    String? productId,
+    String? noteId,
+    String? articleId,
   }) async {
     NotificationModel notification = NotificationModel(
       id: id,
@@ -65,6 +77,8 @@ class NotificationController extends StateNotifier<bool> {
       receiverUid: receiverUid,
       content: content,
       postId: noteId,
+      productId: productId,
+      articleId: articleId,
       createdAt: DateTime.now(),
     );
     final res = await _notificationRepository.sendNotification(notification);

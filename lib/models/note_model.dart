@@ -10,6 +10,7 @@ class Note {
   final String schoolName;
   final List<String> imageLinks;
   final List<String> likes;
+  final List<String> bookmarks;
   final int commentCount;
   final String uid;
   final String type;
@@ -22,6 +23,7 @@ class Note {
     required this.schoolName,
     required this.imageLinks,
     required this.likes,
+    required this.bookmarks,
     required this.commentCount,
     required this.uid,
     required this.type,
@@ -36,6 +38,7 @@ class Note {
     String? schoolName,
     List<String>? imageLinks,
     List<String>? likes,
+    List<String>? bookmarks,
     int? commentCount,
     String? uid,
     String? type,
@@ -49,6 +52,7 @@ class Note {
       schoolName: schoolName ?? this.schoolName,
       imageLinks: imageLinks ?? this.imageLinks,
       likes: likes ?? this.likes,
+      bookmarks: bookmarks ?? this.bookmarks,
       commentCount: commentCount ?? this.commentCount,
       uid: uid ?? this.uid,
       type: type ?? this.type,
@@ -65,6 +69,7 @@ class Note {
       'schoolName': schoolName,
       'imageLinks': imageLinks,
       'likes': likes,
+      'bookmarks': bookmarks,
       'commentCount': commentCount,
       'uid': uid,
       'type': type,
@@ -81,6 +86,7 @@ class Note {
       schoolName: map['schoolName'] as String,
       imageLinks: List<String>.from((map['imageLinks'] as List<dynamic>)),
       likes: List<String>.from((map['likes'] as List<dynamic>)),
+      bookmarks: List<String>.from((map['bookmarks'] as List<dynamic>)),
       commentCount: map['commentCount'] as int,
       uid: map['uid'] as String,
       type: map['type'] as String,
@@ -91,43 +97,45 @@ class Note {
 
   String toJson() => json.encode(toMap());
 
-  factory Note.fromJson(String source) =>
-      Note.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Note.fromJson(String source) => Note.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'Note(id: $id, link: $link, content: $content, schoolName: $schoolName, imageLinks: $imageLinks, likes: $likes, commentCount: $commentCount, uid: $uid, type: $type, repliedTo: $repliedTo, createdAt: $createdAt)';
+    return 'Note(id: $id, link: $link, content: $content, schoolName: $schoolName, imageLinks: $imageLinks, likes: $likes, bookmarks: $bookmarks, commentCount: $commentCount, uid: $uid, type: $type, repliedTo: $repliedTo, createdAt: $createdAt)';
   }
 
   @override
   bool operator ==(covariant Note other) {
     if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.link == link &&
-        other.content == content &&
-        other.schoolName == schoolName &&
-        listEquals(other.imageLinks, imageLinks) &&
-        listEquals(other.likes, likes) &&
-        other.commentCount == commentCount &&
-        other.uid == uid &&
-        other.type == type &&
-        other.repliedTo == repliedTo &&
-        other.createdAt == createdAt;
+  
+    return 
+      other.id == id &&
+      other.link == link &&
+      other.content == content &&
+      other.schoolName == schoolName &&
+      listEquals(other.imageLinks, imageLinks) &&
+      listEquals(other.likes, likes) &&
+      listEquals(other.bookmarks, bookmarks) &&
+      other.commentCount == commentCount &&
+      other.uid == uid &&
+      other.type == type &&
+      other.repliedTo == repliedTo &&
+      other.createdAt == createdAt;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        link.hashCode ^
-        content.hashCode ^
-        schoolName.hashCode ^
-        imageLinks.hashCode ^
-        likes.hashCode ^
-        commentCount.hashCode ^
-        uid.hashCode ^
-        type.hashCode ^
-        repliedTo.hashCode ^
-        createdAt.hashCode;
+      link.hashCode ^
+      content.hashCode ^
+      schoolName.hashCode ^
+      imageLinks.hashCode ^
+      likes.hashCode ^
+      bookmarks.hashCode ^
+      commentCount.hashCode ^
+      uid.hashCode ^
+      type.hashCode ^
+      repliedTo.hashCode ^
+      createdAt.hashCode;
   }
 }

@@ -141,7 +141,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:upgrader/upgrader.dart';
 import '../theme/palette.dart';
 
 class WidgetTree extends ConsumerStatefulWidget {
@@ -150,7 +149,10 @@ class WidgetTree extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _WidgetTreeState();
 }
 
-class _WidgetTreeState extends ConsumerState<WidgetTree> {
+class _WidgetTreeState extends ConsumerState<WidgetTree>
+    with AutomaticKeepAliveClientMixin<WidgetTree> {
+  @override
+  bool get wantKeepAlive => true;
   int _selectedPageIndex = 0;
   PageController _pageController = PageController();
 
@@ -188,97 +190,93 @@ class _WidgetTreeState extends ConsumerState<WidgetTree> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final user = ref.read(userProvider)!;
-    return ref.watch(authControllerProvider.notifier).isUserNoSetup(ref)
+    return ref.watch(authControllerProvider.notifier).isUserNotSetup(ref)
         ? SetupProfile(user: user)
-        : UpgradeAlert(
-            canDismissDialog: false,
-            showIgnore: false,
-            showLater: false,
-            child: Scaffold(
-              body: PageView(
-                controller: _pageController,
-                //The following parameter is just to prevent
-                //the user from swiping to the next page.
-                physics: NeverScrollableScrollPhysics(),
-                children: screens,
+        : Scaffold(
+            body: PageView(
+              controller: _pageController,
+              //The following parameter is just to prevent
+              //the user from swiping to the next page.
+              physics: NeverScrollableScrollPhysics(),
+              children: screens,
+            ),
+            bottomNavigationBar: CupertinoTabBar(
+              border: const Border(
+                top: BorderSide(
+                  width: 0.10,
+                  color: Colors.grey,
+                ),
               ),
-              bottomNavigationBar: CupertinoTabBar(
-                border: const Border(
-                  top: BorderSide(
-                    width: 0.10,
-                    color: Colors.grey,
+              backgroundColor: Colors.black.withOpacity(0.4),
+              currentIndex: _selectedPageIndex,
+              onTap: (value) => setState(() {
+                _selectedPageIndex = value;
+                _pageController.jumpToPage(value);
+              }),
+              items: [
+                BottomNavigationBarItem(
+                  activeIcon: SvgPicture.asset(
+                    Constants.homeFilled,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                  icon: SvgPicture.asset(
+                    Constants.homeOutlined,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
                 ),
-                backgroundColor: Colors.black.withOpacity(0.4),
-                currentIndex: _selectedPageIndex,
-                onTap: (value) => setState(() {
-                  _selectedPageIndex = value;
-                  _pageController.jumpToPage(value);
-                }),
-                items: [
-                  BottomNavigationBarItem(
-                    activeIcon: SvgPicture.asset(
-                      Constants.homeFilled,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    icon: SvgPicture.asset(
-                      Constants.homeOutlined,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
+                BottomNavigationBarItem(
+                  activeIcon: SvgPicture.asset(
+                    Constants.searchFilled,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
-                  BottomNavigationBarItem(
-                    activeIcon: SvgPicture.asset(
-                      Constants.searchFilled,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    icon: SvgPicture.asset(
-                      Constants.searchOutlined,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
+                  icon: SvgPicture.asset(
+                    Constants.searchOutlined,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
-                  BottomNavigationBarItem(
-                    activeIcon: SvgPicture.asset(
-                      Constants.squareFilled,
-                      colorFilter: const ColorFilter.mode(
-                          Palette.themeColor, BlendMode.srcIn),
-                    ),
-                    icon: SvgPicture.asset(
-                      Constants.squareOutlined,
-                      colorFilter: const ColorFilter.mode(
-                          Palette.themeColor, BlendMode.srcIn),
-                    ),
+                ),
+                BottomNavigationBarItem(
+                  activeIcon: SvgPicture.asset(
+                    Constants.squareFilled,
+                    colorFilter: const ColorFilter.mode(
+                        Palette.themeColor, BlendMode.srcIn),
                   ),
-                  BottomNavigationBarItem(
-                    activeIcon: SvgPicture.asset(
-                      Constants.bellFilled,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    icon: SvgPicture.asset(
-                      Constants.bellOutlined,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
+                  icon: SvgPicture.asset(
+                    Constants.squareOutlined,
+                    colorFilter: const ColorFilter.mode(
+                        Palette.themeColor, BlendMode.srcIn),
                   ),
-                  BottomNavigationBarItem(
-                    activeIcon: SvgPicture.asset(
-                      Constants.mailFileed,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    icon: SvgPicture.asset(
-                      Constants.mailOutlined,
-                      colorFilter:
-                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
+                ),
+                BottomNavigationBarItem(
+                  activeIcon: SvgPicture.asset(
+                    Constants.bellFilled,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
-                ],
-              ),
+                  icon: SvgPicture.asset(
+                    Constants.bellOutlined,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+                BottomNavigationBarItem(
+                  activeIcon: SvgPicture.asset(
+                    Constants.mailFileed,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                  icon: SvgPicture.asset(
+                    Constants.mailOutlined,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+              ],
             ),
           );
   }
