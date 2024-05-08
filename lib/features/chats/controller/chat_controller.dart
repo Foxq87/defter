@@ -86,6 +86,15 @@ class ChatController extends StateNotifier<bool> {
     });
   }
 
+  void deleteMessage(MessageModel message, BuildContext context) async {
+    final res = await _chatRepository.deleteMessage(message);
+    state = false;
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      // showSnackBar(context, 'grup oluşturuldu');
+      Navigator.of(context).pop();
+    });
+  }
+
   void startChat({
     required List<String> uids,
     required String title,

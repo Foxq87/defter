@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
+import 'package:acc/features/chats/screens/chat_details.dart';
 import 'package:acc/features/chats/widgets/message_card.dart';
 import 'package:acc/features/chats/widgets/reactions_my.dart';
 import 'package:acc/models/chat_model.dart';
@@ -11,10 +12,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
+import 'package:flutter_chat_reactions/model/menu_item.dart';
 import 'package:flutter_chat_reactions/utilities/hero_dialog_route.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:unicons/unicons.dart';
 
 import '../../../core/commons/nav_bar_button.dart';
 import '../../../core/constants/constants.dart';
@@ -45,6 +49,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+
     // Setup the listener.
     scrollController.addListener(() {
       if (scrollController.position.atEdge) {
@@ -73,12 +78,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
+  String formattedDate(DateTime date) {
+    initializeDateFormatting('tr-TR', null);
+    // initializeDateFormatting('tr_TR', null).then(onValue)
+    // final DateFormat formatter =
+    final formatted = DateFormat(
+            DateTime.now().difference(date).inDays > 365
+                ? 'EEE, d/M/y'
+                : 'EEE, d MMM',
+            'tr-TR')
+        .format(date);
+    // final String formatted = formatter.format(date);
+    return formatted; // something like 2013-04-20
+  }
+
   int counter = 0;
   int currentCarouselIndex = 0;
   List<File> images = [];
   void onPickImages() async {
     images = await pickImages(allowMultiple: false);
     setState(() {});
+  }
+
+  void deleteMessage(MessageModel message, BuildContext context) {
+    ref.read(chatControllerProvider.notifier).deleteMessage(message, context);
   }
 
   Future sendMessage(bool isLoading) async {
@@ -195,7 +218,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               appBar: CupertinoNavigationBar(
                 transitionBetweenRoutes: false,
                 backgroundColor: Colors.black,
-                middle: largeText(widget.chat.title, false),
+                middle: GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) =>
+                                ChatDetails(chat: widget.chat))),
+                    child: largeText(widget.chat.title, false)),
                 leading: JustIconButton(
                     icon: CupertinoIcons.back,
                     onPressed: () => Navigator.of(context).pop()),
@@ -206,133 +235,243 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
               body: images.isNotEmpty
                   ? buildImages(isLoading)
-                  : Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Scrollbar(
-                          scrollbarOrientation: ScrollbarOrientation.right,
-                          thumbVisibility: true,
-                          trackVisibility: true,
-                          controller: scrollController,
-                          child: ListView.builder(
-                            reverse: true,
-                            keyboardDismissBehavior:
-                                ScrollViewKeyboardDismissBehavior.onDrag,
-                            controller: scrollController,
-                            padding: EdgeInsets.only(bottom: 70, right: 12),
-                            // physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: messages.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              bool isPreviousMessageSameAuthor =
-                                  index + 1 != messages.length
-                                      ? messages[index].uid ==
-                                          messages[index + 1].uid
-                                      : false;
-                              bool isNextMessageSameAuthor1 = (index - 1 >= 0)
-                                  ? messages[index].uid ==
-                                      messages[index - 1].uid
-                                  : false;
-                              print(isNextMessageSameAuthor1);
-                              final message = messages[index];
+                  : messages.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text(
+                            'dostum. çabuk bi sohbet başlat.. ayıptır.',
+                            style: TextStyle(
+                                color: Palette.orangeColor, fontSize: 25),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Scrollbar(
+                              scrollbarOrientation: ScrollbarOrientation.right,
+                              thumbVisibility: true,
+                              trackVisibility: true,
+                              controller: scrollController,
+                              child: ListView.builder(
+                                reverse: true,
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                controller: scrollController,
+                                padding: EdgeInsets.only(
+                                    bottom: 70, right: 12, left: 10),
+                                // physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: messages.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  MessageModel message = messages[index];
+                                  MessageModel? previousMessage =
+                                      index + 1 != messages.length
+                                          ? messages[index + 1]
+                                          : null;
+                                  MessageModel? nextMessage = (index - 1 >= 0)
+                                      ? messages[index - 1]
+                                      : null;
+                                  bool showDate = previousMessage == null
+                                      ? true
+                                      : message.createdAt
+                                              .difference(
+                                                  previousMessage.createdAt)
+                                              .inDays >=
+                                          1;
+                                  bool isPreviousMessageSameAuthor =
+                                      index + 1 != messages.length
+                                          ? messages[index].uid ==
+                                              messages[index + 1].uid
+                                          : false;
+                                  bool isNextMessageSameAuthor1 =
+                                      (index - 1 >= 0)
+                                          ? messages[index].uid ==
+                                              messages[index - 1].uid
+                                          : false;
+                                  print(isNextMessageSameAuthor1);
 
-                              return Column(
-                                children: [
-                                  if (widget.chat.isDM &&
-                                      message.uid != currentUser.uid &&
-                                      !isPreviousMessageSameAuthor)
-                                    ref
-                                        .watch(getUserDataProvider(message.uid))
-                                        .when(
-                                            data: (data) => Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 8.0, bottom: 2),
-                                                  child:
-                                                      Text("@" + data.username),
-                                                )),
-                                            error: (error, stackTrace) =>
-                                                Text(error.toString()),
-                                            loading: () => Text('')),
-                                  GestureDetector(
-                                    onLongPress: () =>
-                                        Navigator.of(context).push(
-                                      HeroDialogRoute(
-                                        builder: (context) {
-                                          return ReactionsDialogWidget(
-                                            widgetAlignment:
-                                                message.uid == currentUser.uid
+                                  return Column(
+                                    children: [
+                                      if (showDate)
+                                        Align(
+                                            alignment: Alignment.center,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5.0, bottom: 2),
+                                              child: Text(
+                                                formattedDate(
+                                                    message.createdAt),
+                                                style: TextStyle(
+                                                    color:
+                                                        Palette.justGrayColor),
+                                              ),
+                                            )),
+                                      if (widget.chat.isDM &&
+                                          message.uid != currentUser.uid &&
+                                          !isPreviousMessageSameAuthor)
+                                        ref
+                                            .watch(getUserDataProvider(
+                                                message.uid))
+                                            .when(
+                                                data: (data) => Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 5.0,
+                                                              bottom: 2),
+                                                      child: Text(
+                                                        "@" + data.username,
+                                                        style: TextStyle(
+                                                            color: Palette
+                                                                .justGrayColor),
+                                                      ),
+                                                    )),
+                                                error: (error, stackTrace) =>
+                                                    Text(error.toString()),
+                                                loading: () => Text('')),
+                                      GestureDetector(
+                                        onLongPress: () =>
+                                            Navigator.of(context).push(
+                                          HeroDialogRoute(
+                                            builder: (context) {
+                                              return ReactionsDialogWidget(
+                                                widgetAlignment: message.uid ==
+                                                        currentUser.uid
                                                     ? Alignment.centerRight
                                                     : Alignment.centerLeft,
-                                            id: message
-                                                .id, // unique id for message
-                                            messageWidget: MessageCard(
-                                                message: message,
-                                                isNextMessageSameAuthor:
-                                                    isNextMessageSameAuthor1,
-                                                isPreviousMessageSameAuthor:
-                                                    isPreviousMessageSameAuthor), // message widget
-                                            onReactionTap: (reaction) {
-                                              print('reaction: $reaction');
-                                              if (reaction == '➕') {
-                                                // show emoji picker container
-                                              } else {
-                                                reactMessage(
-                                                  message,
-                                                  currentUser,
-                                                  reaction,
-                                                  context,
-                                                );
-                                              }
+                                                id: message
+                                                    .id, // unique id for message
+                                                messageWidget: MessageCard(
+                                                    message: message,
+                                                    isNextMessageSameAuthor:
+                                                        isNextMessageSameAuthor1,
+                                                    isPreviousMessageSameAuthor:
+                                                        isPreviousMessageSameAuthor), // message widget
+                                                onReactionTap: (reaction) {
+                                                  print('reaction: $reaction');
+                                                  if (reaction == '➕') {
+                                                    // show emoji picker container
+                                                  } else {
+                                                    reactMessage(
+                                                      message,
+                                                      currentUser,
+                                                      reaction,
+                                                      context,
+                                                    );
+                                                  }
+                                                },
+                                                menuItems: [
+                                                  MenuItem(
+                                                    label: 'kopyala',
+                                                    icon: UniconsLine.copy,
+                                                  ),
+                                                  if (message.uid ==
+                                                      currentUser.uid)
+                                                    MenuItem(
+                                                      label: 'sil',
+                                                      icon:
+                                                          CupertinoIcons.delete,
+                                                      isDestuctive: true,
+                                                    )
+                                                ],
+                                                onContextMenuTap: (menuItem) {
+                                                  print(
+                                                      'menu item: ${menuItem}');
+                                                  if (menuItem.isDestuctive) {
+                                                    if (message.uid ==
+                                                        currentUser.uid) {
+                                                      deleteMessage(
+                                                          message, context);
+                                                    } //else {
+                                                    //   showCupertinoModalPopup(
+                                                    //     context: context,
+                                                    //     builder: (context) =>
+                                                    //         CupertinoTheme(
+                                                    //       data:
+                                                    //           const CupertinoThemeData(
+                                                    //               brightness:
+                                                    //                   Brightness
+                                                    //                       .dark),
+                                                    //       child:
+                                                    //           CupertinoActionSheet(
+                                                    //         cancelButton:
+                                                    //             CupertinoActionSheetAction(
+                                                    //                 child:
+                                                    //                     const Text(
+                                                    //                         'Back'),
+                                                    //                 onPressed: () {
+                                                    //                   Navigator.of(
+                                                    //                           context)
+                                                    //                       .pop();
+                                                    //                 }),
+                                                    //         actions: [
+                                                    //           CupertinoActionSheetAction(
+                                                    //               child: const Text(
+                                                    //                 'benden sil',
+                                                    //                 style: TextStyle(
+                                                    //                     color: Palette
+                                                    //                         .redColor),
+                                                    //               ),
+                                                    //               onPressed: () {
+                                                    //                 Navigator.of(
+                                                    //                         context)
+                                                    //                     .pop();
+                                                    //               })
+                                                    //         ],
+                                                    //       ),
+                                                    //     ),
+                                                    //   );
+                                                    // }
+                                                  }
+
+                                                  // handle context menu item
+                                                },
+                                              );
                                             },
-                                            onContextMenuTap: (menuItem) {
-                                              print('menu item: $menuItem');
-                                              // handle context menu item
-                                            },
-                                          );
-                                        },
+                                          ),
+                                        ),
+                                        child: Hero(
+                                            tag: message.id,
+                                            child: MessageCard(
+                                              message: message,
+                                              isPreviousMessageSameAuthor:
+                                                  isPreviousMessageSameAuthor,
+                                              isNextMessageSameAuthor:
+                                                  isNextMessageSameAuthor1,
+                                            )),
                                       ),
-                                    ),
-                                    child: Hero(
-                                        tag: message.id,
-                                        child: MessageCard(
-                                          message: message,
-                                          isPreviousMessageSameAuthor:
-                                              isPreviousMessageSameAuthor,
-                                          isNextMessageSameAuthor:
-                                              isNextMessageSameAuthor1,
-                                        )),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                        if (isLoading)
-                          Positioned(
-                            child: Container(
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width,
-                              color: Colors.transparent,
-                              child: Center(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: Palette.darkGreyColor,
-                                  ),
-                                  padding: EdgeInsets.all(25),
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Palette.themeColor),
-                                  ),
-                                ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
-                          )
-                      ],
-                    ),
+                            if (isLoading)
+                              Positioned(
+                                child: Container(
+                                  height: MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.width,
+                                  color: Colors.transparent,
+                                  child: Center(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: Palette.darkGreyColor,
+                                      ),
+                                      padding: EdgeInsets.all(25),
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Palette.themeColor),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                          ],
+                        ),
               bottomSheet: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

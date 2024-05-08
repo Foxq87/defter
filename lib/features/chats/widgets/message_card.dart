@@ -3,7 +3,7 @@ import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/widgets/stacked_reactions_my.dart';
 import 'package:acc/models/message_model.dart';
 import 'package:acc/theme/palette.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,19 +71,19 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(
                               widget.isPreviousMessageSameAuthor && !isMyMessage
-                                  ? 4
+                                  ? 6
                                   : 20),
                           topRight: Radius.circular(
                               widget.isPreviousMessageSameAuthor && isMyMessage
-                                  ? 4
+                                  ? 6
                                   : 20),
                           bottomLeft: isMyMessage
                               ? const Radius.circular(20)
                               : Radius.circular(
-                                  widget.isNextMessageSameAuthor ? 5 : 20),
+                                  widget.isNextMessageSameAuthor ? 6 : 20),
                           bottomRight: isMyMessage
                               ? Radius.circular(
-                                  widget.isPreviousMessageSameAuthor && !widget.isNextMessageSameAuthor ? 20 : 5)
+                                  widget.isPreviousMessageSameAuthor && !widget.isNextMessageSameAuthor ? 20 : 6)
                               : const Radius.circular(20))),
                   child: Column(
                     crossAxisAlignment: isMyMessage
@@ -109,24 +109,32 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(
-                                          widget.isPreviousMessageSameAuthor &&
-                                                  !isMyMessage
-                                              ? 4
+                                          widget.isPreviousMessageSameAuthor && !isMyMessage
+                                              ? 5
                                               : 18),
                                       topRight: Radius.circular(
-                                          widget.isPreviousMessageSameAuthor &&
-                                                  isMyMessage
-                                              ? 4
+                                          widget.isPreviousMessageSameAuthor && isMyMessage
+                                              ? 5
                                               : 18),
-                                      bottomLeft: isMyMessage
-                                          ? const Radius.circular(20)
-                                          : Radius.circular(
-                                              widget.isNextMessageSameAuthor
-                                                  ? 4
-                                                  : 18),
-                                      bottomRight: isMyMessage
-                                          ? Radius.circular(widget.isPreviousMessageSameAuthor && !widget.isNextMessageSameAuthor ? 20 : 5)
-                                          : const Radius.circular(20)),
+                                      bottomLeft: isImageMessage &&
+                                              widget.message.text.isNotEmpty
+                                          ? Radius.circular(5)
+                                          : isMyMessage
+                                              ? const Radius.circular(20)
+                                              : Radius.circular(
+                                                  widget.isNextMessageSameAuthor
+                                                      ? 5
+                                                      : 18),
+                                      bottomRight: isImageMessage &&
+                                              widget.message.text.isNotEmpty
+                                          ? Radius.circular(5)
+                                          : isMyMessage
+                                              ? Radius.circular(
+                                                  widget.isPreviousMessageSameAuthor &&
+                                                          !widget.isNextMessageSameAuthor
+                                                      ? 20
+                                                      : 5)
+                                              : const Radius.circular(20)),
                                   child: Image.network(
                                     widget.message.imageUrls.first,
                                     height: 125,
@@ -200,8 +208,8 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                             widget.message.text,
                             style: const TextStyle(
                                 color: Colors.white,
-                                fontFamily: 'JetBrainsMonoBold',
-                                fontSize: 14,
+                                fontFamily: 'JetBrainsMonoRegular',
+                                fontSize: 16,
                                 inherit: false),
                           ),
                         ),
@@ -213,11 +221,11 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                               formattedDate(widget.message.createdAt),
                               style: TextStyle(
                                   color: isMyMessage
-                                      ? Palette.textFieldColor
+                                      ? Colors.grey[700]
                                       : Palette.justGrayColor,
                                   inherit: false,
                                   fontFamily: 'JetBrainsMonoRegular',
-                                  fontSize: 13),
+                                  fontSize: 12),
                             ),
                             // Icon(UniconsLine.check)
                           ],
@@ -232,15 +240,15 @@ class _MessageCardState extends ConsumerState<MessageCard> {
         Positioned(
           // the position where to show your reaction
           bottom: 7,
-          right: isMyMessage ? 10 : null,
-          left: isMyMessage ? null : 10,
+          right: isMyMessage ? 5 : null,
+          left: isMyMessage ? null : 5,
           child: StackedReactions(
-            alignment:
-                isMyMessage ? Alignment.centerRight : Alignment.centerLeft,
+            isMyMessage: isMyMessage,
             // reactions widget
             reactions: widget.message.reactions, // list of reaction strings
+
             stackedValue:
-                5.0, // Value used to calculate the horizontal offset of each reaction
+                0.01, // Value used to calculate the horizontal offset of each reaction
           ),
         )
       ],

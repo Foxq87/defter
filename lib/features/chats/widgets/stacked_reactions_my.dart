@@ -5,16 +5,15 @@ class StackedReactions extends StatelessWidget {
   const StackedReactions({
     super.key,
     required this.reactions,
-    this.alignment = Alignment.centerRight,
+    this.isMyMessage = false,
     this.size = 17.0,
     this.stackedValue = 4.0,
-    this.direction = TextDirection.ltr,
   });
 
   // List of reactions
   final List<Map<String, dynamic>> reactions;
 
-  final Alignment alignment;
+  final bool isMyMessage;
   // Size of the reaction icon/text
   final double size;
 
@@ -22,7 +21,7 @@ class StackedReactions extends StatelessWidget {
   final double stackedValue;
 
   // Text direction (LTR or RTL)
-  final TextDirection direction;
+  // final TextDirection direction;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +37,12 @@ class StackedReactions extends StatelessWidget {
       final leftOffset = size - stackedValue;
 
       return Container(
-        margin: EdgeInsets.only(left: leftOffset * index),
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 0),
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(left: 25.0 * index),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 0)
+            .copyWith(right: 4),
         decoration: BoxDecoration(
+          border: Border.all(width: 0.6, color: Palette.backgroundColor),
           color: Palette.darkGreyColor2,
           borderRadius: const BorderRadius.all(Radius.circular(25)),
         ),
@@ -48,8 +50,9 @@ class StackedReactions extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: Text(
-              reaction,
+              reaction.trim(),
               style: TextStyle(fontSize: size),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -69,15 +72,14 @@ class StackedReactions extends StatelessWidget {
             children: [
               Stack(
                 // Efficiently display reactions based on direction
-                children: direction == TextDirection.ltr
+                children: !isMyMessage
                     ? reactionWidgets.reversed.toList()
                     : reactionWidgets,
               ),
               // Show remaining count only if there are more than 5 reactions
               if (remaining > 0)
                 Container(
-                  padding: const EdgeInsets.all(2.0),
-                  margin: const EdgeInsets.all(2.0),
+                  // margin: const EdgeInsets.only(left: 5.0),
                   decoration: BoxDecoration(
                     color: Palette.orangeColor,
                     borderRadius: const BorderRadius.all(Radius.circular(25)),

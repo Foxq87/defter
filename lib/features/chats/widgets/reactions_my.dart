@@ -112,7 +112,6 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           Future.delayed(const Duration(milliseconds: 200))
                               .whenComplete(() {
                             // pop the dialog
-                            Navigator.of(context).pop();
                             widget.onContextMenuTap(item);
                           });
                         },

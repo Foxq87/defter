@@ -60,6 +60,22 @@ class ChatRepository {
     }
   }
 
+  FutureVoid deleteMessage(MessageModel message) async {
+    try {
+      print(message.chatId);
+
+      return right(_chats
+          .doc(message.chatId)
+          .collection('chatContent')
+          .doc(message.id)
+          .delete());
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   FutureVoid reactMessage(
       MessageModel message, UserModel currentUser, String reaction) async {
     try {
