@@ -181,7 +181,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Palette.darkGreyColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(

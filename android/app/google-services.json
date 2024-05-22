@@ -7,6 +7,58 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:256943613795:android:f7fe7620117a29198bd556",
+        "android_client_info": {
+          "package_name": "app.web.defter.acc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256943613795-9rnnugf458c3tsguikejinai5ld002q5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.web.defter.acc",
+            "certificate_hash": "8b8443d44e836d11238f116b130dc0d62aff00e7"
+          }
+        },
+        {
+          "client_id": "256943613795-cmgm6avi33l96lg46pbc9r2d0v52ut47.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.web.defter.acc",
+            "certificate_hash": "f930e9ce5727928dda6ad78037b1bb799b975b13"
+          }
+        },
+        {
+          "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB13XAt1HFpA1HBc469uKYnj9yAJKsnBKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "256943613795-29cc705crac16cnt76qb2ap7t2vo4mk9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.appbeygolu"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:256943613795:android:c9b84e1511c1265c8bd556",
         "android_client_info": {
           "package_name": "com.app.acc"

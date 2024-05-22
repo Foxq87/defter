@@ -78,7 +78,7 @@ class MarketplaceRepository {
     return _products
         .where('approve', isEqualTo: 2)
         .where('schoolId', isEqualTo: schoolId)
-        .orderBy('categorie')
+        // .orderBy('categorie')
         // .limit(15)
         // .where('schoolId', isEqualTo: schoolId)
         // .where('categorie', isEqualTo: prototype.categorie)

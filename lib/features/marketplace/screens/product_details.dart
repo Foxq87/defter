@@ -1,16 +1,19 @@
-
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
+import 'package:acc/features/chats/controller/chat_controller.dart';
+import 'package:acc/features/chats/screens/chat_screen.dart';
 import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
+import 'package:acc/models/chat_model.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../../core/constants/constants.dart';
 import '../../auth/controller/auth_controller.dart';
@@ -28,11 +31,11 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
   int currentCarouselIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final user = ref.read(userProvider)!;
+    final currentUser = ref.read(userProvider)!;
 
     return ref.watch(getProductByIdProvider(widget.productId)).when(
         data: (product) {
-          bool isBookmarked = product.bookmarks.contains(user.uid);
+          bool isBookmarked = product.bookmarks.contains(currentUser.uid);
           return Scaffold(
             appBar: CupertinoNavigationBar(
               // heroTag: 'product-details-${product.id}',
@@ -51,7 +54,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                 padding: EdgeInsets.zero,
                 child: SvgPicture.asset(
                   isBookmarked
-                      ? Constants.bookmarkFilled 
+                      ? Constants.bookmarkFilled
                       : Constants.bookmarkOutlined,
                   colorFilter: ColorFilter.mode(
                     isBookmarked ? Palette.themeColor : Colors.white,
@@ -109,7 +112,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                               (index) => GestureDetector(
                                     onTap: () => Navigator.push(
                                         context,
-                                        CupertinoPageRoute(
+                                        MaterialPageRoute(
                                             builder: (context) => ImageView(
                                                 imageUrls: product.images,
                                                 imageFiles: [],
@@ -193,7 +196,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                     data: (vendor) => ListTile(
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                   builder: (context) =>
                                       UserProfileScreen(uid: vendor.uid))),
                           leading: ClipRRect(
@@ -261,37 +264,53 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CupertinoButton(
-                        onPressed: () {},
-                        color: Palette.themeColor,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        borderRadius: BorderRadius.circular(40),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              Constants.mailOutlined,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
+                      if (product.uid != currentUser.uid)
+                        CupertinoButton(
+                          onPressed: () {
+                            ref.read(chatControllerProvider.notifier).startChat(
+                                uids: [product.uid],
+                                title: '',
+                                description: '',
+                                profilePic: null,
+                                context: context,
+                                isDM: true);
+
+                            // ref.read(chatControllerProvider.notifier).startChat(
+                            //     uids: [product.uid],
+                            //     title: '',
+                            //     description: '',
+                            //     profilePic: null,
+                            //     context: context);
+                          },
+                          color: Palette.themeColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          borderRadius: BorderRadius.circular(40),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                Constants.mailOutlined,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            const Text(
-                              'iletişime geç',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 19,
-                                fontFamily: 'JetBrainsMonoExtraBold',
+                              SizedBox(
+                                width: 10,
                               ),
-                            ),
-                          ],
+                              const Text(
+                                'iletişime geç',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 19,
+                                  fontFamily: 'JetBrainsMonoExtraBold',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                       if (product.stock == 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),

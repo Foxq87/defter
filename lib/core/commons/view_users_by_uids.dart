@@ -102,7 +102,7 @@ class _ViewUsersByUidsState extends ConsumerState<ViewUsersByUids> {
                           subtitle: Text('@' + likers[index].username),
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                 builder: (context) =>
                                     UserProfileScreen(uid: widget.uids[index]),
                               )));

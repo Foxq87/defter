@@ -1,5 +1,6 @@
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/utils.dart';
+import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/features/user_profile/follower_following_details.dart';
@@ -78,7 +79,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                         child: GestureDetector(
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                   builder: (context) => ImageView(
                                       imageUrls: [user.banner],
                                       imageFiles: [],
@@ -295,7 +296,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                         GestureDetector(
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                   builder: (context) => ImageView(
                                       imageUrls: [user.profilePic],
                                       imageFiles: [],
@@ -393,7 +394,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                             .read(userProfileControllerProvider
                                                 .notifier)
                                             .followUser(context, user,
-                                                currentUser, ref);
+                                                currentUser);
                                       },
                                       child: Text(
                                         user.followers.contains(currentUser.uid)
@@ -416,7 +417,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                       color: Palette.textFieldColor,
                                       padding: EdgeInsets.zero,
                                       onPressed: () {
-                                        alertNotAvailable(context);
+                                        ref
+                                            .read(
+                                                chatControllerProvider.notifier)
+                                            .startChat(
+                                                uids: [user.uid],
+                                                title: '',
+                                                description: '',
+                                                profilePic: null,
+                                                context: context,
+                                                isDM: true);
                                       },
                                       child: const Text(
                                         'mesaj at',
@@ -664,7 +674,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          MaterialPageRoute(
                               builder: (context) => FollowerFollowingDetails(
                                     followerUids: user.followers,
                                     followingUids: user.following,
@@ -689,7 +699,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                     onPressed: () {
                       Navigator.push(
                           context,
-                          CupertinoPageRoute(
+                          MaterialPageRoute(
                               builder: (context) => FollowerFollowingDetails(
                                     followerUids: user.followers,
                                     followingUids: user.following,

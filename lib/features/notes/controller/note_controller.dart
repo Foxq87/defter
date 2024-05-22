@@ -149,23 +149,23 @@ class NoteController extends StateNotifier<bool> {
 
   void shareTextNote({
     required BuildContext context,
-    required String selectedSchoolId,
+    required String schoolId,
     required String content,
     required String link,
     required String repliedTo,
   }) async {
     state = true;
     String noteId = const Uuid().v1();
-    final user = _ref.read(userProvider)!;
+    final currentUser = _ref.read(userProvider)!;
 
     final Note note = Note(
       id: noteId,
-      schoolName: selectedSchoolId,
+      schoolName: schoolId,
       imageLinks: [],
       likes: [],
       bookmarks: [],
       commentCount: 0,
-      uid: user.uid,
+      uid: currentUser.uid,
       type: 'text',
       createdAt: DateTime.now(),
       content: content,
@@ -173,7 +173,9 @@ class NoteController extends StateNotifier<bool> {
       repliedTo: repliedTo,
     );
 
-    final res = await _noteRepository.addNote(note);
+   
+
+    final res = await _noteRepository.addNote(note,currentUser);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       // showSnackBar(context, 'Noteed successfully!');
@@ -239,7 +241,7 @@ class NoteController extends StateNotifier<bool> {
         link: link,
         repliedTo: repliedTo,
       );
-      final res = await _noteRepository.addNote(note);
+      final res = await _noteRepository.addNote(note,user);
 
       state = false;
       res.fold((l) => showSnackBar(context, l.message), (r) {

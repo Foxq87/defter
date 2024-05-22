@@ -103,7 +103,7 @@ class _FollowerFollowingDetailsState
                           subtitle: Text('@' + followers[index].username),
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                 builder: (context) => UserProfileScreen(
                                     uid: followers[index].uid),
                               )));
@@ -126,7 +126,7 @@ class _FollowerFollowingDetailsState
                           subtitle: Text('@' + followers[index].username),
                           onTap: () => Navigator.push(
                               context,
-                              CupertinoPageRoute(
+                              MaterialPageRoute(
                                 builder: (context) => UserProfileScreen(
                                     uid: followers[index].uid),
                               )));

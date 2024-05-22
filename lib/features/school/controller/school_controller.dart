@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:get/get.dart';
 
 import 'package:routemaster/routemaster.dart';
 
@@ -45,12 +47,28 @@ final searchUserProvider = StreamProvider.family((ref, String query) {
   return ref.watch(schoolControllerProvider.notifier).searchUser(query);
 });
 
+final searchFollowerProvider = StreamProvider.family((ref, String query) {
+  return ref.watch(schoolControllerProvider.notifier).searchFollower(query);
+});
+
 final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
   return ref.read(schoolControllerProvider.notifier).getSchoolNotes(name);
 });
 
-final getWorldNotesProvider = StreamProvider.family((ref, String name) {
-  return ref.read(schoolControllerProvider.notifier).getWorldNotes(name);
+final getWorldNotesProvider = StreamProvider((ref) {
+  return ref.read(schoolControllerProvider.notifier).getWorldNotes();
+});
+final getCloseFriendsFeedProvider =
+    FutureProvider.autoDispose<Stream<List<Note>>>((ref) async {
+  return await ref
+      .read(schoolControllerProvider.notifier)
+      .getCloseFriendsFeedProvider();
+});
+
+final getCloseFriendsFeedStreamProvider =
+    StreamProvider.autoDispose<List<Note>>((ref) {
+  final stream = ref.watch(getCloseFriendsFeedProvider).asData?.value;
+  return stream ?? Stream.value([]);
 });
 
 final getAllSchoolsProvider = StreamProvider((ref) {
@@ -171,6 +189,11 @@ class SchoolController extends StateNotifier<bool> {
     return _schoolRepository.searchUser(query);
   }
 
+  Stream<List<UserModel>> searchFollower(String query) {
+    final currentUser = _ref.read(userProvider)!;
+    return _schoolRepository.searchFollower(query, currentUser);
+  }
+
   void addMods(
       String schoolName, List<String> uids, BuildContext context) async {
     final res = await _schoolRepository.addMods(schoolName, uids);
@@ -184,8 +207,20 @@ class SchoolController extends StateNotifier<bool> {
     return _schoolRepository.getSchoolNotes(name);
   }
 
-  Stream<List<Note>> getWorldNotes(String name) {
-    return _schoolRepository.getWorldNotes(name);
+  Future<Stream<List<Note>>> getCloseFriendsFeedProvider() async {
+    UserModel currentUser = _ref.read(userProvider)!;
+
+    // for (var i = 0; i < currentUser.closeFriendsFeedNoteIds.length; i++) {
+    //   _ref
+    //       .read(noteControllerProvider.notifier)
+    //       .getNoteById(currentUser.closeFriendsFeedNoteIds[i]);
+    // }
+
+    return await _schoolRepository.getCloseFriendsFeedProvider(currentUser);
+  }
+
+  Stream<List<Note>> getWorldNotes() {
+    return _schoolRepository.getWorldNotes();
   }
 
   Stream<List<School>> getAllSchools() {

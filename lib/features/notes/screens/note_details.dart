@@ -150,7 +150,7 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
                                 .read(noteControllerProvider.notifier)
                                 .shareTextNote(
                                   context: context,
-                                  selectedSchoolId: note.schoolName,
+                                  schoolId: note.schoolName,
                                   content: commentController.text.trim(),
                                   link: link,
                                   repliedTo: widget.noteId,

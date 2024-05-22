@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB13XAt1HFpA1HBc469uKYnj9yAJKsnBKw',
-    appId: '1:256943613795:android:c9b84e1511c1265c8bd556',
+    appId: '1:256943613795:android:f7fe7620117a29198bd556',
     messagingSenderId: '256943613795',
     projectId: 'appbeyoglu',
     storageBucket: 'appbeyoglu.appspot.com',
@@ -66,13 +66,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA1Z5Iy97xhoyUR1fJzxalEW8pfU97Sw0g',
-    appId: '1:256943613795:ios:58b6e42058f660618bd556',
+    appId: '1:256943613795:ios:26bc9bba1136372f8bd556',
     messagingSenderId: '256943613795',
     projectId: 'appbeyoglu',
     storageBucket: 'appbeyoglu.appspot.com',
     androidClientId: '256943613795-3h7u25osv8r2shf6eo108o2itughavij.apps.googleusercontent.com',
-    iosClientId: '256943613795-7fko52ge8qlmgdh2odpfpo50c1g8dk2s.apps.googleusercontent.com',
-    iosBundleId: 'com.app.acc',
+    iosClientId: '256943613795-l68m99r81ktfmperdtaue2h5squrl5oi.apps.googleusercontent.com',
+    iosBundleId: 'app.web.defter.defter',
   );
 
 }

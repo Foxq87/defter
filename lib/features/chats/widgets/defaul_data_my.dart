@@ -13,7 +13,7 @@ class DefaultData {
     '😮',
     '😢',
     '😠',
-    '➕',
+    // '➕',
   ];
   // The default list of menuItems
   static const List<MenuItem> menuItems = [

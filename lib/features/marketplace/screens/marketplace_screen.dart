@@ -4,6 +4,7 @@ import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
 import 'package:acc/features/marketplace/screens/create_product_screen.dart';
+import 'package:acc/features/marketplace/screens/view_products.dart';
 import 'package:acc/features/marketplace/widgets/product_card.dart';
 import 'package:acc/features/suggest_feature/screens/suggest_feature_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,13 +25,13 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   ScrollController scrollController = ScrollController();
   navigatToSuggest() {
     Navigator.push(
-        context, CupertinoPageRoute(builder: (context) => SuggestFeature()));
+        context, MaterialPageRoute(builder: (context) => SuggestFeature()));
   }
 
   navigateToCreateUpdate() {
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
             builder: (context) => CreateProductScreen(
                   product: null,
                 )));
@@ -38,7 +39,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
   DateTime now = DateTime.now();
   DateTime startTime = DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day, 16);
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 9);
   DateTime endTime = DateTime(
       DateTime.now().year, DateTime.now().month, DateTime.now().day, 16);
   @override
@@ -81,18 +82,16 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             navigateToCreateUpdate();
           },
         ),
-        body:
-             user.schoolId.contains('onay bekliyor:')
-                ? Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'okulundaki ürünleri görebilmen için okulunun doğrulanması gerek. doğrulama işlemi bitince seni haberdar edeceğiz.',
-                      style: TextStyle(fontSize: 20, color: Palette.orangeColor),
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                :
-            now != DateTime.saturday &&
+        body: user.schoolId.contains('onay bekliyor:')
+            ? Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  'okulundaki ürünleri görebilmen için okulunun doğrulanması gerek. doğrulama işlemi bitince seni haberdar edeceğiz.',
+                  style: TextStyle(fontSize: 20, color: Palette.orangeColor),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            : now != DateTime.saturday &&
                     now != DateTime.saturday &&
                     now.isAfter(startTime) &&
                     now.isBefore(endTime)
@@ -122,7 +121,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                     title: "tamamını gör",
                                     color: Palette.placeholderColor,
                                     fontSize: 15.0,
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ViewProducts(),
+                                          ));
+                                    },
                                   ),
                                 ],
                               ),
@@ -132,30 +138,35 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                 .when(
                                     data: (products) {
                                       if (products.isEmpty) {}
-                                      return SingleChildScrollView(
-                                        padding: EdgeInsets.only(left: 15),
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          children: List.generate(
-                                              products.length, (i) {
-                                            print(products[i].categorie
-                                                // +
-                                                // " esit mi " +
-                                                // Constants.categories[index][0]
-                                                );
-                                            return products[i].categorie ==
-                                                    Constants.categories[index]
-                                                            [0]
-                                                        .toString()
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            right: 10.0),
-                                                    child: ProductCard(
-                                                        product: products[i]),
-                                                  )
-                                                : SizedBox();
-                                          }),
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 10.0),
+                                        child: SingleChildScrollView(
+                                          padding: EdgeInsets.only(
+                                              left: 15, right: 20),
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: List.generate(
+                                                products.length, (i) {
+                                              print(products[i].categorie
+                                                  // +
+                                                  // " esit mi " +
+                                                  // Constants.categories[index][0]
+                                                  );
+                                              return products[i].categorie ==
+                                                      Constants
+                                                          .categories[index][0]
+                                                          .toString()
+                                                  ? Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              right: 10.0),
+                                                      child: ProductCard(
+                                                          product: products[i]),
+                                                    )
+                                                  : SizedBox();
+                                            }),
+                                          ),
                                         ),
                                       );
                                     },

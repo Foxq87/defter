@@ -11,6 +11,7 @@ import 'package:acc/theme/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_chat_reactions/model/menu_item.dart';
 import 'package:flutter_chat_reactions/utilities/hero_dialog_route.dart';
@@ -104,7 +105,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.read(chatControllerProvider.notifier).deleteMessage(message, context);
   }
 
-  Future sendMessage(bool isLoading) async {
+  Future sendMessage(bool isLoading, List<MessageModel> messages) async {
     setState(() {
       counter += 1;
     });
@@ -126,7 +127,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     messageController.clear();
-    if (images.isEmpty) {
+    if (images.isEmpty && messages.isNotEmpty) {
       scrollController.jumpTo(scrollController.position.minScrollExtent);
     }
     images.clear();
@@ -214,380 +215,473 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return ref.watch(getChatContentProvider(widget.chat.id)).when(
         data: (messages) {
           return SafeArea(
-            child: Scaffold(
-              appBar: CupertinoNavigationBar(
-                transitionBetweenRoutes: false,
-                backgroundColor: Colors.black,
-                middle: GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) =>
-                                ChatDetails(chat: widget.chat))),
-                    child: largeText(widget.chat.title, false)),
-                leading: JustIconButton(
-                    icon: CupertinoIcons.back,
-                    onPressed: () => Navigator.of(context).pop()),
-                border: Border(
-                    bottom:
-                        BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
-                // trailing: JustIconButton(icon: Icons.more_horiz, onPressed: () {}),
-              ),
-              body: images.isNotEmpty
-                  ? buildImages(isLoading)
-                  : messages.isEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Text(
-                            'dostum. çabuk bi sohbet başlat.. ayıptır.',
-                            style: TextStyle(
-                                color: Palette.orangeColor, fontSize: 25),
-                            textAlign: TextAlign.center,
+            child: ref
+                .watch(getUserDataProvider(widget.chat.isDM
+                    ? widget.chat.members
+                            .where((uid) => uid != currentUser.uid)
+                            .isEmpty
+                        ? currentUser.uid
+                        : widget.chat.members
+                            .where((uid) => uid != currentUser.uid)
+                            .first
+                    : Constants.systemUid))
+                .when(
+                    data: (user) => Scaffold(
+                          appBar: CupertinoNavigationBar(
+                            transitionBetweenRoutes: false,
+                            backgroundColor: Colors.black,
+                            middle: GestureDetector(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChatDetails(chat: widget.chat))),
+                                child: largeText(
+                                    widget.chat.isDM
+                                        ? user.username
+                                        : widget.chat.title,
+                                    false)),
+                            leading: JustIconButton(
+                                icon: CupertinoIcons.back,
+                                onPressed: () => Navigator.of(context).pop()),
+                            border: Border(
+                                bottom: BorderSide(
+                                    width: 0.5, color: Palette.darkGreyColor2)),
+                            // trailing: JustIconButton(icon: Icons.more_horiz, onPressed: () {}),
                           ),
-                        )
-                      : Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Scrollbar(
-                              scrollbarOrientation: ScrollbarOrientation.right,
-                              thumbVisibility: true,
-                              trackVisibility: true,
-                              controller: scrollController,
-                              child: ListView.builder(
-                                reverse: true,
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                controller: scrollController,
-                                padding: EdgeInsets.only(
-                                    bottom: 70, right: 12, left: 10),
-                                // physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: messages.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  MessageModel message = messages[index];
-                                  MessageModel? previousMessage =
-                                      index + 1 != messages.length
-                                          ? messages[index + 1]
-                                          : null;
-                                  MessageModel? nextMessage = (index - 1 >= 0)
-                                      ? messages[index - 1]
-                                      : null;
-                                  bool showDate = previousMessage == null
-                                      ? true
-                                      : message.createdAt
-                                              .difference(
-                                                  previousMessage.createdAt)
-                                              .inDays >=
-                                          1;
-                                  bool isPreviousMessageSameAuthor =
-                                      index + 1 != messages.length
-                                          ? messages[index].uid ==
-                                              messages[index + 1].uid
-                                          : false;
-                                  bool isNextMessageSameAuthor1 =
-                                      (index - 1 >= 0)
-                                          ? messages[index].uid ==
-                                              messages[index - 1].uid
-                                          : false;
-                                  print(isNextMessageSameAuthor1);
+                          body: images.isNotEmpty
+                              ? buildImages(isLoading)
+                              : messages.isEmpty
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Text(
+                                        '',
+                                        style: TextStyle(
+                                            color: Palette.orangeColor,
+                                            fontSize: 25),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    )
+                                  : Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Scrollbar(
+                                          scrollbarOrientation:
+                                              ScrollbarOrientation.right,
+                                          thumbVisibility: true,
+                                          trackVisibility: true,
+                                          controller: scrollController,
+                                          child: ListView.builder(
+                                            reverse: true,
+                                            keyboardDismissBehavior:
+                                                ScrollViewKeyboardDismissBehavior
+                                                    .onDrag,
+                                            controller: scrollController,
+                                            padding: EdgeInsets.only(
+                                                bottom: 70,
+                                                right: 12,
+                                                left: 10),
+                                            // physics: NeverScrollableScrollPhysics(),
+                                            shrinkWrap: true,
+                                            itemCount: messages.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              MessageModel message =
+                                                  messages[index];
+                                              MessageModel? previousMessage =
+                                                  index + 1 != messages.length
+                                                      ? messages[index + 1]
+                                                      : null;
+                                              MessageModel? nextMessage =
+                                                  (index - 1 >= 0)
+                                                      ? messages[index - 1]
+                                                      : null;
+                                              bool showDate = previousMessage ==
+                                                      null
+                                                  ? true
+                                                  : message.createdAt
+                                                          .difference(
+                                                              previousMessage
+                                                                  .createdAt)
+                                                          .inDays >=
+                                                      1;
+                                              bool isPreviousMessageSameAuthor =
+                                                  index + 1 != messages.length
+                                                      ? messages[index].uid ==
+                                                          messages[index + 1]
+                                                              .uid
+                                                      : false;
+                                              bool isNextMessageSameAuthor1 =
+                                                  (index - 1 >= 0)
+                                                      ? messages[index].uid ==
+                                                          messages[index - 1]
+                                                              .uid
+                                                      : false;
+                                              print(isNextMessageSameAuthor1);
 
-                                  return Column(
-                                    children: [
-                                      if (showDate)
-                                        Align(
-                                            alignment: Alignment.center,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 5.0, bottom: 2),
-                                              child: Text(
-                                                formattedDate(
-                                                    message.createdAt),
-                                                style: TextStyle(
-                                                    color:
-                                                        Palette.justGrayColor),
-                                              ),
-                                            )),
-                                      if (widget.chat.isDM &&
-                                          message.uid != currentUser.uid &&
-                                          !isPreviousMessageSameAuthor)
-                                        ref
-                                            .watch(getUserDataProvider(
-                                                message.uid))
-                                            .when(
-                                                data: (data) => Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 5.0,
-                                                              bottom: 2),
-                                                      child: Text(
-                                                        "@" + data.username,
-                                                        style: TextStyle(
-                                                            color: Palette
-                                                                .justGrayColor),
+                                              return Column(
+                                                children: [
+                                                  if (showDate)
+                                                    Align(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 5.0,
+                                                                  bottom: 2),
+                                                          child: Text(
+                                                            formattedDate(
+                                                                message
+                                                                    .createdAt),
+                                                            style: TextStyle(
+                                                                color: Palette
+                                                                    .justGrayColor),
+                                                          ),
+                                                        )),
+                                                  if (widget.chat.isDM &&
+                                                      message.uid !=
+                                                          currentUser.uid &&
+                                                      !isPreviousMessageSameAuthor)
+                                                    ref
+                                                        .watch(
+                                                            getUserDataProvider(
+                                                                message.uid))
+                                                        .when(
+                                                            data: (data) =>
+                                                                Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              5.0,
+                                                                          bottom:
+                                                                              2),
+                                                                      child:
+                                                                          Text(
+                                                                        "@" +
+                                                                            data.username,
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Palette.justGrayColor),
+                                                                      ),
+                                                                    )),
+                                                            error: (error,
+                                                                    stackTrace) =>
+                                                                Text(error
+                                                                    .toString()),
+                                                            loading: () =>
+                                                                Text('')),
+                                                  GestureDetector(
+                                                    onLongPress: () =>
+                                                        Navigator.of(context)
+                                                            .push(
+                                                      HeroDialogRoute(
+                                                        builder: (context) {
+                                                          return ReactionsDialogWidget(
+                                                            widgetAlignment: message.uid ==
+                                                                    currentUser
+                                                                        .uid
+                                                                ? Alignment
+                                                                    .centerRight
+                                                                : Alignment
+                                                                    .centerLeft,
+                                                            id: message
+                                                                .id, // unique id for message
+                                                            messageWidget: MessageCard(
+                                                                message:
+                                                                    message,
+                                                                isNextMessageSameAuthor:
+                                                                    isNextMessageSameAuthor1,
+                                                                isPreviousMessageSameAuthor:
+                                                                    isPreviousMessageSameAuthor), // message widget
+                                                            onReactionTap:
+                                                                (reaction) {
+                                                              print(
+                                                                  'reaction: $reaction');
+                                                              if (reaction ==
+                                                                  '➕') {
+                                                                // show emoji picker container
+                                                              } else {
+                                                                reactMessage(
+                                                                  message,
+                                                                  currentUser,
+                                                                  reaction,
+                                                                  context,
+                                                                );
+                                                              }
+                                                            },
+                                                            menuItems: [
+                                                              if (message.text
+                                                                  .isNotEmpty)
+                                                                MenuItem(
+                                                                  label:
+                                                                      'kopyala',
+                                                                  icon:
+                                                                      UniconsLine
+                                                                          .copy,
+                                                                ),
+                                                              if (message.uid ==
+                                                                  currentUser
+                                                                      .uid)
+                                                                MenuItem(
+                                                                  label: 'sil',
+                                                                  icon: CupertinoIcons
+                                                                      .delete,
+                                                                  isDestuctive:
+                                                                      true,
+                                                                )
+                                                            ],
+                                                            onContextMenuTap:
+                                                                (menuItem) {
+                                                              print(
+                                                                  'menu item: ${menuItem}');
+                                                              if (menuItem
+                                                                  .isDestuctive) {
+                                                                if (message
+                                                                        .uid ==
+                                                                    currentUser
+                                                                        .uid) {
+                                                                  deleteMessage(
+                                                                      message,
+                                                                      context);
+                                                                } //else {
+                                                                //   showCupertinoModalPopup(
+                                                                //     context: context,
+                                                                //     builder: (context) =>
+                                                                //         CupertinoTheme(
+                                                                //       data:
+                                                                //           const CupertinoThemeData(
+                                                                //               brightness:
+                                                                //                   Brightness
+                                                                //                       .dark),
+                                                                //       child:
+                                                                //           CupertinoActionSheet(
+                                                                //         cancelButton:
+                                                                //             CupertinoActionSheetAction(
+                                                                //                 child:
+                                                                //                     const Text(
+                                                                //                         'Back'),
+                                                                //                 onPressed: () {
+                                                                //                   Navigator.of(
+                                                                //                           context)
+                                                                //                       .pop();
+                                                                //                 }),
+                                                                //         actions: [
+                                                                //           CupertinoActionSheetAction(
+                                                                //               child: const Text(
+                                                                //                 'benden sil',
+                                                                //                 style: TextStyle(
+                                                                //                     color: Palette
+                                                                //                         .redColor),
+                                                                //               ),
+                                                                //               onPressed: () {
+                                                                //                 Navigator.of(
+                                                                //                         context)
+                                                                //                     .pop();
+                                                                //               })
+                                                                //         ],
+                                                                //       ),
+                                                                //     ),
+                                                                //   );
+                                                                // }
+                                                              } else if (menuItem
+                                                                      .label ==
+                                                                  'kopyala') {
+                                                                if (message.text
+                                                                    .isNotEmpty) {
+                                                                  Clipboard.setData(
+                                                                      ClipboardData(
+                                                                          text:
+                                                                              message.text));
+                                                                }
+
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }
+
+                                                              // handle context menu item
+                                                            },
+                                                          );
+                                                        },
                                                       ),
-                                                    )),
-                                                error: (error, stackTrace) =>
-                                                    Text(error.toString()),
-                                                loading: () => Text('')),
-                                      GestureDetector(
-                                        onLongPress: () =>
-                                            Navigator.of(context).push(
-                                          HeroDialogRoute(
-                                            builder: (context) {
-                                              return ReactionsDialogWidget(
-                                                widgetAlignment: message.uid ==
-                                                        currentUser.uid
-                                                    ? Alignment.centerRight
-                                                    : Alignment.centerLeft,
-                                                id: message
-                                                    .id, // unique id for message
-                                                messageWidget: MessageCard(
-                                                    message: message,
-                                                    isNextMessageSameAuthor:
-                                                        isNextMessageSameAuthor1,
-                                                    isPreviousMessageSameAuthor:
-                                                        isPreviousMessageSameAuthor), // message widget
-                                                onReactionTap: (reaction) {
-                                                  print('reaction: $reaction');
-                                                  if (reaction == '➕') {
-                                                    // show emoji picker container
-                                                  } else {
-                                                    reactMessage(
-                                                      message,
-                                                      currentUser,
-                                                      reaction,
-                                                      context,
-                                                    );
-                                                  }
-                                                },
-                                                menuItems: [
-                                                  MenuItem(
-                                                    label: 'kopyala',
-                                                    icon: UniconsLine.copy,
+                                                    ),
+                                                    child: Hero(
+                                                        tag: message.id,
+                                                        child: MessageCard(
+                                                          message: message,
+                                                          isPreviousMessageSameAuthor:
+                                                              isPreviousMessageSameAuthor,
+                                                          isNextMessageSameAuthor:
+                                                              isNextMessageSameAuthor1,
+                                                        )),
                                                   ),
-                                                  if (message.uid ==
-                                                      currentUser.uid)
-                                                    MenuItem(
-                                                      label: 'sil',
-                                                      icon:
-                                                          CupertinoIcons.delete,
-                                                      isDestuctive: true,
-                                                    )
                                                 ],
-                                                onContextMenuTap: (menuItem) {
-                                                  print(
-                                                      'menu item: ${menuItem}');
-                                                  if (menuItem.isDestuctive) {
-                                                    if (message.uid ==
-                                                        currentUser.uid) {
-                                                      deleteMessage(
-                                                          message, context);
-                                                    } //else {
-                                                    //   showCupertinoModalPopup(
-                                                    //     context: context,
-                                                    //     builder: (context) =>
-                                                    //         CupertinoTheme(
-                                                    //       data:
-                                                    //           const CupertinoThemeData(
-                                                    //               brightness:
-                                                    //                   Brightness
-                                                    //                       .dark),
-                                                    //       child:
-                                                    //           CupertinoActionSheet(
-                                                    //         cancelButton:
-                                                    //             CupertinoActionSheetAction(
-                                                    //                 child:
-                                                    //                     const Text(
-                                                    //                         'Back'),
-                                                    //                 onPressed: () {
-                                                    //                   Navigator.of(
-                                                    //                           context)
-                                                    //                       .pop();
-                                                    //                 }),
-                                                    //         actions: [
-                                                    //           CupertinoActionSheetAction(
-                                                    //               child: const Text(
-                                                    //                 'benden sil',
-                                                    //                 style: TextStyle(
-                                                    //                     color: Palette
-                                                    //                         .redColor),
-                                                    //               ),
-                                                    //               onPressed: () {
-                                                    //                 Navigator.of(
-                                                    //                         context)
-                                                    //                     .pop();
-                                                    //               })
-                                                    //         ],
-                                                    //       ),
-                                                    //     ),
-                                                    //   );
-                                                    // }
-                                                  }
-
-                                                  // handle context menu item
-                                                },
                                               );
                                             },
                                           ),
                                         ),
-                                        child: Hero(
-                                            tag: message.id,
-                                            child: MessageCard(
-                                              message: message,
-                                              isPreviousMessageSameAuthor:
-                                                  isPreviousMessageSameAuthor,
-                                              isNextMessageSameAuthor:
-                                                  isNextMessageSameAuthor1,
-                                            )),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                            if (isLoading)
-                              Positioned(
-                                child: Container(
-                                  height: MediaQuery.of(context).size.height,
-                                  width: MediaQuery.of(context).size.width,
-                                  color: Colors.transparent,
-                                  child: Center(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: Palette.darkGreyColor,
-                                      ),
-                                      padding: EdgeInsets.all(25),
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Palette.themeColor),
+                                        if (isLoading)
+                                          Positioned(
+                                            child: Container(
+                                              height: MediaQuery.of(context)
+                                                  .size
+                                                  .height,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              color: Colors.transparent,
+                                              child: Center(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                    color:
+                                                        Palette.darkGreyColor,
+                                                  ),
+                                                  padding: EdgeInsets.all(25),
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                                Color>(
+                                                            Palette.themeColor),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                      ],
+                                    ),
+                          bottomSheet: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 8),
+                            decoration: const BoxDecoration(
+                                color: Colors.black,
+                                border: Border(
+                                    top: BorderSide(
+                                        width: 0.5,
+                                        color: Palette.darkGreyColor2))),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  width: 35.0,
+                                  height: 35.0,
+                                  padding: const EdgeInsets.all(7),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      border: Border.all(
+                                        width: 1.5,
+                                        color: Palette.themeColor,
+                                      )),
+                                  child: CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: onPickImages,
+                                    child: SvgPicture.asset(
+                                      "assets/svgs/image-outlined.svg",
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.white, BlendMode.srcIn),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 7,
+                                ),
+                                Form(
+                                  child: Expanded(
+                                    child: Scrollbar(
+                                      scrollbarOrientation:
+                                          ScrollbarOrientation.right,
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      controller: textFieldScrollController,
+                                      child: CupertinoTextField(
+                                        keyboardType: TextInputType.multiline,
+                                        cursorColor: Palette.themeColor,
+                                        scrollController:
+                                            textFieldScrollController,
+                                        maxLines: 4,
+                                        minLines: 1,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoRegular',
+                                        ),
+                                        controller: messageController,
+                                        decoration: BoxDecoration(
+                                            color: Palette.darkGreyColor,
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                          ],
-                        ),
-              bottomSheet: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: const BoxDecoration(
-                    color: Colors.black,
-                    border: Border(
-                        top: BorderSide(
-                            width: 0.5, color: Palette.darkGreyColor2))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      width: 35.0,
-                      height: 35.0,
-                      padding: const EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(
-                            width: 1.5,
-                            color: Palette.themeColor,
-                          )),
-                      child: CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: onPickImages,
-                        child: SvgPicture.asset(
-                          "assets/svgs/image-outlined.svg",
-                          colorFilter: const ColorFilter.mode(
-                              Colors.white, BlendMode.srcIn),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 7,
-                    ),
-                    Form(
-                      child: Expanded(
-                        child: Scrollbar(
-                          scrollbarOrientation: ScrollbarOrientation.right,
-                          thumbVisibility: true,
-                          trackVisibility: true,
-                          controller: textFieldScrollController,
-                          child: CupertinoTextField(
-                            keyboardType: TextInputType.multiline,
-                            cursorColor: Palette.themeColor,
-                            scrollController: textFieldScrollController,
-                            maxLines: 4,
-                            minLines: 1,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'JetBrainsMonoRegular',
+                                const SizedBox(
+                                  width: 6.0,
+                                ),
+                                SizedBox(
+                                  width: 35,
+                                  height: 35,
+                                  child: CupertinoButton(
+                                    borderRadius: BorderRadius.circular(130.0),
+                                    padding: EdgeInsets.zero,
+                                    color: Palette.themeColor,
+                                    onPressed: () =>
+                                        sendMessage(isLoading, messages),
+                                    //   final currentUser = ref.read(userProvider)!;
+                                    //   String currentUserUid = currentUser.uid;
+                                    //   if (commentController.text.trim().isNotEmpty) {
+                                    //     String link =
+                                    //         getLinkFromText(commentController.text.trim());
+                                    //     if (note.uid != currentUserUid) {
+                                    //       ref
+                                    //           .read(notificationControllerProvider.notifier)
+                                    //           .sendNotification(
+                                    //             context: context,
+                                    //             content:
+                                    //                 "${currentUser.username} notuna yorum bıraktı",
+                                    //             type: "comment",
+                                    //             id: "${note.id}-comment",
+                                    //             receiverUid: note.uid,
+                                    //             senderId: currentUserUid,
+                                    //             noteId: note.id,
+                                    //           );
+                                    //     }
+                                    //     ref
+                                    //         .read(noteControllerProvider.notifier)
+                                    //         .shareTextNote(
+                                    //           context: context,
+                                    //           selectedSchoolId: note.schoolName,
+                                    //           content: messageController.text.trim(),
+                                    //           link: link,
+                                    //           repliedTo: widget.noteId,
+                                    //         );
+                                    //   }
+                                    //   messageController.clear();
+                                    // },
+                                    child: SvgPicture.asset(
+                                      Constants.send,
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.center,
+                                      height: 20,
+                                      width: 20,
+                                      colorFilter: const ColorFilter.mode(
+                                          Colors.black, BlendMode.srcIn),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            controller: messageController,
-                            decoration: BoxDecoration(
-                                color: Palette.darkGreyColor,
-                                borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 6.0,
-                    ),
-                    SizedBox(
-                      width: 35,
-                      height: 35,
-                      child: CupertinoButton(
-                        borderRadius: BorderRadius.circular(130.0),
-                        padding: EdgeInsets.zero,
-                        color: Palette.themeColor,
-                        onPressed: () => sendMessage(isLoading),
-                        //   final currentUser = ref.read(userProvider)!;
-                        //   String currentUserUid = currentUser.uid;
-                        //   if (commentController.text.trim().isNotEmpty) {
-                        //     String link =
-                        //         getLinkFromText(commentController.text.trim());
-                        //     if (note.uid != currentUserUid) {
-                        //       ref
-                        //           .read(notificationControllerProvider.notifier)
-                        //           .sendNotification(
-                        //             context: context,
-                        //             content:
-                        //                 "${currentUser.username} notuna yorum bıraktı",
-                        //             type: "comment",
-                        //             id: "${note.id}-comment",
-                        //             receiverUid: note.uid,
-                        //             senderId: currentUserUid,
-                        //             noteId: note.id,
-                        //           );
-                        //     }
-                        //     ref
-                        //         .read(noteControllerProvider.notifier)
-                        //         .shareTextNote(
-                        //           context: context,
-                        //           selectedSchoolId: note.schoolName,
-                        //           content: messageController.text.trim(),
-                        //           link: link,
-                        //           repliedTo: widget.noteId,
-                        //         );
-                        //   }
-                        //   messageController.clear();
-                        // },
-                        child: SvgPicture.asset(
-                          Constants.send,
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
-                          height: 20,
-                          width: 20,
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                    error: (error, stackTrace) => Text(error.toString()),
+                    loading: () => CupertinoActivityIndicator()),
           );
         },
         error: (error, stackTrace) => Text(error.toString()),

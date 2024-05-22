@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
@@ -19,8 +20,9 @@ class UserModel {
   final List<String> roles;
   final List<String> followers;
   final List<String> following;
-  //add creation
-
+  final List<String> ofCloseFriends;
+  final List<String> closeFriends;
+  final List<String> closeFriendsFeedNoteIds;
   UserModel({
     required this.uid,
     required this.username,
@@ -37,7 +39,11 @@ class UserModel {
     required this.roles,
     required this.followers,
     required this.following,
+    required this.ofCloseFriends,
+    required this.closeFriends,
+    required this.closeFriendsFeedNoteIds,
   });
+  //add creation
 
   UserModel copyWith({
     String? uid,
@@ -55,6 +61,9 @@ class UserModel {
     List<String>? roles,
     List<String>? followers,
     List<String>? following,
+    List<String>? ofCloseFriends,
+    List<String>? closeFriends,
+    List<String>? closeFriendsFeedNoteIds,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -72,6 +81,9 @@ class UserModel {
       roles: roles ?? this.roles,
       followers: followers ?? this.followers,
       following: following ?? this.following,
+      ofCloseFriends: ofCloseFriends ?? this.ofCloseFriends,
+      closeFriends: closeFriends ?? this.closeFriends,
+      closeFriendsFeedNoteIds: closeFriendsFeedNoteIds ?? this.closeFriendsFeedNoteIds,
     );
   }
 
@@ -92,6 +104,9 @@ class UserModel {
       'roles': roles,
       'followers': followers,
       'following': following,
+      'ofCloseFriends': ofCloseFriends,
+      'closeFriends': closeFriends,
+      'closeFriendsFeedNoteIds': closeFriendsFeedNoteIds,
     };
   }
 
@@ -112,56 +127,66 @@ class UserModel {
       roles: List<String>.from((map['roles'] as List<dynamic>)),
       followers: List<String>.from((map['followers'] as List<dynamic>)),
       following: List<String>.from((map['following'] as List<dynamic>)),
+      ofCloseFriends: List<String>.from((map['ofCloseFriends'] as List<dynamic>)),
+      closeFriends: List<String>.from((map['closeFriends'] as List<dynamic>)),
+      closeFriendsFeedNoteIds: List<String>.from((map['closeFriendsFeedNoteIds'] as List<dynamic>)),
     );
-  }
-
-  @override
-  String toString() {
-    return 'UserModel(uid: $uid, username: $username, username_insensitive: $username_insensitive, name: $name, name_insensitive: $name_insensitive, profilePic: $profilePic, schoolId: $schoolId, email: $email, banner: $banner, bio: $bio, isSuspended: $isSuspended, creation: $creation, roles: $roles, followers: $followers, following: $following)';
-  }
-
-  @override
-  bool operator ==(covariant UserModel other) {
-    if (identical(this, other)) return true;
-
-    return other.uid == uid &&
-        other.username == username &&
-        other.username_insensitive == username_insensitive &&
-        other.name == name &&
-        other.name_insensitive == name_insensitive &&
-        other.profilePic == profilePic &&
-        other.schoolId == schoolId &&
-        other.email == email &&
-        other.banner == banner &&
-        other.bio == bio &&
-        other.isSuspended == isSuspended &&
-        other.creation == creation &&
-        listEquals(other.roles, roles) &&
-        listEquals(other.followers, followers) &&
-        listEquals(other.following, following);
-  }
-
-  @override
-  int get hashCode {
-    return uid.hashCode ^
-        username.hashCode ^
-        username_insensitive.hashCode ^
-        name.hashCode ^
-        name_insensitive.hashCode ^
-        profilePic.hashCode ^
-        schoolId.hashCode ^
-        email.hashCode ^
-        banner.hashCode ^
-        bio.hashCode ^
-        isSuspended.hashCode ^
-        creation.hashCode ^
-        roles.hashCode ^
-        followers.hashCode ^
-        following.hashCode;
   }
 
   String toJson() => json.encode(toMap());
 
   factory UserModel.fromJson(String source) =>
       UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'UserModel(uid: $uid, username: $username, username_insensitive: $username_insensitive, name: $name, name_insensitive: $name_insensitive, profilePic: $profilePic, schoolId: $schoolId, email: $email, banner: $banner, bio: $bio, isSuspended: $isSuspended, creation: $creation, roles: $roles, followers: $followers, following: $following, ofCloseFriends: $ofCloseFriends, closeFriends: $closeFriends, closeFriendsFeedNoteIds: $closeFriendsFeedNoteIds)';
+  }
+
+  @override
+  bool operator ==(covariant UserModel other) {
+    if (identical(this, other)) return true;
+  
+    return 
+      other.uid == uid &&
+      other.username == username &&
+      other.username_insensitive == username_insensitive &&
+      other.name == name &&
+      other.name_insensitive == name_insensitive &&
+      other.profilePic == profilePic &&
+      other.schoolId == schoolId &&
+      other.email == email &&
+      other.banner == banner &&
+      other.bio == bio &&
+      other.isSuspended == isSuspended &&
+      other.creation == creation &&
+      listEquals(other.roles, roles) &&
+      listEquals(other.followers, followers) &&
+      listEquals(other.following, following) &&
+      listEquals(other.ofCloseFriends, ofCloseFriends) &&
+      listEquals(other.closeFriends, closeFriends) &&
+      listEquals(other.closeFriendsFeedNoteIds, closeFriendsFeedNoteIds);
+  }
+
+  @override
+  int get hashCode {
+    return uid.hashCode ^
+      username.hashCode ^
+      username_insensitive.hashCode ^
+      name.hashCode ^
+      name_insensitive.hashCode ^
+      profilePic.hashCode ^
+      schoolId.hashCode ^
+      email.hashCode ^
+      banner.hashCode ^
+      bio.hashCode ^
+      isSuspended.hashCode ^
+      creation.hashCode ^
+      roles.hashCode ^
+      followers.hashCode ^
+      following.hashCode ^
+      ofCloseFriends.hashCode ^
+      closeFriends.hashCode ^
+      closeFriendsFeedNoteIds.hashCode;
+  }
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>256943613795-l68m99r81ktfmperdtaue2h5squrl5oi.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.256943613795-l68m99r81ktfmperdtaue2h5squrl5oi</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>256943613795-3h7u25osv8r2shf6eo108o2itughavij.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA1Z5Iy97xhoyUR1fJzxalEW8pfU97Sw0g</string>
+	<key>GCM_SENDER_ID</key>
+	<string>256943613795</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.web.defter.defter</string>
+	<key>PROJECT_ID</key>
+	<string>appbeyoglu</string>
+	<key>STORAGE_BUCKET</key>
+	<string>appbeyoglu.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:256943613795:ios:26bc9bba1136372f8bd556</string>
+</dict>
+</plist>

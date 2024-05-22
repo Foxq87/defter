@@ -1,11 +1,11 @@
-import 'package:acc/core/commons/error_text.dart';
-import 'package:acc/features/auth/controller/auth_controller.dart';
-import 'package:acc/features/marketplace/screens/product_details.dart';
-import 'package:acc/models/product_model.dart';
-import 'package:acc/theme/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../models/product_model.dart';
+import '../../../theme/palette.dart';
+import '../../auth/controller/auth_controller.dart';
+import '../screens/product_details.dart';
 
 class ProductCard extends ConsumerStatefulWidget {
   final ProductModel product;
@@ -21,50 +21,30 @@ class _ProductCardState extends ConsumerState<ProductCard> {
     return GestureDetector(
       onTap: () => Navigator.push(
           context,
-          CupertinoPageRoute(
+          MaterialPageRoute(
               builder: (context) =>
                   ProductDetails(productId: widget.product.id))),
       child: Container(
-        width: 155,
+        width: 140,
         decoration: BoxDecoration(
-          border: Border.all(color: Palette.placeholderColor, width: 0.45),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Palette.placeholderColor,
-                    width: 0.45,
-                  ),
-                ),
-              ),
-              child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15)),
-                  child: Image.network(
-                    widget.product.images.first,
-                    height: 120,
-                    width: 155,
-                    fit: BoxFit.cover,
-                  )),
+            // border: Border.all(color: Pale  borderRadius: BorderRadius.circular(15),tte.darkGreyColor2, width: 0.45),
+            // borderRadius: BorderRadius.circular(15),
             ),
-
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             ref.watch(getUserDataProvider(widget.product.uid)).when(
                 data: (vendor) => Padding(
-                    padding: const EdgeInsets.all(7.0),
+                    padding: const EdgeInsets.only(top: 5.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(7),
                           child: Image.network(
                             vendor.profilePic,
-                            height: 40,
-                            width: 40,
+                            height: 25,
+                            width: 25,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -72,27 +52,13 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                           width: 7,
                         ),
                         Expanded(
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.product.title,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontFamily: 'JetBrainsMonoBold'),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                    '${widget.product.price.toStringAsFixed(2)} ₺',
-                                    style: const TextStyle(
-                                        color: Palette.justGrayColor,
-                                        fontSize: 12,
-                                        fontFamily: 'JetBrainsMonoRegular')),
-                              ],
-                            ),
+                          child: Text(
+                            "@" + vendor.username,
+                            style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontFamily: 'JetBrainsMonoBold'),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -102,79 +68,109 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                       padding: const EdgeInsets.all(8.0),
                       child: CupertinoActivityIndicator(),
                     )),
-
-            Padding(
-              padding: const EdgeInsets.all(
-                7.0,
-              ).copyWith(top: 0),
-              child: SizedBox(
-                height: 30,
-                child: CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  color: widget.product.stock > 0
-                      ? Palette.themeColor
-                      : Palette.darkGreyColor2,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        widget.product.stock > 0 ? 'detay' : 'stokta yok',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'JetBrainsMonoRegular'),
-                      ),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) =>
-                                ProductDetails(productId: widget.product.id)));
-                    // if (type == "editProduct") {
-                    //   try {
-                    //     Get.to(() => CreatePage(
-                    //           productId: widget.productId,
-                    //           imageUrl: widget.imageUrl,
-                    //           type: type,
-                    //           title: widget.title,
-                    //           price: widget.price.toString(),
-                    //           desc: widget.description,
-                    //           quantity: widget.quantity,
-                    //           editing: true,
-                    //         ));
-                    //   } catch (e) {
-                    //     //print(e);
+            SizedBox(
+              height: 5.0,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  // bottom: BorderSide(
+                  width: 0.45,
+                  color: Palette.darkGreyColor2,
+                  // ),
+                ),
+                color: Palette.textFieldColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    widget.product.images.first,
+                    fit: BoxFit.cover,
+                    width: 140,
+                    height: 130,
+                    // loadingBuilder: (BuildContext context, Widget child,
+                    //     ImageChunkEvent? loadingProgress) {
+                    //   if (loadingProgress == null) {
+                    //     return child;
                     //   }
-                    // } else if (type != "tripMode" &&
-                    //     type != "outOfOrder" &&
-                    //     widget.vendor != currentUser.id) {
-                    //   try {
-                    //     createProductInCart();
-                    //   } catch (e) {
-                    //     //print(e);
-                    //   }
-                    // } else {}
-                  },
+                    //   return Center(
+                    //     child: SizedBox(
+                    //       height: 130,
+                    //       width: 140,
+                    //       child: LinearProgressIndicator(
+                    //         color: Palette.themeColor,
+                    //         value: loadingProgress.expectedTotalBytes != null
+                    //             ? loadingProgress.cumulativeBytesLoaded /
+                    //                 loadingProgress.expectedTotalBytes!
+                    //             : null,
+                    //       ),
+                    //     ),
+                    //   );
+                    // },
+                  )),
+            ),
+            if (widget.product.stock <= 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 7.0),
+                child: Text(
+                  'stokta yok',
+                  style: const TextStyle(
+                      color: Palette.orangeColor,
+                      fontFamily: 'JetBrainsMonoRegular'),
                 ),
               ),
-            ),
 
-            // StreamBuilder(
-            //     stream: usersRef.doc(widget.vendor).snapshots(),
-            //     builder: (context, onlineSnapshot) {
-            //       if (!onlineSnapshot.hasData) {
-            //         return loading();
-            //       }
-            //       return childMan(widget.vendor == currentUser.id
-            //           ? "editProduct"
-            //           : onlineSnapshot.data!.get('tripMode') == true
-            //               ? "tripMode"
-            //               : widget.quantity <= 0
-            //                   ? "outOfOrder"
-            //                   : "addToCart");
-            //     })
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              widget.product.title,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontFamily: 'JetBrainsMonoBold'),
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text('${widget.product.price.toStringAsFixed(2)} ₺',
+                style: const TextStyle(
+                    color: Palette.justGrayColor,
+                    fontSize: 12,
+                    fontFamily: 'JetBrainsMonoRegular')),
+
+            // Padding(
+            //   padding: const EdgeInsets.all(
+            //     7.0,
+            //   ).copyWith(top: 0),
+            //   child: SizedBox(
+            //     height: 30,
+            //     child: CupertinoButton(
+            //       padding: EdgeInsets.zero,
+            //       color: widget.product.stock > 0
+            //           ? Palette.themeColor
+            //           : Palette.darkGreyColor2,
+            //       borderRadius: BorderRadius.circular(10),
+            //       child: Center(
+            //         child: FittedBox(
+            //           fit: BoxFit.scaleDown,
+            //           child: Text(
+            //             widget.product.stock > 0 ? 'detay' : 'stokta yok',
+            //             style: const TextStyle(
+            //                 color: Colors.white,
+            //                 fontFamily: 'JetBrainsMonoRegular'),
+            //           ),
+            //         ),
+            //       ),
+            //       onPressed: () {
+            //         Navigator.push(
+            //             context,
+            //             MaterialPageRoute(
+            //                 builder: (context) =>
+            //                     ProductDetails(productId: widget.product.id)));
+            //       },
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

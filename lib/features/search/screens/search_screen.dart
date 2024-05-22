@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:acc/core/commons/commons.dart';
+import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
+import 'package:acc/features/user_profile/controller/user_profile_controller.dart';
 import 'package:acc/models/school_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,8 +22,13 @@ import '../../../core/utils.dart';
 import '../../../theme/palette.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
-  final bool isForChat;
-  const SearchScreen({super.key, required this.isForChat});
+  final bool? isForChat;
+  final bool? isForCloseFriends;
+  const SearchScreen({
+    super.key,
+    this.isForChat = false,
+    this.isForCloseFriends = false,
+  });
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _SearchScreenState();
 }
@@ -96,14 +103,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   @override
   Widget build(BuildContext context) {
     bool isLoading = ref.watch(chatControllerProvider);
+    final currentUser = ref.read(userProvider)!;
     super.build(context);
     return Scaffold(
       appBar: CupertinoNavigationBar(
-        leading: widget.isForChat
+        leading: widget.isForChat! || widget.isForCloseFriends!
             ? CupertinoButton(
                 padding: EdgeInsets.zero,
                 child: Text(
-                  widget.isForChat && currentPage == 1 ? 'geri' : 'kapat',
+                  widget.isForChat! && currentPage == 1 ? 'geri' : 'kapat',
                   style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey,
@@ -124,15 +132,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         backgroundColor: Palette.backgroundColor,
         middle: Column(
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5),
-              height: 5,
-              width: 40,
-              decoration: BoxDecoration(
-                  color: Palette.darkGreyColor2,
-                  borderRadius: BorderRadius.circular(100)),
-            ),
-            largeText(widget.isForChat ? 'yeni sohbet' : 'ara', false),
+            if (widget.isForChat! || widget.isForCloseFriends!)
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                height: 5,
+                width: 40,
+                decoration: BoxDecoration(
+                    color: Palette.darkGreyColor2,
+                    borderRadius: BorderRadius.circular(100)),
+              ),
+            largeText(
+                widget.isForChat!
+                    ? 'yeni sohbet'
+                    : widget.isForCloseFriends!
+                        ? 'yakın arkadaş ekle'
+                        : 'ara',
+                false),
           ],
         ),
       ),
@@ -149,7 +164,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   children: [
                     Form(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 10),
                         child: SizedBox(
                           height: 40,
                           child: CupertinoTextField(
@@ -177,7 +193,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         ),
                       ),
                     ),
-                    if (widget.isForChat && selectedProfiles.isNotEmpty)
+                    if ((widget.isForChat! || widget.isForCloseFriends!) &&
+                        selectedProfiles.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: SingleChildScrollView(
@@ -231,7 +248,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                                     child: CircleAvatar(
                                                         radius: 12,
                                                         backgroundColor: Palette
-                                                            .placeholderColor,
+                                                            .darkGreyColor2,
                                                         child: Icon(
                                                           CupertinoIcons.clear,
                                                           size: 15,
@@ -258,7 +275,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           ),
                         ),
                       ),
-                    if (!widget.isForChat)
+                    if (!widget.isForChat! && !widget.isForCloseFriends!)
                       Column(
                         children: [
                           Row(
@@ -280,7 +297,130 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           ),
                         ],
                       ),
-                    if (contentItems.first[1])
+                    if (widget.isForCloseFriends!)
+                      Expanded(
+                        child: ref.watch(searchFollowerProvider(query)).when(
+                              data: (List<UserModel> items) {
+                                items.remove(currentUser);
+                                return Scrollbar(
+                                  scrollbarOrientation:
+                                      ScrollbarOrientation.right,
+                                  thumbVisibility: true,
+                                  trackVisibility: true,
+                                  controller: scrollController,
+                                  child: ListView.builder(
+                                    controller: scrollController,
+                                    itemCount: items.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final item = items[index];
+
+                                      return ListTile(
+                                        leading: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.network(
+                                            item.profilePic,
+                                            height: 40,
+                                            width: 40,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        title: Text(item.name),
+                                        subtitle: Text(
+                                          "@" + item.username,
+                                          style: TextStyle(
+                                              color: Palette.placeholderColor),
+                                        ),
+                                        onTap: () {
+                                          if (widget.isForChat! ||
+                                              widget.isForCloseFriends!) {
+                                            if (!selectedProfiles
+                                                    .contains(item) &&
+                                                !selectedProfileUids
+                                                    .contains(item.uid)) {
+                                              setState(() {
+                                                selectedProfiles.add(item);
+                                                selectedProfileUids
+                                                    .add(item.uid);
+                                              });
+                                              print(selectedProfiles);
+                                            } else {
+                                              setState(() {
+                                                selectedProfiles.remove(item);
+                                                selectedProfileUids
+                                                    .remove(item.uid);
+                                              });
+                                            }
+                                          } else {
+                                            navigateToProfile(context, item);
+                                          }
+                                        },
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (item.roles
+                                                .contains('appbeyoglu-user'))
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                                child: Image.asset(
+                                                  'assets/appbeyoglu-icon.png',
+                                                  height: 35,
+                                                  width: 35,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            if (selectedProfiles
+                                                    .contains(item) &&
+                                                (widget.isForChat! ||
+                                                    widget.isForCloseFriends!))
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15.0),
+                                                child: CircleAvatar(
+                                                  radius: 12,
+                                                  backgroundColor:
+                                                      Palette.themeColor,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      UniconsLine.check,
+                                                      size: 20,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            else if (!selectedProfiles
+                                                    .contains(item) &&
+                                                (widget.isForChat! ||
+                                                    widget.isForCloseFriends!))
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15.0),
+                                                child: CircleAvatar(
+                                                  radius: 12,
+                                                  backgroundColor:
+                                                      Palette.darkGreyColor2,
+                                                ),
+                                              )
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              error: (error, stackTrace) {
+                                print(error.toString());
+                                return ErrorText(
+                                  error: error.toString(),
+                                );
+                              },
+                              loading: () => const Loader(),
+                            ),
+                      ),
+                    if (contentItems.first[1] && !widget.isForCloseFriends!)
                       Expanded(
                         child: ref.watch(searchUserProvider(query)).when(
                               data: (List<UserModel> items) => Scrollbar(
@@ -314,7 +454,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                             color: Palette.placeholderColor),
                                       ),
                                       onTap: () {
-                                        if (widget.isForChat) {
+                                        if (widget.isForChat!) {
                                           if (!selectedProfiles
                                                   .contains(item) &&
                                               !selectedProfileUids
@@ -351,7 +491,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                               ),
                                             ),
                                           if (selectedProfiles.contains(item) &&
-                                              widget.isForChat)
+                                              widget.isForChat!)
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 15.0),
@@ -370,7 +510,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                             )
                                           else if (!selectedProfiles
                                                   .contains(item) &&
-                                              widget.isForChat)
+                                              widget.isForChat!)
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 15.0),
@@ -392,7 +532,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                               loading: () => const Loader(),
                             ),
                       )
-                    else
+                    else if (!widget.isForCloseFriends!)
                       Expanded(
                         child: ref.watch(searchSchoolProvider(query)).when(
                               data: (List<School> items) => Scrollbar(
@@ -441,7 +581,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       ),
                   ],
                 ),
-                if (widget.isForChat)
+                if (widget.isForChat!)
                   ListView(
                     children: [
                       ListTile(
@@ -506,7 +646,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                               style: TextStyle(color: Palette.placeholderColor),
                             ),
                             onTap: () {
-                              if (widget.isForChat) {
+                              if (widget.isForChat!) {
                                 if (!selectedProfiles.contains(item) &&
                                     !selectedProfileUids.contains(item.uid)) {
                                   setState(() {
@@ -568,80 +708,150 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
       bottomNavigationBar: isLoading
           ? null
-          : widget.isForChat
-              ? SafeArea(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border(
-                            top: BorderSide(
-                                width: 0.5, color: Palette.darkGreyColor2))),
-                    child: Row(
-                      children: [
-                        if (selectedProfiles.length == 1 && currentPage == 0)
-                          CupertinoButton(
-                            child: Text(
-                              'sohbet aç',
-                              style: TextStyle(
-                                  color: Palette.themeColor,
-                                  fontFamily: 'JetBrainsMonoRegular'),
-                            ),
-                            onPressed: () {
-                              // this is a dm
+          : widget.isForChat!
+              ? forChatNavBar(context)
+              : widget.isForCloseFriends!
+                  ? forCloseFriendsNavBar(context, currentUser)
+                  : null,
+    );
+  }
 
-                              //close this bottom sheet
-                              //navigate to chat page
-                            },
-                          ),
-                        Spacer(),
-                        CupertinoButton(
-                          child: Text(
-                            selectedProfiles.isEmpty
-                                ? 'en az bir kişi seçin'
-                                : 'grup oluştur',
-                            style: TextStyle(
-                                color: selectedProfiles.length > 1
-                                    ? Palette.themeColor
-                                    : selectedProfiles.length == 1
-                                        ? Palette.themeColor
-                                        : Colors.white,
-                                fontFamily: 'JetBrainsMonoRegular'),
-                          ),
-                          onPressed: () {
-                            bool isDM = selectedProfileUids.length == 1;
-                            if (selectedProfileUids.isEmpty) {
-                              pageController.animateToPage(0,
-                                  duration: Duration(milliseconds: 200),
-                                  curve: Curves.bounceInOut);
-                            } else if (selectedProfileUids.length >= 1 &&
-                                currentPage == 0) {
-                              // going to create a group
+  SafeArea forChatNavBar(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border(
+                top: BorderSide(width: 0.5, color: Palette.darkGreyColor2))),
+        child: Row(
+          children: [
+            if (selectedProfiles.length == 1 && currentPage == 0)
+              CupertinoButton(
+                child: Text(
+                  'sohbet aç',
+                  style: TextStyle(
+                      color: Palette.themeColor,
+                      fontFamily: 'JetBrainsMonoRegular'),
+                ),
+                onPressed: () {
+                  // this is a dm
+                  ref.read(chatControllerProvider.notifier).startChat(
+                      uids: [selectedProfileUids.first],
+                      title: '',
+                      description: '',
+                      profilePic: null,
+                      context: context,
+                      isDM: true);
+                  //close this bottom sheet
+                  //navigate to chat page
+                },
+              ),
+            Spacer(),
+            CupertinoButton(
+              child: Text(
+                selectedProfiles.isEmpty
+                    ? 'en az bir kişi seçin'
+                    : 'grup oluştur',
+                style: TextStyle(
+                    color: selectedProfiles.length > 1
+                        ? Palette.themeColor
+                        : selectedProfiles.length == 1
+                            ? Palette.themeColor
+                            : Colors.white,
+                    fontFamily: 'JetBrainsMonoRegular'),
+              ),
+              onPressed: () {
+                bool isDM = selectedProfileUids.length == 1;
+                if (selectedProfileUids.isEmpty) {
+                  pageController.animateToPage(0,
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.bounceInOut);
+                } else if (selectedProfileUids.length >= 1 &&
+                    currentPage == 0) {
+                  // going to create a group
 
-                              //go to setting title and a profile pic for group page
-                              pageController.animateToPage(1,
-                                  duration: Duration(milliseconds: 200),
-                                  curve: Curves.bounceInOut);
-                            } else if (selectedProfileUids.length >= 1 &&
-                                currentPage == 1) {
-                              if (groupTitleController.text.trim().isNotEmpty) {
-                                ref
-                                    .read(chatControllerProvider.notifier)
-                                    .startChat(
-                                        uids: selectedProfileUids,
-                                        title: groupTitleController.text.trim(),
-                                        description: '',
-                                        profilePic: images.isEmpty
-                                            ? null
-                                            : images.first,
-                                        context: context);
-                              }
-                            }
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              : null,
+                  //go to setting title and a profile pic for group page
+                  pageController.animateToPage(1,
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.bounceInOut);
+                } else if (selectedProfileUids.length >= 1 &&
+                    currentPage == 1) {
+                  if (groupTitleController.text.trim().isNotEmpty) {
+                    ref.read(chatControllerProvider.notifier).startChat(
+                        uids: selectedProfileUids,
+                        title: groupTitleController.text.trim(),
+                        description: '',
+                        profilePic: images.isEmpty ? null : images.first,
+                        context: context,
+                        isDM: false);
+                  }
+                }
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  SafeArea forCloseFriendsNavBar(BuildContext context, UserModel currentUser) {
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border(
+                top: BorderSide(width: 0.5, color: Palette.darkGreyColor2))),
+        child: Row(
+          children: [
+            Spacer(),
+            CupertinoButton(
+              child: Text(
+                selectedProfiles.isEmpty
+                    ? 'en az bir kişi seçin'
+                    : 'yakın arkadaş ekle',
+                style: TextStyle(
+                    color: selectedProfiles.length > 1
+                        ? Palette.themeColor
+                        : selectedProfiles.length == 1
+                            ? Palette.themeColor
+                            : Colors.white,
+                    fontFamily: 'JetBrainsMonoRegular'),
+              ),
+              onPressed: () {
+                if (widget.isForCloseFriends!) {
+                  ref
+                      .read(userProfileControllerProvider.notifier)
+                      .addCloseFriend(context, selectedProfiles, currentUser);
+                } else {
+                  bool isDM = selectedProfileUids.length == 1;
+                  if (selectedProfileUids.isEmpty) {
+                    pageController.animateToPage(0,
+                        duration: Duration(milliseconds: 200),
+                        curve: Curves.bounceInOut);
+                  } else if (selectedProfileUids.length >= 1 &&
+                      currentPage == 0) {
+                    // going to create a group
+
+                    //go to setting title and a profile pic for group page
+                    pageController.animateToPage(1,
+                        duration: Duration(milliseconds: 200),
+                        curve: Curves.bounceInOut);
+                  } else if (selectedProfileUids.length >= 1 &&
+                      currentPage == 1) {
+                    if (groupTitleController.text.trim().isNotEmpty) {
+                      ref.read(chatControllerProvider.notifier).startChat(
+                          uids: selectedProfileUids,
+                          title: groupTitleController.text.trim(),
+                          description: '',
+                          profilePic: images.isEmpty ? null : images.first,
+                          context: context,
+                          isDM: false);
+                    }
+                  }
+                }
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -28,6 +28,12 @@ final marketplaceControllerProvider =
   );
 });
 
+final getSchoolProductsByCategorieAndSubcategorieProvider = StreamProvider.family((ref, String schoolId) {
+  return ref
+      .read(marketplaceControllerProvider.notifier)
+      .getSchoolProducts(schoolId);
+});
+
 final getSchoolProductsProvider = StreamProvider.family((ref, String schoolId) {
   return ref
       .read(marketplaceControllerProvider.notifier)

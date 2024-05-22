@@ -20,7 +20,7 @@ import '../../../theme/palette.dart';
 void navigateToProfile(BuildContext context, UserModel user) {
   // Navigator.push(
   //     context,
-  //     CupertinoPageRoute(
+  //     MaterialPageRoute(
   //       builder: (context) => UserProfileScreen(uid: user.uid),
   //     ));
   Routemaster.of(context).push('/user-profile/${user.uid}');
@@ -29,7 +29,7 @@ void navigateToProfile(BuildContext context, UserModel user) {
 void navigateToSaved(BuildContext context, UserModel user) {
   Navigator.push(
       context,
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (context) => SavedContent(uid: user.uid),
       ));
   // Routemaster.of(context).push('/user-profile/${user.uid}');
@@ -39,7 +39,7 @@ void navigateToSchool(BuildContext context, String schoolId) {
   if (!schoolId.contains("onay bekliyor:")) {
     Navigator.push(
         context,
-        CupertinoPageRoute(
+        MaterialPageRoute(
           builder: (context) => SchoolScreen(id: schoolId),
         ));
   }
@@ -315,23 +315,28 @@ class DrawerView extends ConsumerWidget {
                   padding: EdgeInsets.zero,
                   onPressed: () {
                     //
-                    FirebaseFirestore.instance
-                        .collection('chats')
-                        .get()
-                        .then((val) {
-                      val.docs.forEach((element) {
-                        FirebaseFirestore.instance
-                            .collection('chats')
-                            .doc(element.id)
-                            .collection('chatContent')
-                            .get()
-                            .then((val) {
-                          val.docs.forEach((element2) {
-                            element2.reference.update({"reactions": []});
-                          });
-                        });
-                      });
-                    });
+                    // FirebaseFirestore.instance
+                    //     .collection('chats')
+                    //     .get()
+                    //     .then((val) {
+                    //   val.docs.forEach((element) {
+                    //     element.reference.update({
+                    //       "isHidden": false,
+                    //       "isArchived": false,
+                    //     });
+
+                        // FirebaseFirestore.instance
+                        //     .collection('chats')
+                        //     .doc(element.id)
+                        //     .collection('chatContent')
+                        //     .get()
+                        //     .then((val) {
+                        //   val.docs.forEach((element2) {
+                        //     element2.reference.update({"reactions": []});
+                        //   });
+                    //     // });
+                    //   });
+                    // });
 
                     // *** ADD BOOKMARKS FIELD TO PRODUCTS ***
                     // FirebaseFirestore.instance
@@ -489,7 +494,7 @@ class DrawerView extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.push(
                                     context,
-                                    CupertinoPageRoute(
+                                    MaterialPageRoute(
                                         builder: (context) =>
                                             ProductApprovalView()));
                                 // Get.to(() => Tests(
@@ -520,7 +525,7 @@ class DrawerView extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.push(
                                     context,
-                                    CupertinoPageRoute(
+                                    MaterialPageRoute(
                                         builder: (context) =>
                                             ProductApprovalView()));
                                 // Get.to(() => Tests(
@@ -625,7 +630,7 @@ class DrawerView extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.push(
                                     context,
-                                    CupertinoPageRoute(
+                                    MaterialPageRoute(
                                         builder: (context) =>
                                             ProductApprovalView()));
                                 // Get.to(() => Tests(
@@ -656,7 +661,7 @@ class DrawerView extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.push(
                                     context,
-                                    CupertinoPageRoute(
+                                    MaterialPageRoute(
                                         builder: (context) =>
                                             ProductApprovalView()));
                                 // Get.to(() => Tests(

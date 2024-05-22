@@ -88,6 +88,52 @@ class UserProfileRepository {
         .asStream();
   }
 
+  FutureVoid addCloseFriend(
+    List<UserModel> users,
+    UserModel currentUser,
+  ) async {
+    void myFunc() {
+      for (var i = 0; i < users.length; i++) {
+        _users.doc(users[i].uid).get().then((value) {
+          if (value.exists) {
+            List<dynamic> followers = value.get('ofCloseFriends');
+            if (followers.contains(currentUser.uid)) {
+              value.reference.update({
+                "ofCloseFriends": FieldValue.arrayRemove([currentUser.uid])
+              });
+            } else {
+              value.reference.update({
+                "ofCloseFriends": FieldValue.arrayUnion([currentUser.uid])
+              });
+            }
+          }
+        });
+        _users.doc(currentUser.uid).get().then((value) {
+          if (value.exists) {
+            List<dynamic> closeFriends = value.get('closeFriends');
+            if (closeFriends.contains(users[i].uid)) {
+              value.reference.update({
+                "closeFriends": FieldValue.arrayRemove([users[i].uid])
+              });
+            } else {
+              value.reference.update({
+                "closeFriends": FieldValue.arrayUnion([users[i].uid])
+              });
+            }
+          }
+        });
+      }
+    }
+
+    try {
+      return right(myFunc());
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   FutureVoid followUser(
     UserModel user,
     UserModel currentUser,
@@ -131,8 +177,6 @@ class UserProfileRepository {
       return left(Failure(e.toString()));
     }
   }
-
-
 
   // FutureVoid updateUserKarma(UserModel user) async {
   //   try {

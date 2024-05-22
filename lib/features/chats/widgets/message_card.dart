@@ -1,8 +1,12 @@
 import 'package:acc/core/commons/image_view.dart';
+import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/widgets/stacked_reactions_my.dart';
 import 'package:acc/models/message_model.dart';
+import 'package:acc/models/user_model.dart';
 import 'package:acc/theme/palette.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 
@@ -11,6 +15,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:unicons/unicons.dart';
+
+import '../../../core/commons/loader.dart';
+import '../../../models/chat_model.dart';
+import '../../user_profile/screens/user_profile_screen.dart';
 
 class MessageCard extends ConsumerStatefulWidget {
   final MessageModel message;
@@ -28,6 +36,13 @@ class MessageCard extends ConsumerStatefulWidget {
 }
 
 class _MessageCardState extends ConsumerState<MessageCard> {
+  void removeReaction(
+      UserModel currentUser, MessageModel message, String reaction) {
+    ref
+        .read(chatControllerProvider.notifier)
+        .reactMessage(message, currentUser, '', context);
+  }
+
   String formattedDate(DateTime date) {
     final DateFormat formatter = DateFormat('HH:mm');
     final String formatted = formatter.format(date);
@@ -242,13 +257,99 @@ class _MessageCardState extends ConsumerState<MessageCard> {
           bottom: 7,
           right: isMyMessage ? 5 : null,
           left: isMyMessage ? null : 5,
-          child: StackedReactions(
-            isMyMessage: isMyMessage,
-            // reactions widget
-            reactions: widget.message.reactions, // list of reaction strings
+          child: GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                  useSafeArea: true,
+                  isScrollControlled: true,
+                  backgroundColor: Palette.darkGreyColor,
+                  context: context,
+                  builder: (BuildContext context) {
+                    return FractionallySizedBox(
+                        heightFactor: 0.6,
+                        widthFactor: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              largeText('ifadeler', false),
+                              Expanded(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: widget.message.reactions.length,
+                                  itemBuilder: (context, index) {
+                                    return ref
+                                        .watch(getUserDataProvider(widget
+                                            .message.reactions[index]['uid']))
+                                        .when(
+                                          data: (user) => ListTile(
+                                              contentPadding: EdgeInsets.zero,
+                                              leading: CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                    user.profilePic),
+                                              ),
+                                              title: Text(
+                                                  user.uid == currentUser.uid
+                                                      ? "sen"
+                                                      : user.name),
+                                              subtitle: user.uid ==
+                                                      currentUser.uid
+                                                  ? Text(
+                                                      "geri almak için dokunun",
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 12),
+                                                    )
+                                                  : null,
+                                              trailing: Text(
+                                                widget.message.reactions[index]
+                                                    ['reaction'],
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              onTap: () {
+                                                if (user.uid ==
+                                                    currentUser.uid) {
+                                                  removeReaction(
+                                                      currentUser,
+                                                      widget.message,
+                                                      widget.message
+                                                              .reactions[index]
+                                                          ['reaction']);
+                                                } else {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            UserProfileScreen(
+                                                                uid: widget
+                                                                        .message
+                                                                        .reactions[
+                                                                    index]['uid']),
+                                                      ));
+                                                }
+                                              }),
+                                          error: (error, stackTrace) =>
+                                              Text(error.toString()),
+                                          loading: () => Loader(),
+                                        );
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ));
+                  });
+            },
+            child: StackedReactions(
+              isMyMessage: isMyMessage,
+              // reactions widget
+              reactions: widget.message.reactions, // list of reaction strings
 
-            stackedValue:
-                0.01, // Value used to calculate the horizontal offset of each reaction
+              stackedValue:
+                  0.01, // Value used to calculate the horizontal offset of each reaction
+            ),
           ),
         )
       ],

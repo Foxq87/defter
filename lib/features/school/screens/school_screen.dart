@@ -60,7 +60,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                       child: GestureDetector(
                         onTap: () => Navigator.push(
                             context,
-                            CupertinoPageRoute(
+                            MaterialPageRoute(
                                 builder: (context) => ImageView(
                                     imageUrls: [school.banner],
                                     imageFiles: [],
@@ -107,7 +107,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                       GestureDetector(
                         onTap: () => Navigator.push(
                             context,
-                            CupertinoPageRoute(
+                            MaterialPageRoute(
                                 builder: (context) => ImageView(
                                     imageUrls: [school.avatar],
                                     imageFiles: [],
@@ -266,10 +266,10 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
         onPressed: () {
           Navigator.push(
               context,
-              CupertinoPageRoute(
+              MaterialPageRoute(
                   builder: (context) => ViewUsersByUids(
                         uids: school.students,
-                        isLiker: false,
+                        isLiker: true,
                       )));
         },
         child: Padding(

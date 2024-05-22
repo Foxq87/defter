@@ -305,6 +305,14 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                     fontFamily: "JetBrainsMonoBold",
                   ),
                 ),
+                3: Text(
+                  "agalar",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontFamily: "JetBrainsMonoBold",
+                  ),
+                ),
               },
               decoration: BoxDecoration(
                 border: Border.all(color: Palette.themeColor, width: 1.5),
@@ -346,17 +354,19 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
     });
 
     String link = getLinkFromText(noteTextController.text);
-    final user = ref.read(userProvider)!;
+    final currentUser = ref.read(userProvider)!;
 
     if (images.isNotEmpty) {
-      ref.read(getSchoolByIdProvider(user.schoolId)).when(
+      ref.read(getSchoolByIdProvider(currentUser.schoolId)).when(
           data: (school) {
             ref.read(noteControllerProvider.notifier).shareImageNote(
                   context: context,
                   selectedSchoolId: segmentedControlValue ==
                           1 /* 1 means world, :2 means school */
                       ? ""
-                      : user.schoolId,
+                      : segmentedControlValue == 2
+                          ? currentUser.schoolId
+                          : 'closeFriends-${currentUser.uid}',
                   files: images,
                   link: link,
                   content: noteTextController.text.trim(),
@@ -367,15 +377,17 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
           error: (error, stackTrace) => Text(error.toString()),
           loading: () => const Loader());
     } else if (noteTextController.text.isNotEmpty) {
-      ref.read(getSchoolByIdProvider(user.schoolId)).when(
+      ref.read(getSchoolByIdProvider(currentUser.schoolId)).when(
             data: (school) {
               ref.read(noteControllerProvider.notifier).shareTextNote(
                     repliedTo: '',
                     context: context,
-                    selectedSchoolId: segmentedControlValue ==
+                    schoolId: segmentedControlValue ==
                             1 /* 1 means world, :2 means school */
                         ? ""
-                        : user.schoolId,
+                        : segmentedControlValue == 2
+                            ? currentUser.schoolId
+                            : "closeFriends-${currentUser.uid}",
                     content: noteTextController.text.trim(),
                     link: link,
                   );

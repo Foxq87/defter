@@ -4,6 +4,7 @@ import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/commons/commons.dart';
 import 'package:acc/features/article.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/home/screens/close_friends_feed.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
@@ -78,7 +79,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
         middle: largeText("defter", true),
+        trailing: CupertinoButton(
+            padding: EdgeInsets.only(right: 20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CupertinoIcons.chevron_up,
+                  color: Palette.orangeColor,
+                  size: 20,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'agalar',
+                  style: TextStyle(
+                      color: Palette.orangeColor,
+                      fontFamily: 'JetBrainsMonoBold'),
+                ),
+              ],
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  transitionDuration: Duration(milliseconds: 500),
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      CloseFriendsFeed(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    var begin = Offset(0.0, 1.0);
+                    var end = Offset.zero;
+                    var curve = Curves.ease;
+
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            }),
       ),
+
       drawer: const DrawerView(),
       body: Scrollbar(
         scrollbarOrientation: ScrollbarOrientation.right,
@@ -89,7 +136,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           controller: scrollController,
           children: [
             segmentedValue == 1
-                ? ref.watch(getWorldNotesProvider(user.schoolId)).when(
+                ? ref.watch(getWorldNotesProvider).when(
                       data: (notes) {
                         // if (scrollController.position.atEdge) {
                         //   noteLimit += 10;

@@ -278,8 +278,57 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                           child: ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(10),
-                                            child: Image.network(imageLink,
-                                                fit: BoxFit.cover),
+                                            child: Image.network(
+                                              imageLink,
+                                              fit: BoxFit.cover,
+                                              loadingBuilder:
+                                                  (BuildContext context,
+                                                      Widget child,
+                                                      ImageChunkEvent?
+                                                          loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                }
+                                                return Center(
+                                                  child: SizedBox(
+                                                    height: widget
+                                                                .note
+                                                                .imageLinks
+                                                                .length ==
+                                                            1
+                                                        ? 200.0
+                                                        : MediaQuery.of(context)
+                                                                    .size
+                                                                    .width /
+                                                                2 -
+                                                            20,
+                                                    width: widget.note.imageLinks
+                                                                .length ==
+                                                            1
+                                                        ? MediaQuery.of(context)
+                                                            .size
+                                                            .width
+                                                        : MediaQuery.of(context)
+                                                                    .size
+                                                                    .width /
+                                                                2 -
+                                                            20,
+                                                    child:
+                                                        LinearProgressIndicator(
+                                                      color: Palette.themeColor,
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              loadingProgress
+                                                                  .expectedTotalBytes!
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                       );
@@ -496,7 +545,8 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                         BlendMode.srcIn),
                   ),
                 ),
-                if (widget.note.schoolName.isNotEmpty)
+                if (widget.note.schoolName.isNotEmpty &&
+                    !widget.note.schoolName.contains('closeFriends-'))
                   ref.watch(getSchoolByIdProvider(widget.note.schoolName)).when(
                         data: (data) {
                           if (data.mods.contains(currentUser.uid)) {

@@ -11,8 +11,10 @@ import 'package:acc/core/utils.dart';
 import 'package:acc/features/user_profile/repository/user_profile_repository.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/user_model.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:routemaster/routemaster.dart';
 
+import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 
@@ -125,13 +127,52 @@ class UserProfileController extends StateNotifier<bool> {
     return _userProfileRepository.getUserFollowings(followingUids);
   }
 
+  void addCloseFriend(
+    BuildContext context,
+    List<UserModel> users,
+    UserModel currentUser,
+  ) async {
+    // if (currentUser.following.contains(user.uid) /*if i am following him*/) {
+    //   user.followers.remove(currentUser.uid); //
+    //   currentUser.following.remove(user.uid); //
+    // } else {
+    //   user.followers.add(currentUser.uid);
+    //   currentUser.following.add(user.uid);
+    // }
+    // _ref.read(notificationControllerProvider.notifier).sendNotification(
+    //       context: context,
+    //       type: 'follow',
+    //       content: "${currentUser.username} seni takip ediyor",
+    //       senderId: currentUser.uid,
+    //       receiverUid: user.uid,
+    //       id: currentUser.uid,
+    //     );
 
+    for (var i = 0; i < users.length; i++) {
+      users[i] = users[i].copyWith(ofCloseFriends: users[i].ofCloseFriends);
+      List currentUserCloseFriends = currentUser.closeFriends;
+      currentUserCloseFriends.add(users[i].uid);
+      currentUser =
+          currentUser.copyWith(closeFriends: currentUser.closeFriends);
+    }
+    final res = await _userProfileRepository.addCloseFriend(users, currentUser);
+
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) {
+        showSnackBar(context, "yakın arkadaşlar eklendi");
+
+        _ref.read(userProvider.notifier).update((state) => currentUser);
+        print(currentUser.closeFriends);
+        Navigator.pop(context);
+      },
+    );
+  }
 
   void followUser(
     BuildContext context,
     UserModel user,
     UserModel currentUser,
-    WidgetRef ref,
   ) async {
     // if (currentUser.following.contains(user.uid) /*if i am following him*/) {
     //   user.followers.remove(currentUser.uid); //

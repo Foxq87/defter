@@ -70,7 +70,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
   void followUser(BuildContext context, UserModel currentUser, UserModel user) {
     ref
         .read(userProfileControllerProvider.notifier)
-        .followUser(context, user, currentUser, ref);
+        .followUser(context, user, currentUser);
     showSnackBar(context, "${user.username}'i takip ediyorsun");
   }
 
@@ -352,18 +352,68 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                           .width
                                                       : 130.0,
                                                   decoration: BoxDecoration(
-                                                      color: Palette
-                                                          .textFieldColor,
-                                                      border: Border.all(
-                                                          width: 0.2,
-                                                          color: Colors.grey),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      image: DecorationImage(
-                                                          image: NetworkImage(
-                                                              imageLink),
-                                                          fit: BoxFit.cover)),
+                                                    color:
+                                                        Palette.textFieldColor,
+                                                    border: Border.all(
+                                                        width: 0.2,
+                                                        color: Colors.grey),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: Image.network(
+                                                      imageLink,
+                                                      fit: BoxFit.cover,
+                                                      // loadingBuilder: (BuildContext
+                                                      //         context,
+                                                      //     Widget child,
+                                                      //     ImageChunkEvent?
+                                                      //         loadingProgress) {
+                                                      //   if (loadingProgress ==
+                                                      //       null) {
+                                                      //     return child;
+                                                      //   }
+                                                      //   return Center(
+                                                      //     child: SizedBox(
+                                                      //       height: widget
+                                                      //                   .note
+                                                      //                   .imageLinks
+                                                      //                   .length ==
+                                                      //               1
+                                                      //           ? 200.0
+                                                      //           : 130.0,
+                                                      //       width: widget
+                                                      //                   .note
+                                                      //                   .imageLinks
+                                                      //                   .length ==
+                                                      //               1
+                                                      //           ? MediaQuery.of(
+                                                      //                   context)
+                                                      //               .size
+                                                      //               .width
+                                                      //           : 130.0,
+                                                      //       child:
+                                                      //           LinearProgressIndicator(
+                                                      //         color: Palette
+                                                      //             .themeColor,
+                                                      //         value: loadingProgress
+                                                      //                     .expectedTotalBytes !=
+                                                      //                 null
+                                                      //             ? loadingProgress
+                                                      //                     .cumulativeBytesLoaded /
+                                                      //                 loadingProgress
+                                                      //                     .expectedTotalBytes!
+                                                      //             : null,
+                                                      //       ),
+                                                      //     ),
+                                                      //   );
+                                                      // },
+                                                    ),
+                                                  ),
                                                 ),
                                               );
                                             }).toList(),
@@ -529,8 +579,10 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                     BlendMode.srcIn),
                                               ),
                                             ),
-                                            if (widget
-                                                .note.schoolName.isNotEmpty)
+                                            if (widget.note.schoolName
+                                                    .isNotEmpty &&
+                                                !widget.note.schoolName
+                                                    .contains('closeFriends-'))
                                               ref
                                                   .watch(getSchoolByIdProvider(
                                                       widget.note.schoolName))

@@ -24,6 +24,7 @@ class Constants {
       [
         'pantolon & eşofman',
         'tişört',
+        'ceket',
         'gömlek',
         'kazak',
         'sweatshirt & hırka',
@@ -46,7 +47,7 @@ class Constants {
       'ayak giyim',
       ['ayakkabı', 'futbol ayakkabısı', 'terlik', 'diğer']
     ],
-    ['diğer'],
+    ['diğer', []],
   ];
 
   static const String bellOutlined =
@@ -88,6 +89,9 @@ class Constants {
       'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Flag_of_Libya_%281977%E2%80%932011%29.svg/300px-Flag_of_Libya_%281977%E2%80%932011%29.svg.png';
   static const String avatarDefault =
       'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg';
+  static const String chatAvatarDefault =
+      'https://firebasestorage.googleapis.com/v0/b/appbeyoglu.appspot.com/o/chats%2FScreenshot%202024-05-06%20at%2020.45.00.png?alt=media&token=422cdb82-feb6-4eb7-80d6-fe6c6f9059ce';
+
   static const String moderator = "assets/svgs/moderator.svg";
   static const String developer = "assets/svgs/html-code.svg";
   static const String systemUid = 'ku0DDDpShoR8dqhhhx3IIbtpE5u1';
@@ -97,9 +101,7 @@ List<Widget> screens = [
   //Home
   const HomeScreen(),
   //Search
-  const SearchScreen(
-    isForChat: false,
-  ),
+  const SearchScreen(),
   //Events
   const MarketplaceScreen(),
   //Notifications

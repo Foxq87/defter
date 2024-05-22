@@ -32,8 +32,23 @@ class NoteRepository {
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
 
-  FutureVoid addNote(Note note) async {
+  FutureVoid addNote(Note note, UserModel currentUser) async {
     try {
+      if (note.schoolName.contains('closeFriends-')) {
+        print("close-friend-note");
+        for (var i = 0; i < currentUser.closeFriends.length; i++) {
+          FirebaseFirestore.instance
+              .collection('users')
+              .get()
+              .then((querySnapshot) {
+            querySnapshot.docs.forEach((doc) {
+              doc.reference.update({
+                'closeFriendsFeedNoteIds': FieldValue.arrayUnion([note.id]),
+              });
+            });
+          });
+        }
+      }
       return right(_notes.doc(note.id).set(note.toMap()));
     } on FirebaseException catch (e) {
       throw e.message!;

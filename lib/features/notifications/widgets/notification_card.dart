@@ -33,7 +33,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
 
   void navigateToUser(BuildContext context, String uid) => Navigator.push(
       context,
-      CupertinoPageRoute(builder: (context) => UserProfileScreen(uid: uid)));
+      MaterialPageRoute(builder: (context) => UserProfileScreen(uid: uid)));
 
   //  {
   //   // Routemaster.of(context).push('/user-profile/$uid');
@@ -45,7 +45,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
 
   void navigateToNote(BuildContext context, String noteId) => Navigator.push(
       context,
-      CupertinoPageRoute(builder: (context) => NoteDetails(noteId: noteId)));
+      MaterialPageRoute(builder: (context) => NoteDetails(noteId: noteId)));
 
   //  {
   //   Routemaster.of(context).push('/note/$noteId/details');
@@ -54,7 +54,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
   void navigateToProduct(BuildContext context, String productId) =>
       Navigator.push(
           context,
-          CupertinoPageRoute(
+          MaterialPageRoute(
               builder: (context) => ProductDetails(productId: productId)));
 
   @override

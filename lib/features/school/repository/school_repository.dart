@@ -1,5 +1,7 @@
 import 'package:acc/models/user_model.dart';
+import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -121,6 +123,37 @@ class SchoolRepository {
     });
   }
 
+  Stream<List<UserModel>> searchFollower(String query, UserModel currentUser) {
+    return _users
+        .where('following', arrayContains: currentUser.uid)
+        .orderBy('username_insensitive', descending: false)
+        .startAt([query])
+        .endAt([query + '\uf8ff'])
+        // .where(
+        //   'username',
+        //   isGreaterThanOrEqualTo: query,
+        // )
+        // .where('username', isLessThan: query + 'z')
+        // isLessThan: query.isEmpty
+        //     ? null
+        //     : query.toUpperCase().substring(0, query.length - 1) +
+        //         String.fromCharCode(
+        //           query.codeUnitAt(query.length - 1) + 1,
+        //         ),
+
+        .snapshots()
+        .map((event) {
+          List<UserModel> users = [];
+          for (var user in event.docs) {
+            String userId = user.get('uid');
+            if (!currentUser.closeFriends.contains(userId)) {
+              users.add(UserModel.fromMap(user.data() as Map<String, dynamic>));
+            }
+          }
+          return users;
+        });
+  }
+
   Stream<List<UserModel>> searchUser(String query) {
     return _users
         .orderBy('username_insensitive', descending: false)
@@ -163,7 +196,8 @@ class SchoolRepository {
   Stream<List<Note>> getSchoolNotes(
     String name,
   ) {
-    return _Notes.where('schoolName', isEqualTo: name)
+    return _notes
+        .where('schoolName', isEqualTo: name)
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -178,8 +212,43 @@ class SchoolRepository {
         );
   }
 
-  Stream<List<Note>> getWorldNotes(String name) {
-    return _Notes.where('schoolName', isEqualTo: "")
+  Future<Stream<List<Note>>> getCloseFriendsFeedProvider(UserModel currentUser) async  {
+    List<Stream<List<Note>>> myList = [];
+    for (var i = 0; i < currentUser.closeFriends.length; i++) {
+      var stream = _notes
+          .where('uid', isEqualTo: currentUser.closeFriends[i])
+          .where('schoolName',
+              isEqualTo: "closeFriends-${currentUser.closeFriends[i]}")
+          // .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((event) {
+        print("is empty? " + event.docs.isEmpty.toString());
+        return event.docs
+            .map((e) => Note.fromMap(e.data() as Map<String, dynamic>))
+            .toList();
+      });
+      // Only add the stream to the StreamGroup if it's not empty
+      // stream.listen((data) {
+      //   if (data.isNotEmpty) {
+      //     myList.add(stream);
+      //   } else {
+      //     print('whyy');
+      //   }
+      // });
+      bool isEmpty = await stream.isEmpty;
+      if (!isEmpty) {
+        myList.add(stream);
+      }
+    }
+
+    print(myList.toString() + " : wtf");
+
+    return Rx.merge(myList);
+  }
+
+  Stream<List<Note>> getWorldNotes() {
+    return _notes
+        .where('schoolName', isEqualTo: "")
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -206,7 +275,7 @@ class SchoolRepository {
         );
   }
 
-  CollectionReference get _Notes =>
+  CollectionReference get _notes =>
       _firestore.collection(FirebaseConstants.notesCollection);
   CollectionReference get _schools =>
       _firestore.collection(FirebaseConstants.schoolsCollection);

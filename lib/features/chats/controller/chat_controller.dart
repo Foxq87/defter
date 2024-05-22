@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/repository/chat_repository.dart';
+import 'package:acc/features/chats/screens/chat_screen.dart';
 import 'package:acc/models/chat_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,14 +60,16 @@ class ChatController extends StateNotifier<bool> {
   //   }
   // }
 
-  // void deleteNotification(
-  //     NotificationModel notification, BuildContext context) async {
-  //   try {
-  //     await _notificationRepository.deleteNotification(notification);
-  //   } catch (e) {
-  //     showSnackBar(context, e.toString());
-  //   }
-  // }
+  void leaveGroup(
+      UserModel currentUser, ChatModel chat, BuildContext context) async {
+    try {
+      await _chatRepository.leaveGroup(currentUser, chat);
+      Navigator.pop(context);
+      Navigator.pop(context);
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
 
   Stream<List<ChatModel>> getUserChats(String uid) {
     return _chatRepository.getUserChats(uid);
@@ -101,12 +104,19 @@ class ChatController extends StateNotifier<bool> {
     required String description,
     required File? profilePic,
     required BuildContext context,
+    required bool isDM,
   }) async {
     state = true;
+
     final currentUsername = _ref.read(userProvider)?.username ?? '';
     final currentUid = _ref.read(userProvider)?.uid ?? '';
-    final chatId = Uuid().v4();
-    String imageLink = Constants.avatarDefault;
+    if (!uids.contains(currentUid)) {
+      uids.add(currentUid);
+    }
+
+    // bool isDM = uids.length == 2;
+    String chatId = Uuid().v4();
+    String imageLink = isDM ? '' : Constants.chatAvatarDefault;
     Either imageRes;
     if (profilePic != null) {
       imageRes = await _storageRepository.storeFile(
@@ -119,26 +129,32 @@ class ChatController extends StateNotifier<bool> {
       });
     }
 
-    uids.add(currentUid);
+    uids.sort();
+    print(uids);
     ChatModel chat = ChatModel(
-      id: chatId,
+      id: isDM ? "dm-" + uids.toString() : chatId,
       members: uids,
       title: title,
       description: description,
       profilePic: imageLink,
-      latest: "@$currentUsername bir grup oluşturdu",
+      latest:
+          "@$currentUsername ${isDM ? 'bir sohbet baslatti' : 'bir grup oluşturdu'}",
       createdAt: DateTime.now(),
       lastEditedAt: DateTime.now(),
       type: '',
       permissions: [],
-      isDM: uids.length == 2,
+      isDM: isDM,
+      isHidden: false,
+      isArchived: false,
     );
 
     final res = await _chatRepository.startChat(chat);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'grup oluşturuldu');
+      // showSnackBar(context, 'grup oluşturuldu');
       Navigator.of(context).pop();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ChatScreen(chat: chat)));
     });
   }
 

@@ -70,6 +70,9 @@ class AuthRepository {
         roles: [],
         followers: [],
         following: [],
+        closeFriends: [],
+        ofCloseFriends: [],
+        closeFriendsFeedNoteIds: [],
       );
       // String formattedEmail = await emailFormatter(userCredential.user!.email!);
 

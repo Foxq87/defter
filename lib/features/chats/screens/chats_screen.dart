@@ -35,34 +35,79 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
             bottom: BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
         middle: largeText('mesajlar', false),
       ),
-      body: ref.watch(getUserChatsProvider(currentUser.uid)).when(
-            data: (chats) {
-              return ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: chats.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final chat = chats[index];
-                  return Column(
-                    children: [
-                      ChatCard(chat: chat),
-                      if (index != chats.length - 1)
-                        Divider(
-                            height: 0,
-                            indent: 16 + 50 + 7,
-                            thickness: 0.5,
-                            color: Palette.darkGreyColor2),
-                    ],
+      body: segmentedValue == 2
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Icon(
+                      CupertinoIcons.alarm,
+                      color: Palette.orangeColor,
+                      size: 50,
+                    ),
+                    Text(
+                      'etkinlikler özelliği henüz hazır değil, hazır olduğunda sana haber vereceğiz.',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    SizedBox(
+                      height: 40,
+                      child: CupertinoButton(
+                          padding: EdgeInsets.symmetric(horizontal: 60),
+                          borderRadius: BorderRadius.circular(100),
+                          color: Palette.themeColor,
+                          child: Text(
+                            'tamam',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'JetBrainsMonoRegular',
+                            ),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              segmentedValue = 1;
+                            });
+                          }),
+                    )
+                  ],
+                ),
+              ),
+            )
+          : ref.watch(getUserChatsProvider(currentUser.uid)).when(
+                data: (chats) {
+                  return ListView.builder(
+                    // physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: chats.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final chat = chats[index];
+                      return Column(
+                        children: [
+                          ChatCard(chat: chat),
+                          if (index != chats.length - 1)
+                            Divider(
+                                height: 0,
+                                indent: 16 + 50 + 7,
+                                thickness: 0.5,
+                                color: Palette.darkGreyColor2),
+                        ],
+                      );
+                    },
                   );
                 },
-              );
-            },
-            error: (error, stackTrace) {
-              print(error.toString());
-              return Text(error.toString());
-            },
-            loading: () => const Loader(),
-          ),
+                error: (error, stackTrace) {
+                  print(error.toString());
+                  return Text(error.toString());
+                },
+                loading: () => const Loader(),
+              ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: SizedBox(
         height: 50,
@@ -70,7 +115,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomSlidingSegmentedControl<int>(
-              initialValue: 2,
+              initialValue: segmentedValue,
               children: {
                 1: const Text(
                   'sohbet',

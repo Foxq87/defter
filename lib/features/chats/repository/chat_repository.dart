@@ -80,10 +80,14 @@ class ChatRepository {
       MessageModel message, UserModel currentUser, String reaction) async {
     try {
       bool userReacted = false;
+      String databaseReaction = '';
       print(message.chatId);
+      if (reaction.isEmpty) //remove reaction
+      {}
       await _chats.doc(message.chatId).update({
-        'latest':
-            "@${currentUser.username}: " + "'$reaction' ifadesini bıraktı",
+        'latest': reaction.isEmpty
+            ? "@${currentUser.username} " + "ifadesini geri aldı"
+            : "@${currentUser.username} " + "'$reaction' ifadesini bıraktı",
         "lastEditedAt": DateTime.now().millisecondsSinceEpoch,
       });
 
@@ -98,8 +102,17 @@ class ChatRepository {
           String uid = element['uid']!;
           if (uid == currentUser.uid) {
             userReacted = true;
-            element['reaction'] = reaction;
-            val.reference.update({"reactions": reactions});
+
+            if (reaction.isEmpty) {
+              val.reference.update({
+                "reactions": FieldValue.arrayRemove([
+                  {"reaction": element['reaction'], "uid": currentUser.uid}
+                ])
+              });
+            } else {
+              element['reaction'] = reaction;
+              val.reference.update({"reactions": reactions});
+            }
           }
         });
         if (!userReacted) {
@@ -169,19 +182,21 @@ class ChatRepository {
 //     }
 //   }
 
-//   FutureVoid deleteNotification(NotificationModel notification) async {
-//     try {
-//       return right(_notifications
-//           .doc(notification.receiverUid)
-//           .collection('userNotifications')
-//           .doc(notification.id)
-//           .delete());
-//     } on FirebaseException catch (e) {
-//       throw e.chat!;
-//     } catch (e) {
-//       return left(Failure(e.toString()));
-//     }
-//   }
+  FutureVoid leaveGroup(UserModel currentUser, ChatModel chat) async {
+    try {
+      if (chat.members.length - 1 > 0) {
+        return right(() {
+          _chats.doc(chat.id).update({});
+        });
+      } else {
+        return right(_chats.doc(chat.id).delete());
+      }
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
 
 //   FutureVoid sendNotification(NotificationModel notification) async {
 //     try {
