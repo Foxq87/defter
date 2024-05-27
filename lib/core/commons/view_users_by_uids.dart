@@ -3,9 +3,7 @@ import 'package:acc/core/commons/nav_bar_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:routemaster/routemaster.dart';
 import '../../theme/palette.dart';
-import 'error_text.dart';
 import '../../features/notes/controller/note_controller.dart';
 import '../../features/user_profile/screens/user_profile_screen.dart';
 

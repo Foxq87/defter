@@ -208,7 +208,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
                               final Note note = data[index];
-                              return NoteCard(note: note);
+                              return NoteCard(note: note, isComment: false,);
                             },
                           );
                         },

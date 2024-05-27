@@ -152,8 +152,9 @@ class UserProfileController extends StateNotifier<bool> {
       users[i] = users[i].copyWith(ofCloseFriends: users[i].ofCloseFriends);
       List currentUserCloseFriends = currentUser.closeFriends;
       currentUserCloseFriends.add(users[i].uid);
-      currentUser =
-          currentUser.copyWith(closeFriends: currentUser.closeFriends);
+
+      currentUser = currentUser.copyWith(
+          closeFriends: currentUserCloseFriends as List<String>);
     }
     final res = await _userProfileRepository.addCloseFriend(users, currentUser);
 
@@ -161,7 +162,6 @@ class UserProfileController extends StateNotifier<bool> {
       (l) => showSnackBar(context, l.message),
       (r) {
         showSnackBar(context, "yakın arkadaşlar eklendi");
-
         _ref.read(userProvider.notifier).update((state) => currentUser);
         print(currentUser.closeFriends);
         Navigator.pop(context);

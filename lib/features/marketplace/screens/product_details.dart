@@ -217,7 +217,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
-                            "@" + vendor.name,
+                            "@" + vendor.username,
                             style: const TextStyle(
                                 color: Palette.justGrayColor,
                                 fontSize: 15,
@@ -264,9 +264,9 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (product.uid != currentUser.uid)
-                        CupertinoButton(
-                          onPressed: () {
+                      CupertinoButton(
+                        onPressed: () {
+                          if ((product.uid != currentUser.uid)) {
                             ref.read(chatControllerProvider.notifier).startChat(
                                 uids: [product.uid],
                                 title: '',
@@ -274,43 +274,50 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                                 profilePic: null,
                                 context: context,
                                 isDM: true);
+                          } else {}
 
-                            // ref.read(chatControllerProvider.notifier).startChat(
-                            //     uids: [product.uid],
-                            //     title: '',
-                            //     description: '',
-                            //     profilePic: null,
-                            //     context: context);
-                          },
-                          color: Palette.themeColor,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          borderRadius: BorderRadius.circular(40),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                Constants.mailOutlined,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              const Text(
-                                'iletişime geç',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 19,
-                                  fontFamily: 'JetBrainsMonoExtraBold',
-                                ),
-                              ),
-                            ],
-                          ),
+                          // ref.read(chatControllerProvider.notifier).startChat(
+                          //     uids: [product.uid],
+                          //     title: '',
+                          //     description: '',
+                          //     profilePic: null,
+                          //     context: context);
+                        },
+                        color: (product.uid != currentUser.uid)
+                            ? Palette.themeColor
+                            : Palette.darkGreyColor2,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
                         ),
+                        borderRadius: BorderRadius.circular(40),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              (product.uid != currentUser.uid)
+                                  ? Constants.mailOutlined
+                                  : Constants.edit,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              (product.uid != currentUser.uid)
+                                  ? 'iletişime geç'
+                                  : 'ürünü düzenle',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 19,
+                                fontFamily: 'JetBrainsMonoExtraBold',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       if (product.stock == 0)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),

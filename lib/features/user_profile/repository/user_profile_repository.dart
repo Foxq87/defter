@@ -34,6 +34,7 @@ class UserProfileRepository {
 
   Stream<List<Note>> getUserNotes(String uid) {
     return _Notes.where('uid', isEqualTo: uid)
+        .where('schoolName', isEqualTo: '')
         .where('repliedTo', isEqualTo: '')
         .orderBy('createdAt', descending: true)
         .snapshots()

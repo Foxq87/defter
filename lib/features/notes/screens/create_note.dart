@@ -130,29 +130,34 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                                 width: 10,
                               ),
                               Expanded(
-                                child: CupertinoTextField(
-                                  cursorColor: Palette.themeColor,
-                                  onChanged: (val) {
-                                    textLength = val.trim().length;
-                                    setState(() {});
-                                  },
-                                  maxLengthEnforcement:
-                                      MaxLengthEnforcement.enforced,
-                                  controller: noteTextController,
-                                  focusNode: focusNode,
-                                  maxLines: null,
-                                  maxLength: 1000,
-                                  keyboardType: TextInputType.multiline,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'JetBrainsMonoRegular'),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  placeholder: 'aklından ne geçiyor?',
-                                  placeholderStyle: const TextStyle(
-                                      color: Palette.placeholderColor,
-                                      fontFamily: 'JetBrainsMonoRegular'),
-                                  decoration: const BoxDecoration(),
+                                child: CupertinoTheme(
+                                  data: CupertinoThemeData(
+                                    primaryColor: Palette.themeColor,
+                                  ),
+                                  child: CupertinoTextField(
+                                    cursorColor: Palette.themeColor,
+                                    onChanged: (val) {
+                                      textLength = val.trim().length;
+                                      setState(() {});
+                                    },
+                                    maxLengthEnforcement:
+                                        MaxLengthEnforcement.enforced,
+                                    controller: noteTextController,
+                                    focusNode: focusNode,
+                                    maxLines: null,
+                                    maxLength: 400,
+                                    keyboardType: TextInputType.multiline,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'JetBrainsMonoRegular'),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    placeholder: 'aklından ne geçiyor?',
+                                    placeholderStyle: const TextStyle(
+                                        color: Palette.placeholderColor,
+                                        fontFamily: 'JetBrainsMonoRegular'),
+                                    decoration: const BoxDecoration(),
+                                  ),
                                 ),
                               ),
                             ],

@@ -7,10 +7,12 @@ import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/home/screens/close_friends_feed.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:routemaster/routemaster.dart';
 import '../../../models/models.dart';
 import '../../../theme/palette.dart';
@@ -79,51 +81,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
         middle: largeText("defter", true),
-        trailing: CupertinoButton(
-            padding: EdgeInsets.only(right: 20),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  CupertinoIcons.chevron_up,
-                  color: Palette.orangeColor,
-                  size: 20,
+        trailing: Padding(
+          padding: const EdgeInsets.only(right: 15.0, bottom: 5),
+          child: SizedBox(
+            height: 30,
+            child: CupertinoButton(
+                borderRadius: BorderRadius.circular(100),
+                color: Palette.darkGreyColor2,
+                padding:
+                    EdgeInsets.symmetric(horizontal: 5).copyWith(right: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      'agalar',
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: 'JetBrainsMonoBold'),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  'agalar',
-                  style: TextStyle(
-                      color: Palette.orangeColor,
-                      fontFamily: 'JetBrainsMonoBold'),
-                ),
-              ],
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  transitionDuration: Duration(milliseconds: 500),
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      CloseFriendsFeed(),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    var begin = Offset(0.0, 1.0);
-                    var end = Offset.zero;
-                    var curve = Curves.ease;
+                onPressed: () async {
+                  // final PackageInfo info = await PackageInfo.fromPlatform();
+                  // final int currentVersion = int.parse(info.buildNumber);
 
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
+                  // print(currentVersion.toString() +
+                  //     ', this is my lovely version');
 
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
-                ),
-              );
-            }),
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration(milliseconds: 500),
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          CloseFriendsFeed(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        var begin = Offset(0.0, 1.0);
+                        var end = Offset.zero;
+                        var curve = Curves.ease;
+
+                        var tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
+
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                }),
+          ),
+        ),
       ),
 
       drawer: const DrawerView(),
@@ -158,7 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               : noteLimit,
                           itemBuilder: (BuildContext context, int index) {
                             final note = notes[index];
-                            return NoteCard(note: note);
+                            return NoteCard(note: note, isComment: false,);
                           },
                         );
                       },
@@ -185,7 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               : noteLimit,
                           itemBuilder: (BuildContext context, int index) {
                             final note = notes[index];
-                            return NoteCard(note: note);
+                            return NoteCard(note: note, isComment: false,);
                           },
                         );
                       },

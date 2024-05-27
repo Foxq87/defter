@@ -1,13 +1,12 @@
 import 'package:acc/features/home/drawers/drawer.dart';
 import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
+import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rxdart_ext/rxdart_ext.dart';
-
 import '../../../core/commons/large_text.dart';
 import '../../../core/commons/loader.dart';
 import '../../../core/commons/user_square.dart';
@@ -27,12 +26,17 @@ class CloseFriendsFeed extends ConsumerStatefulWidget {
 
 class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
   ScrollController scrollController = ScrollController();
-
+  List<String> selectedProfileUids = [];
+  // List<UserModel> selectedProfiles = [];
   bool isLoading = true;
   @override
   void initState() {
     super.initState();
-
+    final currentUser = ref.read(userProvider)!;
+    // selectedProfileUids.add(currentUser.uid);
+    currentUser.closeFriends.forEach((element) {
+      selectedProfileUids.add(element);
+    });
     // Setup the listener.
     scrollController.addListener(() {
       if (scrollController.position.atEdge) {
@@ -57,37 +61,36 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
 
   int segmentedValue = 2;
   int noteLimit = 10;
-Future<Stream<List<Note>>> getCloseFriendsFeed(UserModel currentUser) async {
-  List<Stream<List<Note>>> streams = [];
+// Future<Stream<List<Note>>> getCloseFriendsFeed(UserModel currentUser) async {
+//   List<Stream<List<Note>>> streams = [];
 
-  for (String friendId in currentUser.closeFriends) {
-    var stream = FirebaseFirestore.instance.collection('posts')
-        .where('uid', isEqualTo: friendId)
-        .where('schoolName', isEqualTo: 'closeFriend-$friendId')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((querySnapshot) {
-          return querySnapshot.docs.map((doc) {
-            return ref.read(noteControllerProvider.notifier).getNoteById(doc.id); // Assuming you have a method to convert a DocumentSnapshot to a Note
-          }).toList();
-        });
+//   // for (String friendId in currentUser.closeFriends) {
+//   //   var stream = FirebaseFirestore.instance.collection('posts')
+//   //       .where('uid', isEqualTo: friendId)
+//   //       .where('schoolName', isEqualTo: 'closeFriend-$friendId')
+//   //       .orderBy('createdAt', descending: true)
+//   //       .snapshots()
+//   //       .map((querySnapshot) {
+//   //         return querySnapshot.docs.map((doc) {
+//   //           return ref.read(noteControllerProvider.notifier).getNoteById(doc.id); // Assuming you have a method to convert a DocumentSnapshot to a Note
+//   //         }).toList();
+//   //       });
 
-    streams.add(stream);
-  }
+//   //   streams.add(stream);
+//   // }
 
-  return Rx.combineLatest(streams, (values) {
-    return values.expand((element) => element).toList();
-  });
-}
+//   return Rx.combineLatest(streams, (values) {
+//     return values.expand((element) => element).toList();
+//   });
+// }
 
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.read(userProvider)!;
-    List<String> selectedProfileUids = [currentUser.uid];
-    List<UserModel> selectedProfiles = [currentUser];
+    final currentUser = ref.watch(userProvider)!;
+
     return Scaffold(
       appBar: CupertinoNavigationBar(
         border: Border(
@@ -105,29 +108,56 @@ Future<Stream<List<Note>>> getCloseFriendsFeed(UserModel currentUser) async {
         ),
         middle: largeText("defter", true),
         trailing: CupertinoButton(
-            padding: EdgeInsets.only(right: 20),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  CupertinoIcons.chevron_down,
-                  color: Palette.orangeColor,
-                  size: 20,
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  'agalar',
-                  style: TextStyle(
-                      color: Palette.orangeColor,
-                      fontFamily: 'JetBrainsMonoBold'),
-                ),
-              ],
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          padding: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 15.0, bottom: 5),
+            child: SizedBox(
+              height: 30,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Palette.darkGreyColor2,
+                    radius: 15,
+                    child: Center(
+                      child: Icon(
+                        CupertinoIcons.clear,
+                        size: 17,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 6,
+                  ),
+                  CupertinoButton(
+                      borderRadius: BorderRadius.circular(100),
+                      disabledColor: Palette.themeColor,
+                      color: Palette.themeColor,
+                      padding: EdgeInsets.symmetric(horizontal: 5)
+                          .copyWith(right: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            'agalar',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'JetBrainsMonoBold'),
+                          ),
+                        ],
+                      ),
+                      onPressed: null),
+                ],
+              ),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            }),
+          ),
+        ),
       ),
       drawer: const DrawerView(),
       body: currentUser.closeFriends.isEmpty
@@ -152,198 +182,193 @@ Future<Stream<List<Note>>> getCloseFriendsFeed(UserModel currentUser) async {
                       padding: EdgeInsets.symmetric(horizontal: 15),
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: List.generate(
-                            selectedProfiles.length + 1,
-                            (index) => index == selectedProfiles.length
-                                ? CupertinoButton(
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                        useSafeArea: true,
-                                        isScrollControlled: true,
-                                        backgroundColor: Palette.darkGreyColor2,
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return FractionallySizedBox(
-                                              heightFactor: 0.98,
-                                              child: SearchScreen(
-                                                isForCloseFriends: true,
-                                              ));
-                                        },
-                                      );
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    child: CircleAvatar(
-                                      backgroundColor: Palette.orangeColor,
-                                      radius: 13,
-                                      child: Icon(
-                                        CupertinoIcons.add,
-                                        size: 17,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: List.generate(
+                              selectedProfileUids.length + 1,
+                              (index) => index == selectedProfileUids.length
+                                  ? CupertinoButton(
+                                      onPressed: () {
+                                        showModalBottomSheet(
+                                          useSafeArea: true,
+                                          isScrollControlled: true,
+                                          backgroundColor:
+                                              Palette.darkGreyColor2,
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return FractionallySizedBox(
+                                                heightFactor: 0.98,
+                                                child: SearchScreen(
+                                                  isForCloseFriends: true,
+                                                ));
+                                          },
+                                        );
+                                      },
+                                      padding: EdgeInsets.zero,
+                                      child: CircleAvatar(
+                                        backgroundColor: Palette.orangeColor,
+                                        radius: 13,
+                                        child: Icon(
+                                          CupertinoIcons.add,
+                                          size: 17,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.all(8.0)
-                                        .copyWith(left: 0, right: 10),
-                                    child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Stack(
-                                            clipBehavior: Clip.none,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
-                                                child: Image.network(
-                                                  selectedProfiles[index]
-                                                      .profilePic,
-                                                  height: 50,
-                                                  width: 50,
-                                                  fit: BoxFit.cover,
+                                    )
+                                  : ref
+                                      .watch(getUserDataProvider(
+                                          selectedProfileUids[index]))
+                                      .when(
+                                          data: (data) => CupertinoButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            UserProfileScreen(
+                                                                uid: data.uid),
+                                                      ));
+                                                },
+                                                padding: EdgeInsets.zero,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0)
+                                                          .copyWith(
+                                                              left: 0,
+                                                              right: 10),
+                                                  child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Stack(
+                                                          clipBehavior:
+                                                              Clip.none,
+                                                          children: [
+                                                            ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15.0),
+                                                              child:
+                                                                  Image.network(
+                                                                data.profilePic,
+                                                                height: 50,
+                                                                width: 50,
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                              ),
+                                                            ),
+                                                            // if (selectedProfileUids[
+                                                            //             index] !=
+                                                            //         currentUser
+                                                            //             .uid)
+                                                            //   Positioned(
+                                                            //     top: -8,
+                                                            //     right: -8,
+                                                            //     child:
+                                                            //         GestureDetector(
+                                                            //       onTap: () {
+                                                            //         setState(() {
+                                                            //           selectedProfileUids
+                                                            //               .remove(
+                                                            //                   data.uid);
+                                                            //         });
+                                                            //       },
+                                                            //       child:
+                                                            //           CircleAvatar(
+                                                            //               radius:
+                                                            //                   12,
+                                                            //               backgroundColor:
+                                                            //                   Palette
+                                                            //                       .placeholderColor,
+                                                            //               child:
+                                                            //                   Icon(
+                                                            //                 CupertinoIcons
+                                                            //                     .clear,
+                                                            //                 size:
+                                                            //                     15,
+                                                            //               )),
+                                                            //     ),
+                                                            //   ),
+                                                          ],
+                                                        ),
+                                                        if (selectedProfileUids[
+                                                                index] !=
+                                                            currentUser.uid)
+                                                          Column(
+                                                            children: [
+                                                              SizedBox(
+                                                                height: 3,
+                                                              ),
+                                                              SizedBox(
+                                                                width: 55,
+                                                                child: Text(
+                                                                  data.username,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontFamily:
+                                                                          'JetBrainsMonoRegular',
+                                                                      fontSize:
+                                                                          11),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                      ]),
                                                 ),
                                               ),
-                                              if (selectedProfileUids[index] !=
-                                                  currentUser.uid)
-                                                Positioned(
-                                                  top: -8,
-                                                  right: -8,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        selectedProfileUids
-                                                            .remove(
-                                                                selectedProfiles[
-                                                                        index]
-                                                                    .uid);
-                                                        selectedProfiles.remove(
-                                                            selectedProfiles[
-                                                                index]);
-                                                      });
-                                                    },
-                                                    child: CircleAvatar(
-                                                        radius: 12,
-                                                        backgroundColor: Palette
-                                                            .placeholderColor,
-                                                        child: Icon(
-                                                          CupertinoIcons.clear,
-                                                          size: 15,
-                                                        )),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          if (selectedProfileUids[index] !=
-                                              currentUser.uid)
-                                            Column(
-                                              children: [
-                                                SizedBox(
-                                                  height: 3,
-                                                ),
-                                                SizedBox(
-                                                  width: 55,
-                                                  child: Text(
-                                                    selectedProfiles[index]
-                                                        .username,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style:
-                                                        TextStyle(fontSize: 11),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                        ]),
-                                  )),
-                      ),
+                                          error: (error, stackTrace) =>
+                                              Text(error.toString()),
+                                          loading: () =>
+                                              CupertinoActivityIndicator()))),
                     ),
                   ),
                   Divider(
                     thickness: 0.45,
                     color: Palette.darkGreyColor2,
                   ),
-                  // FutureBuilder<Stream<List<Note>>>(
-                  //   future: ref
-                  //       .read(schoolControllerProvider.notifier)
-                  //       .getCloseFriendsFeedProvider(),
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.connectionState == ConnectionState.waiting) {
-                  //       return CircularProgressIndicator();
-                  //     } else if (snapshot.hasError) {
-                  //       return Text('Error: ${snapshot.error}');
-                  //     } else {
-                  //       return StreamBuilder<List<Note>>(
-                  //         stream: snapshot.data,
-                  //         builder: (context, snapshot) {
-                  //           if (snapshot.connectionState ==
-                  //               ConnectionState.waiting) {
-                  //             return CircularProgressIndicator();
-                  //           } else if (snapshot.hasError) {
-                  //             return Text('Error: ${snapshot.error}');
-                  //           } else {
-                  //             return ListView.builder(
-                  //               itemCount: snapshot.data?.length ?? 0,
-                  //               itemBuilder: (context, index) {
-                  //                 final note = snapshot.data![index];
-                  //                 return NoteCard(note: note);
-                  //               },
-                  //             );
-                  //           }
-                  //         },
-                  //       );
-                  //     }
-                  //   },
-                  // ),
-                  ref.watch(getCloseFriendsFeedStreamProvider).when(
-                        data: (notes) {
-                          return ListView.builder(
-                            controller: scrollController,
-                            shrinkWrap: true,
-                            itemCount: notes.length,
-                            itemBuilder: (context, index) {
-                              final note = notes[index];
-                              return NoteCard(note: note);
-                            },
-                          );
-                        },
-                        loading: () => CircularProgressIndicator(),
-                        error: (error, stackTrace) => Text('Error: $error'),
-                      ),
 
-                  // ref.watch(getCloseFriendsFeedProvider).when(
-                  //       data: (notes) {
-                  //         if (notes.length <= noteLimit) {
-                  //           setState(() {
-                  //             isLoading = false;
-                  //           });
-                  //         } else {
-                  //           setState(() {
-                  //             isLoading = true;
-                  //           });
-                  //         }
-                  //         return ListView.builder(
-                  //           physics: NeverScrollableScrollPhysics(),
-                  //           shrinkWrap: true,
-                  //           itemCount: noteLimit > notes.length
-                  //               ? notes.length
-                  //               : noteLimit,
-                  //           itemBuilder: (BuildContext context, int index) {
-                  //             final note = notes[index];
-                  //             return NoteCard(note: note);
-                  //           },
-                  //         );
-                  //       },
-                  //       error: (error, stackTrace) => Text(error.toString()),
-                  //       loading: () => const Loader(),
-                  //     ),
+                  ref.watch(getCloseFriendsFeedProvider).when(
+                      data: (data) {
+                        data.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+                        return ListView.builder(
+                          reverse: true,
+                          // controller: scrollController,
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final note = data[index];
+                            return NoteCard(note: note, isComment: false,);
+                          },
+                        );
+                        // return ListView.builder(
+                        //   // controller: scrollController,
+                        //   physics: NeverScrollableScrollPhysics(),
+                        //   shrinkWrap: true,
+                        //   itemCount: data.length,
+                        //   itemBuilder: (context, index) {
+                        //     final note = data[index];
+                        //     return NoteCard(note: note);
+                        //   },
+                        // );
+                      },
+                      error: (error, stackTrace) => Text(error.toString()),
+                      loading: () => CupertinoActivityIndicator()),
                   SizedBox(
                     height: 10,
                   ),
-                  if (isLoading) CupertinoActivityIndicator(),
+                  // if (isLoading) CupertinoActivityIndicator(),
                   SizedBox(
                     height: 70,
                   )
@@ -407,7 +432,21 @@ Future<Stream<List<Note>>> getCloseFriendsFeed(UserModel currentUser) async {
                     ),
                   ],
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    useSafeArea: true,
+                    isScrollControlled: true,
+                    backgroundColor: Palette.darkGreyColor2,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return FractionallySizedBox(
+                          heightFactor: 0.98,
+                          child: SearchScreen(
+                            isForCloseFriends: true,
+                          ));
+                    },
+                  );
+                },
               ),
             )
           ],

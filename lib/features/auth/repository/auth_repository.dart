@@ -2,8 +2,6 @@ import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/core/failure.dart';
 import 'package:acc/core/type_defs.dart';
-import 'package:acc/core/utils.dart';
-import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:acc/core/providers/firebase_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,8 +36,6 @@ class AuthRepository {
       _firestore.collection(FirebaseConstants.usersCollection);
   CollectionReference get _schools =>
       _firestore.collection(FirebaseConstants.schoolsCollection);
-  CollectionReference get _mail =>
-      _firestore.collection(FirebaseConstants.mailCollection);
 
   Stream<User?> get authStatesChanges => _auth.authStateChanges();
 

@@ -11,8 +11,8 @@ class ChatModel {
   final String latest;
   final String type;
   final bool isDM;
-  final bool isHidden;
-  final bool isArchived;
+  final bool? isHidden;
+  final bool? isArchived;
   final DateTime createdAt;
   final DateTime lastEditedAt;
   final List<String> permissions;
@@ -25,8 +25,8 @@ class ChatModel {
     required this.latest,
     required this.type,
     required this.isDM,
-    required this.isHidden,
-    required this.isArchived,
+    this.isHidden = false,
+    this.isArchived = false,
     required this.createdAt,
     required this.lastEditedAt,
     required this.permissions,

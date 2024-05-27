@@ -1,22 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:acc/core/failure.dart';
 import 'package:acc/core/providers/storage_providers.dart';
-import 'package:acc/core/type_defs.dart';
 import 'package:acc/features/bookmarks/repository/bookmark_repository.dart';
-import 'package:acc/models/bookmark_model.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:routemaster/routemaster.dart';
-import 'package:uuid/uuid.dart';
 
-import '../../../core/utils.dart';
 import '../../../models/product_model.dart';
-import '../../../models/update_model.dart';
-import '../../../models/user_model.dart';
 import '../../auth/controller/auth_controller.dart';
 
 final bookmarkControllerProvider =

@@ -125,7 +125,7 @@ class SchoolRepository {
 
   Stream<List<UserModel>> searchFollower(String query, UserModel currentUser) {
     return _users
-        .where('following', arrayContains: currentUser.uid)
+        .where('followers', arrayContains: currentUser.uid)
         .orderBy('username_insensitive', descending: false)
         .startAt([query])
         .endAt([query + '\uf8ff'])
@@ -142,16 +142,15 @@ class SchoolRepository {
         //         ),
 
         .snapshots()
-        .map((event) {
-          List<UserModel> users = [];
-          for (var user in event.docs) {
-            String userId = user.get('uid');
-            if (!currentUser.closeFriends.contains(userId)) {
-              users.add(UserModel.fromMap(user.data() as Map<String, dynamic>));
-            }
-          }
-          return users;
-        });
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => UserModel.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
   }
 
   Stream<List<UserModel>> searchUser(String query) {
@@ -212,38 +211,45 @@ class SchoolRepository {
         );
   }
 
-  Future<Stream<List<Note>>> getCloseFriendsFeedProvider(UserModel currentUser) async  {
-    List<Stream<List<Note>>> myList = [];
-    for (var i = 0; i < currentUser.closeFriends.length; i++) {
-      var stream = _notes
-          .where('uid', isEqualTo: currentUser.closeFriends[i])
-          .where('schoolName',
-              isEqualTo: "closeFriends-${currentUser.closeFriends[i]}")
-          // .orderBy('createdAt', descending: true)
-          .snapshots()
-          .map((event) {
-        print("is empty? " + event.docs.isEmpty.toString());
-        return event.docs
-            .map((e) => Note.fromMap(e.data() as Map<String, dynamic>))
-            .toList();
-      });
-      // Only add the stream to the StreamGroup if it's not empty
-      // stream.listen((data) {
-      //   if (data.isNotEmpty) {
-      //     myList.add(stream);
-      //   } else {
-      //     print('whyy');
-      //   }
-      // });
-      bool isEmpty = await stream.isEmpty;
-      if (!isEmpty) {
-        myList.add(stream);
-      }
+  Stream<List<Note>> getCloseFriendsFeedProvider(UserModel currentUser) {
+    List<Stream<List<Note>>> streams = [];
+    List closeFriendOf = currentUser.ofCloseFriends;
+    while (closeFriendOf.contains(currentUser.uid)) {
+      closeFriendOf.remove(currentUser.uid);
+    }
+    if (!closeFriendOf.contains(currentUser.uid)) {
+      closeFriendOf.add(currentUser.uid);
     }
 
-    print(myList.toString() + " : wtf");
+    for (var i = 0; i < closeFriendOf.length; i++) {
+      streams.add(
+        _notes
+            .where('schoolName', isEqualTo: "closeFriends-${closeFriendOf[i]}")
+            .where('repliedTo', isEqualTo: "")
+            .snapshots()
+            .map((event) {
+          return event.docs
+              .map((e) => Note.fromMap(e.data() as Map<String, dynamic>))
+              .toList();
+        }),
+      );
+    }
+    return Rx.combineLatest<List<Note>, List<Note>>(streams, (notesList) {
+      List<Note> combinedNotes = [];
+      for (var notes in notesList) {
+        combinedNotes.addAll(notes);
+      }
+      return combinedNotes;
+    });
 
-    return Rx.merge(myList);
+    // return _notes
+    //     .where(FieldPath.documentId, whereIn: noteIds)
+    //     .snapshots()
+    //     .map((event) {
+    //   return event.docs
+    //       .map((e) => Note.fromMap(e.data() as Map<String, dynamic>))
+    //       .toList();
+    // });
   }
 
   Stream<List<Note>> getWorldNotes() {

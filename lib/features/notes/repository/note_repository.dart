@@ -1,5 +1,6 @@
 import 'package:acc/models/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
@@ -34,6 +35,7 @@ class NoteRepository {
 
   FutureVoid addNote(Note note, UserModel currentUser) async {
     try {
+      currentUser.closeFriends.add(currentUser.uid);
       if (note.schoolName.contains('closeFriends-')) {
         print("close-friend-note");
         for (var i = 0; i < currentUser.closeFriends.length; i++) {
@@ -71,20 +73,24 @@ class NoteRepository {
     }
   }
 
-  bool isThread(Note note) {
-    bool res = false;
+  Stream<List<Note>> threads(String noteId, String uid) {
     try {
-      _notes.where('repliedTo', isEqualTo: note.id).get().then((value) {
-        for (var element in value.docs) {
-          if (element.get('uid') == note.id) {
-            res = true;
-          }
-        }
-      });
-      print(res);
-      return res;
-    } catch (e) {}
-    return true;
+   
+      return _notes
+          .where("repliedTo", isEqualTo: noteId)
+          .where("uid", isEqualTo: uid)
+          .snapshots()
+          .map((event) => event.docs
+              .map(
+                (e) => Note.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList());
+    } catch (e) {
+      print(e.toString());
+      return Stream.empty();
+    }
   }
 
   Stream<List<Note>> fetchUserNotes(List<School> schools) {

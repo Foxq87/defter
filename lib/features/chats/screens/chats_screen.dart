@@ -83,6 +83,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
           : ref.watch(getUserChatsProvider(currentUser.uid)).when(
                 data: (chats) {
                   return ListView.builder(
+                    padding: EdgeInsets.only(bottom: 70),
                     // physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: chats.length,

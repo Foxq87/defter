@@ -58,17 +58,9 @@ final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
 final getWorldNotesProvider = StreamProvider((ref) {
   return ref.read(schoolControllerProvider.notifier).getWorldNotes();
 });
-final getCloseFriendsFeedProvider =
-    FutureProvider.autoDispose<Stream<List<Note>>>((ref) async {
-  return await ref
-      .read(schoolControllerProvider.notifier)
-      .getCloseFriendsFeedProvider();
-});
 
-final getCloseFriendsFeedStreamProvider =
-    StreamProvider.autoDispose<List<Note>>((ref) {
-  final stream = ref.watch(getCloseFriendsFeedProvider).asData?.value;
-  return stream ?? Stream.value([]);
+final getCloseFriendsFeedProvider = StreamProvider((ref) {
+  return ref.read(schoolControllerProvider.notifier).getCloseFriendsFeedProvider();
 });
 
 final getAllSchoolsProvider = StreamProvider((ref) {
@@ -207,7 +199,7 @@ class SchoolController extends StateNotifier<bool> {
     return _schoolRepository.getSchoolNotes(name);
   }
 
-  Future<Stream<List<Note>>> getCloseFriendsFeedProvider() async {
+  Stream<List<Note>> getCloseFriendsFeedProvider()  {
     UserModel currentUser = _ref.read(userProvider)!;
 
     // for (var i = 0; i < currentUser.closeFriendsFeedNoteIds.length; i++) {
@@ -216,7 +208,9 @@ class SchoolController extends StateNotifier<bool> {
     //       .getNoteById(currentUser.closeFriendsFeedNoteIds[i]);
     // }
 
-    return await _schoolRepository.getCloseFriendsFeedProvider(currentUser);
+    // _ref.read(userProvider.notifier).update((state) => );
+    return  _schoolRepository.getCloseFriendsFeedProvider(currentUser);
+
   }
 
   Stream<List<Note>> getWorldNotes() {

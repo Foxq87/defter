@@ -10,6 +10,7 @@ import 'package:acc/features/widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
+import 'core/commons/new_version_available_screen.dart';
 import 'core/commons/waiting_to_log_in.dart';
 import 'features/school/screens/school_screen.dart';
 import 'features/suggest_feature/screens/suggest_feature_screen.dart';
@@ -28,7 +29,9 @@ final loggedOutRoute = RouteMap(routes: {
 final noInternetRoute = RouteMap(routes: {
   '/': (_) => const MaterialPage(child: NoInternetView()),
 });
-
+final newVersionRoute = RouteMap(routes: {
+  '/': (_) => const MaterialPage(child: NewVersionAvailable()),
+});
 final waitingToLoginRoute = RouteMap(routes: {
   '/': (_) => const MaterialPage(child: WaitingToLogin()),
 });

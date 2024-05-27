@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';

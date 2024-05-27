@@ -13,10 +13,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:routemaster/routemaster.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,50 +114,60 @@ class _MyAppState extends ConsumerState<MyApp> {
 //                   }),
 //               routeInformationParser: const RoutemasterParser(),
 //             ),
+  Future<bool> _checkForUpdate() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    final int currentVersion = int.parse(info.buildNumber);
+
+    final FirebaseRemoteConfig remoteConfig =
+        await FirebaseRemoteConfig.instance;
+    await remoteConfig.fetchAndActivate();
+    print(currentVersion.toString() + ', this is my lovely version');
+
+    final int newVersion = remoteConfig.getInt('current_version');
+    return newVersion > currentVersion;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ref.watch(authStateChangeProvider).when(
-        data: (data) => data == null
-            ? MaterialApp.router(
-                title: 'defter',
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(
-                  brightness: Brightness.dark,
-                  scaffoldBackgroundColor: Palette.backgroundColor,
-                  fontFamily: "JetBrainsMonoRegular",
-                ),
-                // ... other properties ...
-                routerDelegate: RoutemasterDelegate(
-                  navigatorKey: Get.key,
-                  routesBuilder: (context) => loggedOutRoute,
-                ),
-                routeInformationParser: const RoutemasterParser(),
-              )
-            : FutureBuilder(
-                future: getData(ref, data),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return MaterialApp.router(
-                      // ... other properties ...
-                      title: 'defter',
-                      debugShowCheckedModeBanner: false,
-                      theme: ThemeData(
-                        brightness: Brightness.dark,
-                        scaffoldBackgroundColor: Palette.backgroundColor,
-                        fontFamily: "JetBrainsMonoRegular",
-                      ),
-                      routerDelegate: RoutemasterDelegate(
-                        navigatorKey: Get.key,
-                        routesBuilder: (context) => userModel != null
-                            ? userModel!.isSuspended
-                                ? suspendedAccountRoute
-                                : loggedInRoute
-                            : waitingToLoginRoute,
-                      ),
-                      routeInformationParser: const RoutemasterParser(),
-                    );
-                  } else {
-                    return MaterialApp.router(
+    return FutureBuilder(
+      future: _checkForUpdate(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MaterialApp.router(
+            title: 'defter',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: Palette.backgroundColor,
+              fontFamily: "JetBrainsMonoRegular",
+            ),
+            // ... other properties ...
+            routerDelegate: RoutemasterDelegate(
+              navigatorKey: Get.key,
+              routesBuilder: (context) => waitingToLoginRoute,
+            ),
+            routeInformationParser: const RoutemasterParser(),
+          );
+        } else if (snapshot.data!) {
+          return MaterialApp.router(
+            title: 'defter',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: Palette.backgroundColor,
+              fontFamily: "JetBrainsMonoRegular",
+            ),
+            // ... other properties ...
+            routerDelegate: RoutemasterDelegate(
+              navigatorKey: Get.key,
+              routesBuilder: (context) => newVersionRoute,
+            ),
+            routeInformationParser: const RoutemasterParser(),
+          );
+        } else {
+          return ref.watch(authStateChangeProvider).when(
+              data: (data) => data == null
+                  ? MaterialApp.router(
                       title: 'defter',
                       debugShowCheckedModeBanner: false,
                       theme: ThemeData(
@@ -165,14 +178,56 @@ class _MyAppState extends ConsumerState<MyApp> {
                       // ... other properties ...
                       routerDelegate: RoutemasterDelegate(
                         navigatorKey: Get.key,
-                        routesBuilder: (context) => waitingToLoginRoute,
+                        routesBuilder: (context) => loggedOutRoute,
                       ),
                       routeInformationParser: const RoutemasterParser(),
-                    );
-                  }
-                },
-              ),
-        error: (error, stacktrace) => ErrorText(error: error.toString()),
-        loading: () => const Loader());
+                    )
+                  : FutureBuilder(
+                      future: getData(ref, data),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          return MaterialApp.router(
+                            // ... other properties ...
+                            title: 'defter',
+                            debugShowCheckedModeBanner: false,
+                            theme: ThemeData(
+                              brightness: Brightness.dark,
+                              scaffoldBackgroundColor: Palette.backgroundColor,
+                              fontFamily: "JetBrainsMonoRegular",
+                            ),
+                            routerDelegate: RoutemasterDelegate(
+                              navigatorKey: Get.key,
+                              routesBuilder: (context) => userModel != null
+                                  ? userModel!.isSuspended
+                                      ? suspendedAccountRoute
+                                      : loggedInRoute
+                                  : waitingToLoginRoute,
+                            ),
+                            routeInformationParser: const RoutemasterParser(),
+                          );
+                        } else {
+                          return MaterialApp.router(
+                            title: 'defter',
+                            debugShowCheckedModeBanner: false,
+                            theme: ThemeData(
+                              brightness: Brightness.dark,
+                              scaffoldBackgroundColor: Palette.backgroundColor,
+                              fontFamily: "JetBrainsMonoRegular",
+                            ),
+                            // ... other properties ...
+                            routerDelegate: RoutemasterDelegate(
+                              navigatorKey: Get.key,
+                              routesBuilder: (context) => waitingToLoginRoute,
+                            ),
+                            routeInformationParser: const RoutemasterParser(),
+                          );
+                        }
+                      },
+                    ),
+              error: (error, stacktrace) => ErrorText(error: error.toString()),
+              loading: () => const Loader());
+        }
+      },
+    );
   }
 }

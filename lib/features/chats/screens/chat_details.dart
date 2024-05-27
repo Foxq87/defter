@@ -1,12 +1,10 @@
 import 'package:acc/core/commons/loader.dart';
-import 'package:acc/core/commons/view_users_by_uids.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/models/chat_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 import '../../../core/commons/large_text.dart';
 import '../../../core/commons/nav_bar_button.dart';

@@ -5,9 +5,7 @@ import 'package:acc/theme/palette.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 import '../../notes/widgets/note_card.dart';
 
@@ -87,7 +85,7 @@ class _SavedState extends ConsumerState<SavedContent> {
                                 : noteLimit,
                             itemBuilder: (BuildContext context, int index) {
                               final note = notes[index];
-                              return NoteCard(note: note);
+                              return NoteCard(note: note, isComment: false,);
                             },
                           );
                         },

@@ -8,9 +8,6 @@ import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/core/failure.dart';
 import 'package:acc/core/providers/firebase_providers.dart';
 import 'package:acc/core/type_defs.dart';
-import 'package:acc/models/school_model.dart';
-import 'package:acc/models/notification_model.dart';
-import 'package:uuid/uuid.dart';
 
 final chatRepositoryProvider = Provider((ref) {
   return ChatRepository(

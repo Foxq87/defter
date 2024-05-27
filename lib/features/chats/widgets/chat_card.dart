@@ -32,13 +32,36 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                     .first))
             .when(
                 data: (user) => ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.network(
-                        user.profilePic,
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.cover,
+                    trailing: user.username == "Kerem"
+                        ? Container(
+                            width: 25,
+                            height: 25,
+                            decoration: BoxDecoration(
+                              color: Palette.orangeColor,
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: Center(
+                                child: Text(
+                              '1',
+                              style: TextStyle(
+                                  fontFamily: 'JetBrainsMonoExtraBold',
+                                  fontSize: 15),
+                            )),
+                          )
+                        : SizedBox(),
+                    leading: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                              width: 0.45, color: Palette.darkGreyColor2)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15.0),
+                        child: Image.network(
+                          user.profilePic,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     title: Row(
@@ -59,7 +82,7 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                           child: Text(
                             widget.chat.latest,
                             style: TextStyle(color: Palette.placeholderColor),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -76,13 +99,19 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                 error: (error, stackTrace) => Text(error.toString()),
                 loading: () => CupertinoActivityIndicator())
         : ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(15.0),
-              child: Image.network(
-                widget.chat.profilePic,
-                height: 50,
-                width: 50,
-                fit: BoxFit.cover,
+            leading: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  border:
+                      Border.all(width: 0.45, color: Palette.darkGreyColor2)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: Image.network(
+                  widget.chat.profilePic,
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             title: Row(
@@ -103,7 +132,7 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                   child: Text(
                     widget.chat.latest,
                     style: TextStyle(color: Palette.placeholderColor),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

@@ -393,8 +393,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                         ref
                                             .read(userProfileControllerProvider
                                                 .notifier)
-                                            .followUser(context, user,
-                                                currentUser);
+                                            .followUser(
+                                                context, user, currentUser);
                                       },
                                       child: Text(
                                         user.followers.contains(currentUser.uid)
@@ -463,7 +463,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                               itemCount: data.length,
                               itemBuilder: (BuildContext context, int index) {
                                 final note = data[index];
-                                return NoteCard(note: note);
+                                return NoteCard(
+                                  note: note,
+                                  isComment: false,
+                                );
                               },
                             );
                           },

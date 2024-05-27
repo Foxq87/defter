@@ -301,7 +301,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       Expanded(
                         child: ref.watch(searchFollowerProvider(query)).when(
                               data: (List<UserModel> items) {
-                                items.remove(currentUser);
+                                while (items.contains(currentUser)) {
+                                  items.remove(currentUser);
+                                }
+
                                 return Scrollbar(
                                   scrollbarOrientation:
                                       ScrollbarOrientation.right,
@@ -372,9 +375,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                                 ),
                                               ),
                                             if (selectedProfiles
-                                                    .contains(item) &&
-                                                (widget.isForChat! ||
-                                                    widget.isForCloseFriends!))
+                                                    .contains(item) ||
+                                                (currentUser.closeFriends
+                                                    .contains(item.uid)))
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 15.0),

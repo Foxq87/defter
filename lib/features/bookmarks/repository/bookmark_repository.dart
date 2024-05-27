@@ -1,4 +1,3 @@
-import 'package:acc/models/bookmark_model.dart';
 import 'package:acc/models/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

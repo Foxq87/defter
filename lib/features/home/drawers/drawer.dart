@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
@@ -119,6 +121,7 @@ class DrawerView extends ConsumerWidget {
                                                 color: Palette.redColor),
                                           ),
                                           onPressed: () {
+                                            Navigator.of(context).pop();
                                             Navigator.of(context).pop();
                                             ref
                                                 .read(authControllerProvider
@@ -325,16 +328,16 @@ class DrawerView extends ConsumerWidget {
                     //       "isArchived": false,
                     //     });
 
-                        // FirebaseFirestore.instance
-                        //     .collection('chats')
-                        //     .doc(element.id)
-                        //     .collection('chatContent')
-                        //     .get()
-                        //     .then((val) {
-                        //   val.docs.forEach((element2) {
-                        //     element2.reference.update({"reactions": []});
-                        //   });
-                    //     // });
+                    // FirebaseFirestore.instance
+                    //     .collection('chats')
+                    //     .doc(element.id)
+                    //     .collection('chatContent')
+                    //     .get()
+                    //     .then((val) {
+                    //   val.docs.forEach((element2) {
+                    //     element2.reference.update({"reactions": []});
+                    //   });
+                    // });
                     //   });
                     // });
 
@@ -353,18 +356,19 @@ class DrawerView extends ConsumerWidget {
                     // });
 
                     // *** ADD BOOKMARKS FIELD TO NOTES ***
-                    // FirebaseFirestore.instance
-                    //     .collection('posts')
-                    //     .get()
-                    //     .then((val) {
-                    //   val.docs.forEach((element) {
-                    //     if (element.get('bookmarks') == null) {
-                    //       element.reference.update({
-                    //         'bookmarks': [],
-                    //       });
-                    //     }
-                    //   });
-                    // });
+                    FirebaseFirestore.instance
+                        .collection('posts')
+                        .get()
+                        .then((val) {
+                      val.docs.forEach((element) {
+                        String uid = element.get('uid');
+                        if (element.get('schoolName') == "BAIHL") {
+                          element.reference.update({
+                            'schoolName': 'closeFriends-$uid',
+                          });
+                        }
+                      });
+                    });
 
                     // *** ADD PRODUCT_ID FIELD TO NOTIFICATIONS ***
                     // FirebaseFirestore.instance

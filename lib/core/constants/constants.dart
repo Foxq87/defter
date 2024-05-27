@@ -81,6 +81,7 @@ class Constants {
       "assets/svgs/bottom-nav-bar-icons/heart-filled.svg";
   static const String renote = "assets/svgs/bottom-nav-bar-icons/renote.svg";
   static const String upload = "assets/svgs/bottom-nav-bar-icons/upload.svg";
+  static const String edit = 'assets/svgs/edit.svg';
 
   static const String crown = "assets/svgs/crown.svg";
 

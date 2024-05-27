@@ -8,7 +8,6 @@ import 'package:acc/models/chat_model.dart';
 import 'package:acc/models/message_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:acc/theme/palette.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -330,14 +329,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                               const EdgeInsets
                                                                   .only(
                                                                   left: 5.0,
-                                                                  bottom: 2),
-                                                          child: Text(
-                                                            formattedDate(
-                                                                message
-                                                                    .createdAt),
-                                                            style: TextStyle(
-                                                                color: Palette
-                                                                    .justGrayColor),
+                                                                  bottom: 10),
+                                                          child: Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: Divider(
+                                                                  endIndent: 15,
+                                                                  thickness: 1,
+                                                                  color: Palette
+                                                                      .darkGreyColor2,
+                                                                  height: 0,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                formattedDate(
+                                                                    message
+                                                                        .createdAt),
+                                                                style: TextStyle(
+                                                                    color: Palette
+                                                                        .justGrayColor),
+                                                              ),
+                                                              Expanded(
+                                                                child: Divider(
+                                                                  indent: 15,
+                                                                  thickness: 1,
+                                                                  color: Palette
+                                                                      .darkGreyColor2,
+                                                                  height: 0,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         )),
                                                   if (widget.chat.isDM &&

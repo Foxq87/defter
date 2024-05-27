@@ -46,6 +46,10 @@ final getNoteByIdProvider = StreamProvider.family((ref, String noteId) {
   final noteController = ref.watch(noteControllerProvider.notifier);
   return noteController.getNoteById(noteId);
 });
+final getNoteThreads = StreamProvider.family((ref, String noteId) {
+  final noteController = ref.watch(noteControllerProvider.notifier);
+  return noteController.threads(noteId);
+});
 
 final getNoteCommentsProvider = StreamProvider.family((ref, String noteId) {
   final noteController = ref.watch(noteControllerProvider.notifier);
@@ -82,8 +86,10 @@ class NoteController extends StateNotifier<bool> {
   //   return _noteRepository.fetchGuestNotes();
   // }
 
-  bool isThread(Note note) {
-    return _noteRepository.isThread(note);
+  Stream<List<Note>> threads(String noteIdAndNoteUid) {
+    final splitted = noteIdAndNoteUid.split('+');
+    print(splitted);
+    return _noteRepository.threads(splitted.first, splitted[1]);
   }
 
   void deleteNote(Note note, String currentUid, BuildContext context) async {
@@ -173,9 +179,7 @@ class NoteController extends StateNotifier<bool> {
       repliedTo: repliedTo,
     );
 
-   
-
-    final res = await _noteRepository.addNote(note,currentUser);
+    final res = await _noteRepository.addNote(note, currentUser);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       // showSnackBar(context, 'Noteed successfully!');
@@ -241,7 +245,7 @@ class NoteController extends StateNotifier<bool> {
         link: link,
         repliedTo: repliedTo,
       );
-      final res = await _noteRepository.addNote(note,user);
+      final res = await _noteRepository.addNote(note, user);
 
       state = false;
       res.fold((l) => showSnackBar(context, l.message), (r) {
