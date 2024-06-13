@@ -15,14 +15,16 @@ class UserModel {
   final String email;
   final String banner;
   final String bio;
+  final int warningCount;
   final bool isSuspended;
+  final bool didAcceptEula;
   final DateTime creation;
+  final List<String> blockedAccountIds;
   final List<String> roles;
   final List<String> followers;
   final List<String> following;
   final List<String> ofCloseFriends;
   final List<String> closeFriends;
-  final List<String> closeFriendsFeedNoteIds;
   UserModel({
     required this.uid,
     required this.username,
@@ -34,16 +36,17 @@ class UserModel {
     required this.email,
     required this.banner,
     required this.bio,
+    required this.warningCount,
     required this.isSuspended,
+    required this.didAcceptEula,
     required this.creation,
+    required this.blockedAccountIds,
     required this.roles,
     required this.followers,
     required this.following,
     required this.ofCloseFriends,
     required this.closeFriends,
-    required this.closeFriendsFeedNoteIds,
   });
-  //add creation
 
   UserModel copyWith({
     String? uid,
@@ -56,14 +59,16 @@ class UserModel {
     String? email,
     String? banner,
     String? bio,
+    int? warningCount,
     bool? isSuspended,
+    bool? didAcceptEula,
     DateTime? creation,
+    List<String>? blockedAccountIds,
     List<String>? roles,
     List<String>? followers,
     List<String>? following,
     List<String>? ofCloseFriends,
     List<String>? closeFriends,
-    List<String>? closeFriendsFeedNoteIds,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -76,14 +81,16 @@ class UserModel {
       email: email ?? this.email,
       banner: banner ?? this.banner,
       bio: bio ?? this.bio,
+      warningCount: warningCount ?? this.warningCount,
       isSuspended: isSuspended ?? this.isSuspended,
+      didAcceptEula: didAcceptEula ?? this.didAcceptEula,
       creation: creation ?? this.creation,
+      blockedAccountIds: blockedAccountIds ?? this.blockedAccountIds,
       roles: roles ?? this.roles,
       followers: followers ?? this.followers,
       following: following ?? this.following,
       ofCloseFriends: ofCloseFriends ?? this.ofCloseFriends,
       closeFriends: closeFriends ?? this.closeFriends,
-      closeFriendsFeedNoteIds: closeFriendsFeedNoteIds ?? this.closeFriendsFeedNoteIds,
     );
   }
 
@@ -99,14 +106,16 @@ class UserModel {
       'email': email,
       'banner': banner,
       'bio': bio,
+      'warningCount': warningCount,
       'isSuspended': isSuspended,
+      'didAcceptEula': didAcceptEula,
       'creation': creation.millisecondsSinceEpoch,
+      'blockedAccountIds': blockedAccountIds,
       'roles': roles,
       'followers': followers,
       'following': following,
       'ofCloseFriends': ofCloseFriends,
       'closeFriends': closeFriends,
-      'closeFriendsFeedNoteIds': closeFriendsFeedNoteIds,
     };
   }
 
@@ -122,25 +131,26 @@ class UserModel {
       email: map['email'] as String,
       banner: map['banner'] as String,
       bio: map['bio'] as String,
+      warningCount: map['warningCount'] as int,
       isSuspended: map['isSuspended'] as bool,
+      didAcceptEula: map['didAcceptEula'] as bool,
       creation: DateTime.fromMillisecondsSinceEpoch(map['creation'] as int),
+      blockedAccountIds: List<String>.from((map['blockedAccountIds'] as List<dynamic>)),
       roles: List<String>.from((map['roles'] as List<dynamic>)),
       followers: List<String>.from((map['followers'] as List<dynamic>)),
       following: List<String>.from((map['following'] as List<dynamic>)),
       ofCloseFriends: List<String>.from((map['ofCloseFriends'] as List<dynamic>)),
       closeFriends: List<String>.from((map['closeFriends'] as List<dynamic>)),
-      closeFriendsFeedNoteIds: List<String>.from((map['closeFriendsFeedNoteIds'] as List<dynamic>)),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory UserModel.fromJson(String source) =>
-      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'UserModel(uid: $uid, username: $username, username_insensitive: $username_insensitive, name: $name, name_insensitive: $name_insensitive, profilePic: $profilePic, schoolId: $schoolId, email: $email, banner: $banner, bio: $bio, isSuspended: $isSuspended, creation: $creation, roles: $roles, followers: $followers, following: $following, ofCloseFriends: $ofCloseFriends, closeFriends: $closeFriends, closeFriendsFeedNoteIds: $closeFriendsFeedNoteIds)';
+    return 'UserModel(uid: $uid, username: $username, username_insensitive: $username_insensitive, name: $name, name_insensitive: $name_insensitive, profilePic: $profilePic, schoolId: $schoolId, email: $email, banner: $banner, bio: $bio, warningCount: $warningCount, isSuspended: $isSuspended, didAcceptEula: $didAcceptEula, creation: $creation, blockedAccountIds: $blockedAccountIds, roles: $roles, followers: $followers, following: $following, ofCloseFriends: $ofCloseFriends, closeFriends: $closeFriends)';
   }
 
   @override
@@ -158,14 +168,16 @@ class UserModel {
       other.email == email &&
       other.banner == banner &&
       other.bio == bio &&
+      other.warningCount == warningCount &&
       other.isSuspended == isSuspended &&
+      other.didAcceptEula == didAcceptEula &&
       other.creation == creation &&
+      listEquals(other.blockedAccountIds, blockedAccountIds) &&
       listEquals(other.roles, roles) &&
       listEquals(other.followers, followers) &&
       listEquals(other.following, following) &&
       listEquals(other.ofCloseFriends, ofCloseFriends) &&
-      listEquals(other.closeFriends, closeFriends) &&
-      listEquals(other.closeFriendsFeedNoteIds, closeFriendsFeedNoteIds);
+      listEquals(other.closeFriends, closeFriends);
   }
 
   @override
@@ -180,13 +192,15 @@ class UserModel {
       email.hashCode ^
       banner.hashCode ^
       bio.hashCode ^
+      warningCount.hashCode ^
       isSuspended.hashCode ^
+      didAcceptEula.hashCode ^
       creation.hashCode ^
+      blockedAccountIds.hashCode ^
       roles.hashCode ^
       followers.hashCode ^
       following.hashCode ^
       ofCloseFriends.hashCode ^
-      closeFriends.hashCode ^
-      closeFriendsFeedNoteIds.hashCode;
+      closeFriends.hashCode;
   }
 }

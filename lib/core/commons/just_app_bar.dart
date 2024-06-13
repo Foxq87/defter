@@ -9,10 +9,11 @@ class JustAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      leading:
-          JustIconButton(icon:CupertinoIcons.back, onPressed: () => Navigator.pop(context)),
+      leading: JustIconButton(
+          icon: CupertinoIcons.back, onPressed: () => Navigator.pop(context)),
       actions: [
-        JustIconButton(icon:Icons.more_horiz, onPressed: () => Navigator.pop(context)),
+        JustIconButton(
+            icon: Icons.more_horiz, onPressed: () => Navigator.pop(context)),
         const SizedBox(
           width: 5,
         ),
@@ -22,7 +23,7 @@ class JustAppBar extends StatelessWidget {
         'Article',
         style: TextStyle(
           color: Colors.white,
-          fontFamily: 'JetBrainsMonoExtraBold',
+          fontFamily: 'SFProDisplayBold',
         ),
       ),
       // trailing: navBarButton(Icons.more_horiz),

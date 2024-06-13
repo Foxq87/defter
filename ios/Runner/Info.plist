@@ -19,7 +19,7 @@
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.0.8</string>
+		<string>1.0.10</string>
 		<key>CFBundleSignature</key>
 		<string>????</string>
 		<key>CFBundleURLTypes</key>
@@ -34,7 +34,7 @@
 			</dict>
 		</array>
 		<key>CFBundleVersion</key>
-		<string>8</string>
+		<string>10</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -42,7 +42,7 @@
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>NSCameraUsageDescription</key>
-		<string>Uygulamamız, profil resimlerinizi seçmenize ve uygulama içinde resim paylaşmanıza izin vermek için fotoğraf kitaplığınıza erişim gerektirir.</string>
+		<string>Uygulamamız, profil resimlerinizi seçmenize ve uygulama içinde resim paylaşmanıza izin vermek için kameranıza erişim gerektirir.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Uygulamamız, profil resimlerinizi seçmenize ve uygulama içinde resim paylaşmanıza izin vermek için fotoğraf kitaplığınıza erişim gerektirir.</string>
 		<key>UIMainStoryboardFile</key>

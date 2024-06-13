@@ -1,18 +1,15 @@
-import 'package:acc/core/commons/error_text.dart';
-import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/commons/commons.dart';
 import 'package:acc/features/article.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/home/screens/close_friends_feed.dart';
+import 'package:acc/features/notes/widgets/notes_loading_view.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:routemaster/routemaster.dart';
 import '../../../models/models.dart';
 import '../../../theme/palette.dart';
@@ -28,11 +25,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with AutomaticKeepAliveClientMixin<HomeScreen> {
   ScrollController scrollController = ScrollController();
-  bool isLoading = true;
+  bool isLoading = false;
+  bool skeletonLoading = true;
   @override
   void initState() {
     super.initState();
-
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        skeletonLoading = false;
+      });
+    });
     // Setup the listener.
     scrollController.addListener(() {
       if (scrollController.position.atEdge) {
@@ -53,6 +55,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         // }
       }
     });
+  }
+
+  Future<void> _refreshData() async {
+    ref.read(schoolControllerProvider.notifier).refreshData(context);
   }
 
   int segmentedValue = 2;
@@ -99,7 +105,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     Text(
                       'agalar',
                       style: TextStyle(
-                          color: Colors.white, fontFamily: 'JetBrainsMonoBold'),
+                          color: Colors.white,
+                          fontFamily: 'SFProDisplayMedium'),
                     ),
                   ],
                 ),
@@ -138,56 +145,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
 
       drawer: const DrawerView(),
-      body: Scrollbar(
-        scrollbarOrientation: ScrollbarOrientation.right,
-        thumbVisibility: true,
-        trackVisibility: true,
-        controller: scrollController,
-        child: ListView(
+      body: RefreshIndicator(
+        color: Palette.themeColor,
+        onRefresh: _refreshData,
+        child: Scrollbar(
+          scrollbarOrientation: ScrollbarOrientation.right,
+          thumbVisibility: true,
+          trackVisibility: true,
           controller: scrollController,
-          children: [
-            segmentedValue == 1
-                ? ref.watch(getWorldNotesProvider).when(
-                      data: (notes) {
-                        // if (scrollController.position.atEdge) {
-                        //   noteLimit += 10;
-                        // }
-                        if (notes.length <= noteLimit) {
-                          setState(() {
-                            isLoading = false;
-                          });
-                        } else {
-                          setState(() {
-                            isLoading = true;
-                          });
-                        }
-                        return ListView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: noteLimit > notes.length
-                              ? notes.length
-                              : noteLimit,
-                          itemBuilder: (BuildContext context, int index) {
-                            final note = notes[index];
-                            return NoteCard(note: note, isComment: false,);
-                          },
-                        );
-                      },
-                      error: (error, stackTrace) => Text(error.toString()),
-                      loading: () => const Loader(),
-                    )
-                : ref.watch(getSchoolNotesProvider(user.schoolId)).when(
-                      data: (notes) {
-                        if (notes.length <= noteLimit) {
-                          setState(() {
-                            isLoading = false;
-                          });
-                        } else {
-                          setState(() {
-                            isLoading = true;
-                          });
-                        }
+          child: ListView(
+            controller: scrollController,
+            children: [
+              ref
+                  .watch(
+                      notesProvider(segmentedValue == 1 ? "" : user.schoolId))
+                  .when(
+                    data: (notes) {
+                      // if (notes.length <= noteLimit) {
+                      //   setState(() {
+                      //     isLoading = false;
+                      //   });
+                      // } else {
+                      //   setState(() {
+                      //     isLoading = true;
+                      //   });
+                      // }
 
+                      if (skeletonLoading) {
+                        return NotesLoadingView();
+                      } else {
                         return ListView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
@@ -196,45 +182,53 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               : noteLimit,
                           itemBuilder: (BuildContext context, int index) {
                             final note = notes[index];
-                            return NoteCard(note: note, isComment: false,);
+                            return NoteCard(
+                              note: note,
+                              isComment: false,
+                            );
                           },
                         );
-                      },
-                      error: (error, stackTrace) => Text(error.toString()),
-                      loading: () => const Loader(),
-                    ),
-            SizedBox(
-              height: 10,
-            ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     CupertinoButton(
-            //       padding: EdgeInsets.symmetric(horizontal: 20),
-            //       color: Palette.orangeColor,
-            //       borderRadius: BorderRadius.circular(20),
-            //       child: Text(
-            //         'daha fazla',
-            //         textAlign: TextAlign.center,
-            //         style: TextStyle(
-            //           fontSize: 18,
-            //           color: Colors.white,
-            //           fontFamily: 'JetBrainsMonoRegular',
-            //         ),
-            //       ),
-            //       onPressed: () {
-            //         setState(() {
-            //           noteLimit += 10;
-            //         });
-            //       },
-            //     ),
-            //   ],
-            // ),
-            if (isLoading) CupertinoActivityIndicator(),
-            SizedBox(
-              height: 70,
-            )
-          ],
+                      }
+                    },
+                    error: (error, stackTrace) {
+                      print(error.toString());
+                      return Text(error.toString());
+                    },
+                    loading: () => const NotesLoadingView(),
+                  ),
+              SizedBox(
+                height: 10,
+              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     CupertinoButton(
+              //       padding: EdgeInsets.symmetric(horizontal: 20),
+              //       color: Palette.orangeColor,
+              //       borderRadius: BorderRadius.circular(20),
+              //       child: Text(
+              //         'daha fazla',
+              //         textAlign: TextAlign.center,
+              //         style: TextStyle(
+              //           fontSize: 18,
+              //           color: Colors.white,
+              //           fontFamily: 'SFProDisplayRegular',
+              //         ),
+              //       ),
+              //       onPressed: () {
+              //         setState(() {
+              //           noteLimit += 10;
+              //         });
+              //       },
+              //     ),
+              //   ],
+              // ),
+              // if (isLoading) CupertinoActivityIndicator(),
+              SizedBox(
+                height: 70,
+              )
+            ],
+          ),
         ),
       ),
       //Articles
@@ -281,7 +275,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
                 2: Text(
@@ -289,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
               },

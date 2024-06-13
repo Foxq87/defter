@@ -55,6 +55,10 @@ final getNoteCommentsProvider = StreamProvider.family((ref, String noteId) {
   final noteController = ref.watch(noteControllerProvider.notifier);
   return noteController.getNoteComments(noteId);
 });
+final getReportsProvider = StreamProvider((ref) {
+  final noteController = ref.watch(noteControllerProvider.notifier);
+  return noteController.getReports();
+});
 
 final getNoteLikersProvider =
     StreamProvider.family((ref, List<String> likerUids) {
@@ -92,9 +96,9 @@ class NoteController extends StateNotifier<bool> {
     return _noteRepository.threads(splitted.first, splitted[1]);
   }
 
-  void deleteNote(Note note, String currentUid, BuildContext context) async {
+  void deleteNote(Note note, BuildContext context) async {
     try {
-      await _noteRepository.deleteNote(note, currentUid);
+      await _noteRepository.deleteNote(note);
       if (note.type == "image") {
         await _storageRepository.deleteNoteImages(note: note);
       }
@@ -124,32 +128,37 @@ class NoteController extends StateNotifier<bool> {
     return _noteRepository.getNoteById(noteId);
   }
 
-  void reportNote({
+  void reportUserOrContent({
     required BuildContext context,
     required String uid,
     required String noteId,
     required String accountId,
     required String reason,
     required String detail,
+    required String reportId,
+    bool? isEvaluated = false,
   }) async {
     state = true;
-    String noteId = const Uuid().v1();
 
     final Report report = Report(
-      uid: uid,
+      id: reportId,
+      reportingUid: uid,
       noteId: noteId,
-      accountId: accountId,
+      reportedUid: accountId,
       reason: reason,
       detail: detail,
+      isEvaluated: isEvaluated,
       createdAt: DateTime.now(),
     );
 
     final res = await _noteRepository.addReport(report);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
-      Navigator.pop(context);
-      Navigator.pop(context);
-      showSnackBar(context, 'şikayetin için teşekkürler, ilgileneceğiz.');
+      if (!isEvaluated!) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        showSnackBar(context, 'şikayetin için teşekkürler, ilgileneceğiz.');
+      }
     });
   }
 
@@ -191,6 +200,10 @@ class NoteController extends StateNotifier<bool> {
 
   Stream<List<Note>> getNoteComments(String noteId) {
     return _noteRepository.getCommentsOfNote(noteId);
+  }
+
+  Stream<List<Report>> getReports() {
+    return _noteRepository.getReports();
   }
 
   Stream<List<UserModel>> getNoteLikers(List<String> likerUids) {

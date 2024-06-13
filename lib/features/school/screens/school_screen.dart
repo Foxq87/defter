@@ -136,7 +136,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                                 school.title,
                                 style: const TextStyle(
                                     fontSize: 20,
-                                    fontFamily: 'JetBrainsMonoExtraBold'),
+                                    fontFamily: 'SFProDisplayBold'),
                               ),
                             ),
                             const SizedBox(
@@ -168,7 +168,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                                       'profili düzenle',
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontFamily: 'JetBrainsMonoBold'),
+                                          fontFamily: 'SFProDisplayMedium'),
                                     )),
                               ),
                             ),
@@ -208,7 +208,10 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                             itemCount: data.length,
                             itemBuilder: (BuildContext context, int index) {
                               final Note note = data[index];
-                              return NoteCard(note: note, isComment: false,);
+                              return NoteCard(
+                                note: note,
+                                isComment: false,
+                              );
                             },
                           );
                         },
@@ -278,12 +281,12 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
                 text: TextSpan(children: [
               TextSpan(
                   text: school.students.length.toString(),
-                  style: const TextStyle(fontFamily: 'JetBrainsMonoRegular')),
+                  style: const TextStyle(fontFamily: 'SFProDisplayRegular')),
               const TextSpan(
                   text: ' öğrenci',
                   style: TextStyle(
                       color: Palette.placeholderColor,
-                      fontFamily: 'JetBrainsMonoRegular')),
+                      fontFamily: 'SFProDisplayRegular')),
             ]))),
       ),
     );
@@ -304,7 +307,7 @@ class _UserProfileScreenState extends ConsumerState<SchoolScreen> {
           style: const TextStyle(
               fontSize: 18,
               color: Colors.white,
-              fontFamily: 'JetBrainsMonoBold'),
+              fontFamily: 'SFProDisplayMedium'),
         ),
       ),
     );

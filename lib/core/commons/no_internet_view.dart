@@ -50,7 +50,7 @@ class NoInternetView extends StatelessWidget {
                 child: const Text(
                   'Yenile',
                   style: TextStyle(
-                      color: Colors.white, fontFamily: 'JetBrainsMonoBold'),
+                      color: Colors.white, fontFamily: 'SFProDisplayMedium'),
                 ),
                 onPressed: () {}),
             const SizedBox(

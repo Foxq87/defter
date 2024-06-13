@@ -94,7 +94,7 @@ class _ProductApprovalViewState extends ConsumerState<ProductApprovalView> {
                                         (i + 1).toString(),
                                         style: TextStyle(
                                             color: Colors.white,
-                                            fontFamily: 'JetBrainsMonoRegular'),
+                                            fontFamily: 'SFProDisplayRegular'),
                                       ),
                                     )),
                               )),

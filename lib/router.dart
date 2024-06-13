@@ -5,13 +5,16 @@ import 'package:acc/features/auth/screens/login_screen.dart';
 import 'package:acc/features/auth/screens/suspended_account.dart';
 import 'package:acc/features/notes/screens/create_note.dart';
 import 'package:acc/features/notes/screens/note_details.dart';
+import 'package:acc/features/settings/screens/settings_view.dart';
 import 'package:acc/features/widget_tree.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
 import 'core/commons/new_version_available_screen.dart';
 import 'core/commons/waiting_to_log_in.dart';
+import 'features/auth/screens/sign_up_view.dart';
 import 'features/school/screens/school_screen.dart';
 import 'features/suggest_feature/screens/suggest_feature_screen.dart';
 import 'features/marketplace/screens/create_product_screen.dart';
@@ -24,6 +27,9 @@ final suspendedAccountRoute = RouteMap(routes: {
 
 final loggedOutRoute = RouteMap(routes: {
   '/': (_) => const MaterialPage(child: LoginScreen()),
+  '/create-account': (routeData) => MaterialPage(
+        child: SignUpView(),
+      ),
 });
 
 final noInternetRoute = RouteMap(routes: {
@@ -43,7 +49,7 @@ final loggedInRoute = RouteMap(routes: {
           uid: routeData.pathParameters['uid']!,
         ),
       ),
-  '/user-profile/:uid/edit-profile/:uid': (routeData) => MaterialPage(
+  '/user-profile/:uid/edit-profile/': (routeData) => MaterialPage(
         child: EditProfileScreen(
           uid: routeData.pathParameters['uid']!,
         ),
@@ -56,7 +62,7 @@ final loggedInRoute = RouteMap(routes: {
   '/create-note': (routeData) => const MaterialPage(
         child: CreateNote(),
       ),
-  '/note/:noteId/details': (routeData) => MaterialPage(
+  '/note/:noteId': (routeData) => MaterialPage(
         child: NoteDetails(noteId: routeData.pathParameters['noteId']!),
       ),
   '/suggest-feature-screen': (routeData) => const MaterialPage(
@@ -66,5 +72,8 @@ final loggedInRoute = RouteMap(routes: {
         child: CreateProductScreen(
           product: null,
         ),
+      ),
+  '/settings': (routeData) => const MaterialPage(
+        child: SettingsView(),
       ),
 });

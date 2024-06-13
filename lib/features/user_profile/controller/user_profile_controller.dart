@@ -101,7 +101,9 @@ class UserProfileController extends StateNotifier<bool> {
 
     user = user.copyWith(
       name: name,
+      name_insensitive: name.toLowerCase(),
       username: username,
+      username_insensitive: username.toLowerCase(),
       bio: bio,
     );
     final res = await _userProfileRepository.editProfile(user);
@@ -151,7 +153,11 @@ class UserProfileController extends StateNotifier<bool> {
     for (var i = 0; i < users.length; i++) {
       users[i] = users[i].copyWith(ofCloseFriends: users[i].ofCloseFriends);
       List currentUserCloseFriends = currentUser.closeFriends;
-      currentUserCloseFriends.add(users[i].uid);
+      if (currentUserCloseFriends.contains(users[i].uid)) {
+        currentUserCloseFriends.remove(users[i].uid);
+      } else {
+        currentUserCloseFriends.add(users[i].uid);
+      }
 
       currentUser = currentUser.copyWith(
           closeFriends: currentUserCloseFriends as List<String>);
@@ -174,13 +180,17 @@ class UserProfileController extends StateNotifier<bool> {
     UserModel user,
     UserModel currentUser,
   ) async {
-    // if (currentUser.following.contains(user.uid) /*if i am following him*/) {
-    //   user.followers.remove(currentUser.uid); //
-    //   currentUser.following.remove(user.uid); //
-    // } else {
-    //   user.followers.add(currentUser.uid);
-    //   currentUser.following.add(user.uid);
-    // }
+    List<String> userFollowers = user.followers;
+    List<String> myFollowers = currentUser.followers;
+    List<String> userFollowings = user.following;
+    List<String> myFollowings = currentUser.following;
+    if (currentUser.following.contains(user.uid) /*if i am following him*/) {
+      userFollowers.remove(currentUser.uid); //
+      myFollowings.remove(user.uid); //
+    } else {
+      userFollowers.add(currentUser.uid);
+      myFollowings.add(user.uid);
+    }
     _ref.read(notificationControllerProvider.notifier).sendNotification(
           context: context,
           type: 'follow',
@@ -189,9 +199,11 @@ class UserProfileController extends StateNotifier<bool> {
           receiverUid: user.uid,
           id: currentUser.uid,
         );
+    // List userFollowers = user.followers.
 
-    user = user.copyWith(followers: user.followers);
-    currentUser = currentUser.copyWith(following: currentUser.following);
+    user = user.copyWith(followers: userFollowers, following: userFollowings);
+    currentUser =
+        currentUser.copyWith(following: myFollowings, followers: myFollowers);
     final res = await _userProfileRepository.followUser(user, currentUser);
     res.fold(
       (l) => showSnackBar(context, l.message),

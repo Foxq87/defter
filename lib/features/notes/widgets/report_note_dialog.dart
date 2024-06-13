@@ -2,8 +2,8 @@ import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../theme/palette.dart';
 
@@ -23,12 +23,13 @@ class ReportDialog extends ConsumerStatefulWidget {
 
 class _ReportNoteDialogState extends ConsumerState<ReportDialog> {
   TextEditingController detailController = TextEditingController();
-  String selectedReason = '';
+  String selectedReason = 'nefret';
   void selectAndUnselectOthers(int index) {
     for (var element in reportReasons) {
       setState(() {
         element[1] = false;
         reportReasons[index][1] = true;
+        selectedReason = reportReasons[index][0];
       });
     }
   }
@@ -45,10 +46,11 @@ class _ReportNoteDialogState extends ConsumerState<ReportDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Palette.backgroundColor,
       titlePadding: EdgeInsets.all(15.0),
       contentPadding: EdgeInsets.all(10).copyWith(top: 0),
       title: Text(
-        widget.accountId.isEmpty
+        widget.noteId.isNotEmpty
             ? 'notu' + ' şikayet et'
             : 'hesabı' + ' şikayet et',
         style: TextStyle(),
@@ -97,10 +99,10 @@ class _ReportNoteDialogState extends ConsumerState<ReportDialog> {
             minLines: 3,
             maxLines: null,
             style: TextStyle(
-                fontFamily: 'JetBrainsMonoRegular', color: Colors.white),
+                fontFamily: 'SFProDisplayRegular', color: Colors.white),
             placeholder: 'detay',
             placeholderStyle: TextStyle(
-                fontFamily: 'JetBrainsMonoRegular', color: Colors.grey),
+                fontFamily: 'SFProDisplayRegular', color: Colors.grey),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
               color: Palette.iconBackgroundColor,
@@ -120,18 +122,20 @@ class _ReportNoteDialogState extends ConsumerState<ReportDialog> {
             'gönder',
             style: TextStyle(
               color: Colors.white,
-              fontFamily: 'JetBrainsMonoBold',
+              fontFamily: 'SFProDisplayMedium',
             ),
           ),
           onPressed: () {
+            final reportId = Uuid().v4();
             final String uid = ref.read(userProvider)!.uid;
-            ref.read(noteControllerProvider.notifier).reportNote(
+            ref.read(noteControllerProvider.notifier).reportUserOrContent(
                   context: context,
                   uid: uid,
                   noteId: widget.noteId,
                   accountId: widget.accountId,
                   reason: selectedReason,
                   detail: detailController.text.trim(),
+                  reportId: reportId,
                 );
           },
         ),

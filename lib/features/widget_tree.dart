@@ -132,6 +132,7 @@
 //   }
 // }
 
+import 'package:acc/core/commons/eula_screen.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
@@ -191,8 +192,8 @@ class _WidgetTreeState extends ConsumerState<WidgetTree>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final user = ref.read(userProvider)!;
-    return ref.watch(authControllerProvider.notifier).isUserNotSetup(ref)
+    final user = ref.watch(userProvider)!;
+    return ref.watch(authControllerProvider.notifier).isUserNotSetup(ref, user)
         ? SetupProfile(user: user)
         : Scaffold(
             body: PageView(

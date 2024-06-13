@@ -64,6 +64,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
     return Scaffold(
         appBar: CupertinoNavigationBar(
+          automaticallyImplyLeading: false,
           transitionBetweenRoutes: false,
           backgroundColor: Colors.transparent,
           border: const Border(
@@ -91,8 +92,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   textAlign: TextAlign.center,
                 ),
               )
-            : now != DateTime.saturday &&
-                    now != DateTime.saturday &&
+            : now.weekday != DateTime.saturday &&
+                    now.weekday != DateTime.sunday &&
                     now.isAfter(startTime) &&
                     now.isBefore(endTime)
                 ? NotInSchoolTime()
@@ -305,7 +306,7 @@ class _NotInSchoolTimeState extends ConsumerState<NotInSchoolTime> {
               child: Text(
                 "okul saati dışında kullanıma açıktır",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Palette.justGrayColor),
+                style: TextStyle(fontSize: 15, color: Palette.justGreyColor),
               ),
             ),
           ],

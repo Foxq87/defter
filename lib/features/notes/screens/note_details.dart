@@ -65,7 +65,7 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
     return ref.watch(getNoteByIdProvider(widget.noteId)).when(
           data: (note) => SafeArea(
             child: PopScope(
-              onPopInvoked: (didPop) => _onWillPop(context),
+              // onPopInvoked: (didPop) => _onWillPop(context),
               child: Scaffold(
                 appBar: CupertinoNavigationBar(
                   transitionBetweenRoutes: false,
@@ -74,12 +74,12 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
                     'not',
                     style: TextStyle(
                         color: Colors.white,
-                        fontFamily: 'JetBrainsMonoRegular',
+                        fontFamily: 'SFProDisplayRegular',
                         fontSize: 18),
                   ),
                   leading: JustIconButton(
                       icon: CupertinoIcons.back,
-                      onPressed: () => Navigator.of(context).pop()),
+                      onPressed: () => Routemaster.of(context).pop()),
                   border: Border(
                       bottom: BorderSide(
                           width: 0.5, color: Palette.darkGreyColor2)),
@@ -138,12 +138,12 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
                               minLines: 1,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontFamily: 'JetBrainsMonoRegular',
+                                fontFamily: 'SFProDisplayRegular',
                               ),
                               controller: commentController,
                               placeholder: "yorum at",
                               placeholderStyle: const TextStyle(
-                                fontFamily: 'JetBrainsMonoRegular',
+                                fontFamily: 'SFProDisplayRegular',
                                 color: Palette.placeholderColor,
                               ),
                               decoration: BoxDecoration(

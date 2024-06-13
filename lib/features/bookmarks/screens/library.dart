@@ -85,7 +85,10 @@ class _SavedState extends ConsumerState<SavedContent> {
                                 : noteLimit,
                             itemBuilder: (BuildContext context, int index) {
                               final note = notes[index];
-                              return NoteCard(note: note, isComment: false,);
+                              return NoteCard(
+                                note: note,
+                                isComment: false,
+                              );
                             },
                           );
                         },
@@ -150,7 +153,7 @@ class _SavedState extends ConsumerState<SavedContent> {
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
                 2: Text(
@@ -158,7 +161,7 @@ class _SavedState extends ConsumerState<SavedContent> {
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
               },

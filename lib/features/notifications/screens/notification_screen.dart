@@ -43,11 +43,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               builder: (context) => CupertinoAlertDialog(
                     title: Text(
                       "emin misin?",
-                      style: TextStyle(fontFamily: 'JetBrainsMonoRegular'),
+                      style: TextStyle(fontFamily: 'SFProDisplayRegular'),
                     ),
                     content: Text(
                       "sana gelen bütün bildirimleri silmek üzeresin",
-                      style: TextStyle(fontFamily: 'JetBrainsMonoRegular'),
+                      style: TextStyle(fontFamily: 'SFProDisplayRegular'),
                     ),
                     actions: [
                       CupertinoDialogAction(
@@ -59,7 +59,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           style: TextStyle(
                             color: Palette.themeColor,
                             fontSize: 19,
-                            fontFamily: 'JetBrainsMonoExtraBold',
+                            fontFamily: 'SFProDisplayBold',
                           ),
                         ),
                       ),
@@ -74,7 +74,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           style: TextStyle(
                             color: Palette.redColor,
                             fontSize: 19,
-                            fontFamily: 'JetBrainsMonoExtraBold',
+                            fontFamily: 'SFProDisplayBold',
                           ),
                         ),
                       ),

@@ -44,8 +44,7 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                                 child: Text(
                               '1',
                               style: TextStyle(
-                                  fontFamily: 'JetBrainsMonoExtraBold',
-                                  fontSize: 15),
+                                  fontFamily: 'SFProDisplayBold', fontSize: 15),
                             )),
                           )
                         : SizedBox(),

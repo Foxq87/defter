@@ -67,7 +67,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
                             'tamam',
                             style: TextStyle(
                               color: Colors.white,
-                              fontFamily: 'JetBrainsMonoRegular',
+                              fontFamily: 'SFProDisplayRegular',
                             ),
                           ),
                           onPressed: () {
@@ -123,7 +123,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
                 2: Text(
@@ -131,7 +131,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
               },

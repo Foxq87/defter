@@ -1,12 +1,23 @@
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/commons/sign_in_buttons.dart';
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/theme/palette.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
+  void launchURL(String url) async {
+    Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,19 +30,6 @@ class LoginScreen extends ConsumerWidget {
                 children: [
                   const SizedBox(
                     height: 30,
-                  ),
-
-                  const SizedBox(
-                    height: 40,
-                  ),
-                  Spacer(),
-                  Image.asset(
-                    'assets/defter-icon-rounded.png',
-                    height: 150,
-                    width: 150,
-                  ),
-                  const SizedBox(
-                    height: 20,
                   ),
                   Center(
                     child: RichText(
@@ -50,49 +48,59 @@ class LoginScreen extends ConsumerWidget {
                       ]),
                     ),
                   ),
-                  Spacer(),
-                  Divider(
-                    height: 15,
+                  const SizedBox(
+                    height: 40,
                   ),
                   const SignInButton(),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
-                  )
-                  // const Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: Divider(
-                  //         endIndent: 10,
-                  //         indent: 20,
-                  //         thickness: 0.5,
-                  //         color: Colors.grey,
-                  //       ),
-                  //     ),
-                  //     Text(
-                  //       "or",
-                  //       style: TextStyle(fontSize: 17),
-                  //     ),
-                  //     Expanded(
-                  //       child: Divider(
-                  //         endIndent: 20,
-                  //         indent: 10,
-                  //         color: Colors.grey,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // const SizedBox(
-                  //   height: 10,
-                  // ),
-                  // CreateAccButton(
-                  //   ref: ref,
-                  // ),
-                  // const SizedBox(
-                  //   height: 10,
-                  // ),
-                  // agreements(),
-                  // const Spacer(),
-                  // const LogInButton(),
+                  ),
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          endIndent: 10,
+                          indent: 20,
+                          thickness: 0.5,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        "veya",
+                        style: TextStyle(
+                            fontSize: 17, fontFamily: 'JetBrainsMonoRegular'),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          endIndent: 20,
+                          indent: 10,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  CreateAccButton(
+                    ref: ref,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  agreements(),
+                  const Spacer(),
+                  Text(
+                    'zaten bir hesabın var mı?',
+                    style: TextStyle(
+                        fontFamily: 'JetBrainsMonoRegular',
+                        fontSize: 15,
+                        color: Palette.placeholderColor),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  const LogInButton(),
                 ],
               ),
       ),
@@ -101,40 +109,46 @@ class LoginScreen extends ConsumerWidget {
 
   Padding agreements() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: RichText(
-        text: const TextSpan(
+        text: TextSpan(
           children: [
             TextSpan(
-                text: "by signing up, you agree to the",
+                text: "kayıt olarak\t",
                 style: TextStyle(
                     fontSize: 15, fontFamily: "JetBrainsMonoExtraBold")),
             TextSpan(
-                text: '\tterms of service.',
+              text: 'kullanıcı sözleşmemizi',
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launchURL(Constants.eulaLink);
+                },
+              style: TextStyle(
+                decoration: TextDecoration.underline,
+                color: Palette.themeColor,
+                fontSize: 15,
+                fontFamily: "JetBrainsMonoExtraBold",
+              ),
+            ),
+            TextSpan(
+                text: '\tve',
                 style: TextStyle(
+                    fontSize: 15, fontFamily: "JetBrainsMonoExtraBold")),
+            TextSpan(
+                text: '\tgizlilik politikamızı',
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launchURL(Constants.privacyPolicyLink);
+                  },
+                style: TextStyle(
+                    decoration: TextDecoration.underline,
                     color: Palette.themeColor,
                     fontSize: 15,
                     fontFamily: "JetBrainsMonoExtraBold")),
             TextSpan(
-                text: '\tand',
+                text: '\tkabul etmiş olursunuz',
                 style: TextStyle(
                     fontSize: 15, fontFamily: "JetBrainsMonoExtraBold")),
-            TextSpan(
-                text: '\tprivacy policy,',
-                style: TextStyle(
-                    color: Palette.themeColor,
-                    fontSize: 15,
-                    fontFamily: "JetBrainsMonoExtraBold")),
-            TextSpan(
-                text: '\tincluding',
-                style: TextStyle(
-                    fontSize: 15, fontFamily: "JetBrainsMonoExtraBold")),
-            TextSpan(
-                text: '\tcookie use.',
-                style: TextStyle(
-                    color: Palette.themeColor,
-                    fontSize: 15,
-                    fontFamily: "JetBrainsMonoExtraBold")),
           ],
         ),
         textAlign: TextAlign.center,

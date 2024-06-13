@@ -61,11 +61,7 @@ class NoteRepository {
 
   FutureVoid addReport(Report report) async {
     try {
-      return right(_reports
-          .doc(report.accountId.isEmpty
-              ? report.uid + report.noteId
-              : report.uid + report.accountId)
-          .set(report.toMap()));
+      return right(_reports.doc(report.id).set(report.toMap()));
     } on FirebaseException catch (e) {
       throw e.message!;
     } catch (e) {
@@ -75,7 +71,6 @@ class NoteRepository {
 
   Stream<List<Note>> threads(String noteId, String uid) {
     try {
-   
       return _notes
           .where("repliedTo", isEqualTo: noteId)
           .where("uid", isEqualTo: uid)
@@ -125,7 +120,7 @@ class NoteRepository {
         );
   }
 
-  FutureVoid deleteNote(Note note, String currentUid) async {
+  FutureVoid deleteNote(Note note) async {
     try {
       //delete note
       await _notes.where('id', isEqualTo: note.id).get().then((val) {
@@ -153,16 +148,16 @@ class NoteRepository {
           element.reference.delete();
         }
       });
-      await _notifications
-          .doc(currentUid)
-          .collection('userNotifications')
-          .where('postId', isEqualTo: note.id)
-          .get()
-          .then((val) {
-        for (var element in val.docs) {
-          element.reference.delete();
-        }
-      });
+      // await _notifications
+      //     .doc(authorId)
+      //     .collection('userNotifications')
+      //     .where('postId', isEqualTo: note.id)
+      //     .get()
+      //     .then((val) {
+      //   for (var element in val.docs) {
+      //     element.reference.delete();
+      //   }
+      // });
       return right(_notes.doc(note.id).delete());
     } on FirebaseException catch (e) {
       throw e.message!;
@@ -188,10 +183,8 @@ class NoteRepository {
   }
 
   Stream<Note> getNoteById(String noteId) {
-    return _notes
-        .doc(noteId)
-        .snapshots()
-        .map((event) => Note.fromMap(event.data() as Map<String, dynamic>));
+    return _notes.doc(noteId).snapshots().map(
+        (event) => Note.fromMap(event.data() as Map<String, dynamic>? ?? {}));
   }
 
   // FutureVoid addComment(Comment comment) async {
@@ -217,6 +210,22 @@ class NoteRepository {
           (event) => event.docs
               .map(
                 (e) => Note.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Stream<List<Report>> getReports() {
+    return _reports
+        .where('isEvaluated', isEqualTo: false)
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => Report.fromMap(
                   e.data() as Map<String, dynamic>,
                 ),
               )

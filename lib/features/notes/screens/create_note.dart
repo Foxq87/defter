@@ -55,8 +55,55 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
   }
 
   void onPickImages() async {
-    images = await pickImages(allowMultiple: false);
-    setState(() {});
+    final action = await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text(
+                "kamera",
+                style: TextStyle(
+                    fontFamily: 'SFProDisplayRegular', color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pop(context, "photo");
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text(
+                "fotoğraf seç",
+                style: TextStyle(
+                    fontFamily: 'SFProDisplayRegular', color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pop(context, "library");
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            child: Text(
+              "geri",
+              style: TextStyle(
+                  fontFamily: 'SFProDisplayRegular',
+                  color: Palette.orangeColor),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
+
+    if (action == "photo") {
+      images = await camera(allowMultiple: false);
+      setState(() {});
+    } else if (action == "library") {
+      images = await pickImages(allowMultiple: false);
+      setState(() {});
+    }
   }
 
   @override
@@ -88,7 +135,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                                   style: TextStyle(
                                       color: Palette.placeholderColor,
                                       fontSize: 19,
-                                      fontFamily: 'JetBrainsMonoExtraBold'),
+                                      fontFamily: 'SFProDisplayBold'),
                                 ),
                               ),
                               const SizedBox(
@@ -104,7 +151,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 19,
-                                    fontFamily: 'JetBrainsMonoExtraBold',
+                                    fontFamily: 'SFProDisplayBold',
                                   ),
                                 ),
                               ),
@@ -149,13 +196,13 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                                     keyboardType: TextInputType.multiline,
                                     style: const TextStyle(
                                         color: Colors.white,
-                                        fontFamily: 'JetBrainsMonoRegular'),
+                                        fontFamily: 'SFProDisplayRegular'),
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10),
                                     placeholder: 'aklından ne geçiyor?',
                                     placeholderStyle: const TextStyle(
                                         color: Palette.placeholderColor,
-                                        fontFamily: 'JetBrainsMonoRegular'),
+                                        fontFamily: 'SFProDisplayRegular'),
                                     decoration: const BoxDecoration(),
                                   ),
                                 ),
@@ -282,7 +329,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                 child: Text(
                   "${textLength.toString()} / 400",
                   style: TextStyle(
-                      fontFamily: 'JetBrainsMonoBold',
+                      fontFamily: 'SFProDisplayMedium',
                       fontSize: 14,
                       color:
                           textLength == 400 ? Palette.redColor : Colors.white),
@@ -299,7 +346,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
                 2: Text(
@@ -307,7 +354,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
                 3: Text(
@@ -315,7 +362,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.white,
-                    fontFamily: "JetBrainsMonoBold",
+                    fontFamily: "SFProDisplayMedium",
                   ),
                 ),
               },

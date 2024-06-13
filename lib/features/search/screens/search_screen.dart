@@ -40,6 +40,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   List<UserModel> selectedProfiles = [];
   int currentPage = 0;
   @override
+  void initState() {
+    final currentUser = ref.read(userProvider)!;
+    if (widget.isForCloseFriends!) {
+      List<String> selectedProfileUids = currentUser.closeFriends;
+    }
+
+    for (var i = 0; i < selectedProfileUids.length; i++) {
+      ref.read(getUserDataProvider(selectedProfileUids[i])).when(
+          data: (data) {
+            selectedProfiles.add(data);
+          },
+          error: (error, stackTrace) => print(error.toString()),
+          loading: () => print('loading'));
+    }
+
+    super.initState();
+  }
+
+  @override
   bool get wantKeepAlive => true;
 
   String query = "";
@@ -81,7 +100,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           style: const TextStyle(
               fontSize: 18,
               color: Colors.white,
-              fontFamily: 'JetBrainsMonoBold'),
+              fontFamily: 'SFProDisplayMedium'),
         ),
       ),
     );
@@ -115,7 +134,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey,
-                      fontFamily: 'JetBrainsMonoRegular'),
+                      fontFamily: 'SFProDisplayRegular'),
                 ),
                 onPressed: () {
                   if (currentPage == 0) {
@@ -182,12 +201,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                             ),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontFamily: "JetBrainsMonoRegular",
+                              fontFamily: "SFProDisplayRegular",
                             ),
                             placeholder: 'ara',
                             placeholderStyle: const TextStyle(
                               color: Palette.placeholderColor,
-                              fontFamily: 'JetBrainsMonoBold',
+                              fontFamily: 'SFProDisplayMedium',
                             ),
                           ),
                         ),
@@ -304,6 +323,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                 while (items.contains(currentUser)) {
                                   items.remove(currentUser);
                                 }
+                                items.remove(currentUser);
 
                                 return Scrollbar(
                                   scrollbarOrientation:
@@ -376,7 +396,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                               ),
                                             if (selectedProfiles
                                                     .contains(item) ||
-                                                (currentUser.closeFriends
+                                                (selectedProfileUids
                                                     .contains(item.uid)))
                                               Padding(
                                                 padding: const EdgeInsets.only(
@@ -615,11 +635,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                           cursorColor: Palette.themeColor,
                           style: TextStyle(
                               color: Colors.white,
-                              fontFamily: 'JetBrainsMonoRegular'),
+                              fontFamily: 'SFProDisplayRegular'),
                           placeholder: 'grup başlığı',
                           placeholderStyle: TextStyle(
                               color: Palette.placeholderColor,
-                              fontFamily: 'JetBrainsMonoRegular'),
+                              fontFamily: 'SFProDisplayRegular'),
                           decoration: BoxDecoration(),
                         ),
                       ),
@@ -733,7 +753,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   'sohbet aç',
                   style: TextStyle(
                       color: Palette.themeColor,
-                      fontFamily: 'JetBrainsMonoRegular'),
+                      fontFamily: 'SFProDisplayRegular'),
                 ),
                 onPressed: () {
                   // this is a dm
@@ -760,7 +780,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         : selectedProfiles.length == 1
                             ? Palette.themeColor
                             : Colors.white,
-                    fontFamily: 'JetBrainsMonoRegular'),
+                    fontFamily: 'SFProDisplayRegular'),
               ),
               onPressed: () {
                 bool isDM = selectedProfileUids.length == 1;
@@ -816,7 +836,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                         : selectedProfiles.length == 1
                             ? Palette.themeColor
                             : Colors.white,
-                    fontFamily: 'JetBrainsMonoRegular'),
+                    fontFamily: 'SFProDisplayRegular'),
               ),
               onPressed: () {
                 if (widget.isForCloseFriends!) {

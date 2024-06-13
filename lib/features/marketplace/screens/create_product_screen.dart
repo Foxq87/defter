@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/commons/image_view.dart';
 import '../../../core/commons/large_text.dart';
@@ -21,7 +22,9 @@ import '../../../theme/palette.dart';
 
 class CreateProductScreen extends ConsumerStatefulWidget {
   final ProductModel? product;
-  const CreateProductScreen({super.key, required this.product});
+  final bool? editing;
+  const CreateProductScreen(
+      {super.key, this.editing = false, required this.product});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -42,15 +45,61 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
   String errorText = '';
 
   void onPickImages() async {
-    imageFiles = await pickImages(allowMultiple: true);
-    if (imageFiles.length > 3) {
-      showSnackBar(context, "maksimum 3 resim seçin");
-      while (imageFiles.length != 3) {
-        imageFiles.removeLast();
-      }
-    }
+    final action = await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          actions: [
+            CupertinoActionSheetAction(
+              child: Text(
+                "kamera",
+                style: TextStyle(
+                    fontFamily: 'SFProDisplayRegular', color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pop(context, "photo");
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: Text(
+                "fotoğraf seç",
+                style: TextStyle(
+                    fontFamily: 'SFProDisplayRegular', color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pop(context, "library");
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            isDestructiveAction: true,
+            child: Text(
+              "geri",
+              style: TextStyle(
+                  fontFamily: 'SFProDisplayRegular',
+                  color: Palette.orangeColor),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
 
-    setState(() {});
+    if (action == "photo") {
+      imageFiles = await camera(allowMultiple: false);
+      setState(() {});
+    } else if (action == "library") {
+      imageFiles = await pickImages(allowMultiple: true);
+      if (imageFiles.length > 3) {
+        showSnackBar(context, "maksimum 3 resim seçin");
+        while (imageFiles.length > 3) {
+          imageFiles.removeLast();
+        }
+      }
+      setState(() {});
+    }
   }
 
   void onShareUpdate(UserModel currentUser) async {
@@ -59,8 +108,10 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
         priceController.text.trim().isNotEmpty &&
         stockController.text.trim().isNotEmpty &&
         descriptionController.text.trim().isNotEmpty &&
-        imageFiles.isNotEmpty) {
+        (imageLinks.isNotEmpty || imageFiles.isNotEmpty)) {
       errorText = "";
+      String productId = Uuid().v4();
+
       double price =
           double.tryParse(priceController.text.trim().replaceAll(',', '.'))!;
       ref.read(marketplaceControllerProvider.notifier).sendProductToApproval(
@@ -72,7 +123,9 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
             categorie: categorie,
             subcategorie: subcategorie,
             imageFiles: imageFiles,
+            imageLinks: imageLinks,
             context: context,
+            productId: widget.product == null ? productId : widget.product!.id,
           );
     } else {
       setState(() {
@@ -83,7 +136,6 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     if (widget.product != null) {
       setState(() {
         imageLinks = widget.product!.images;
@@ -235,10 +287,12 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
         //   bottom: BorderSide(width: 1, color: Palette.textFieldColor),
         // ),
         middle: largeText(
-          widget.product == null ? 'ürün ekle' : 'ürün onay',
+          widget.editing == true || widget.product == null
+              ? 'ürünü düzenle'
+              : 'ürün onay',
           false,
         ),
-        trailing: widget.product != null
+        trailing: widget.product != null && widget.editing == false
             ? SizedBox()
             : SizedBox(
                 height: 35,
@@ -256,13 +310,13 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 19,
-                      fontFamily: 'JetBrainsMonoExtraBold',
+                      fontFamily: 'SFProDisplayBold',
                     ),
                   ),
                 ),
               ),
       ),
-      bottomNavigationBar: widget.product == null
+      bottomNavigationBar: widget.product == null || widget.editing!
           ? null
           : Container(
               decoration: BoxDecoration(
@@ -292,7 +346,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 19,
-                            fontFamily: 'JetBrainsMonoExtraBold',
+                            fontFamily: 'SFProDisplayBold',
                           ),
                         ),
                       ),
@@ -308,7 +362,8 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                               stockController.text.trim().isNotEmpty &&
                               categorie.isNotEmpty &&
                               subcategorie.isNotEmpty &&
-                              imageLinks.isNotEmpty) {
+                              (imageFiles.isNotEmpty ||
+                                  imageLinks.isNotEmpty)) {
                             errorText = "";
                             double price = double.tryParse(priceController.text
                                 .trim()
@@ -357,7 +412,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 19,
-                            fontFamily: 'JetBrainsMonoExtraBold',
+                            fontFamily: 'SFProDisplayBold',
                           ),
                         ),
                       ),
@@ -382,9 +437,11 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                         spacing: 7.0,
                         runSpacing: 7.0,
                         direction: Axis.horizontal,
-                        children: widget.product == null
-                            ? buildSelectedImages()
-                            : buildProductImages()),
+                        children:
+                            (widget.editing == true && imageFiles.isNotEmpty) ||
+                                    imageFiles.isNotEmpty
+                                ? buildSelectedImages()
+                                : buildProductImages()),
                   ),
                 ),
                 if (imageFiles.isEmpty && imageLinks.isEmpty)
@@ -461,7 +518,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                       border: Border.symmetric(
                           horizontal: BorderSide(
                         width: 0.2,
-                        color: Palette.justGrayColor,
+                        color: Palette.justGreyColor,
                       ))),
                   child: Column(
                     children: [
@@ -503,8 +560,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                                       child: Text(
                                         Constants.categories[index][0],
                                         style: TextStyle(
-                                            fontFamily:
-                                                'JetBrainsMonoExtraBold'),
+                                            fontFamily: 'SFProDisplayBold'),
                                       ),
                                     )),
                               ],
@@ -513,7 +569,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                         ),
                       ),
                       Divider(
-                        color: Palette.justGrayColor,
+                        color: Palette.justGreyColor,
                         thickness: 0.2,
                         height: 0,
                       ),
@@ -546,7 +602,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                                     Constants.categories[categorieIndex][1]
                                         [index],
                                     style: TextStyle(
-                                        fontFamily: 'JetBrainsMonoExtraBold'),
+                                        fontFamily: 'SFProDisplayBold'),
                                   ),
                                 )),
                           ),
@@ -567,11 +623,11 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                   textInputAction: TextInputAction.next,
                   controller: titleController,
                   style: TextStyle(
-                      color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
+                      color: Colors.white, fontFamily: 'SFProDisplayRegular'),
                   placeholder: 'başlık',
                   placeholderStyle: TextStyle(
                       color: Palette.placeholderColor,
-                      fontFamily: 'JetBrainsMonoRegular'),
+                      fontFamily: 'SFProDisplayRegular'),
                   padding:
                       EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                   decoration: BoxDecoration(
@@ -597,11 +653,11 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                         controller: priceController,
                         style: TextStyle(
                             color: Colors.white,
-                            fontFamily: 'JetBrainsMonoRegular'),
+                            fontFamily: 'SFProDisplayRegular'),
                         placeholder: 'fiyat',
                         placeholderStyle: TextStyle(
                             color: Palette.placeholderColor,
-                            fontFamily: 'JetBrainsMonoRegular'),
+                            fontFamily: 'SFProDisplayRegular'),
                         padding: EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 10.0),
                         decoration: BoxDecoration(
@@ -625,11 +681,11 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                         controller: stockController,
                         style: TextStyle(
                             color: Colors.white,
-                            fontFamily: 'JetBrainsMonoRegular'),
+                            fontFamily: 'SFProDisplayRegular'),
                         placeholder: 'stok',
                         placeholderStyle: TextStyle(
                             color: Palette.placeholderColor,
-                            fontFamily: 'JetBrainsMonoRegular'),
+                            fontFamily: 'SFProDisplayRegular'),
                         padding: EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 10.0),
                         decoration:
@@ -650,11 +706,11 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                   minLines: 4,
                   maxLines: null,
                   style: TextStyle(
-                      color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
+                      color: Colors.white, fontFamily: 'SFProDisplayRegular'),
                   placeholder: 'açıklama',
                   placeholderStyle: TextStyle(
                       color: Palette.placeholderColor,
-                      fontFamily: 'JetBrainsMonoRegular'),
+                      fontFamily: 'SFProDisplayRegular'),
                   decoration: BoxDecoration(color: Palette.backgroundColor),
                 ),
                 if (errorText.isNotEmpty)
@@ -662,7 +718,7 @@ class _CreateProductScreenState extends ConsumerState<CreateProductScreen> {
                     errorText,
                     style: TextStyle(
                         color: Palette.redColor,
-                        fontFamily: "JetBrainsMonoBold"),
+                        fontFamily: "SFProDisplayMedium"),
                   )
               ],
             ),

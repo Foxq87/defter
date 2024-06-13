@@ -38,9 +38,7 @@ class DetailedNoteCard extends ConsumerStatefulWidget {
 class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
   void deleteNote(
       WidgetRef ref, String currentUid, BuildContext context) async {
-    ref
-        .read(noteControllerProvider.notifier)
-        .deleteNote(widget.note, currentUid, context);
+    ref.read(noteControllerProvider.notifier).deleteNote(widget.note, context);
   }
 
   void likeNote(WidgetRef ref) async {
@@ -102,8 +100,6 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     crossAxisAlignment:
@@ -151,12 +147,29 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                                 .watch(getUserDataProvider(
                                                     widget.note.uid))
                                                 .when(
-                                                    data: (user) => Text(
-                                                          user.username,
-                                                          style: const TextStyle(
-                                                              fontSize: 16,
-                                                              fontFamily:
-                                                                  'JetBrainsMonoExtraBold'),
+                                                    data: (user) => Row(
+                                                          children: [
+                                                            Text(
+                                                              user.name,
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontFamily:
+                                                                      'SFProDisplayBold'),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Text(
+                                                              "@" +
+                                                                  user.username,
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: Palette
+                                                                      .placeholderColor,
+                                                                  fontFamily:
+                                                                      'SFProDisplayRegular'),
+                                                            ),
+                                                          ],
                                                         ),
                                                     error: (error,
                                                             stackTrace) =>
@@ -168,46 +181,38 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                           ],
                                         ),
                                       ),
-                                      if (widget.note.schoolName.isEmpty)
-                                        ref
-                                            .read(getUserDataProvider(
-                                                widget.note.uid))
-                                            .when(
-                                                data: (UserModel user) =>
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          navigateToSchool(
-                                                              user.schoolId,
-                                                              context),
-                                                      child: Text(
-                                                        "/" + user.schoolId,
-                                                        style: TextStyle(
-                                                            color: Palette
-                                                                .themeColor,
-                                                            fontSize: 13),
-                                                      ),
-                                                    ),
-                                                error: (error, stackTrace) =>
-                                                    ErrorText(
-                                                        error:
-                                                            error.toString()),
-                                                loading: () => const Loader()),
+                                      // if (widget.note.schoolName.isEmpty)
+                                      //   ref
+                                      //       .read(getUserDataProvider(
+                                      //           widget.note.uid))
+                                      //       .when(
+                                      //           data: (UserModel user) =>
+                                      //               TextButton(
+                                      //                 onPressed: () =>
+                                      //                     navigateToSchool(
+                                      //                         user.schoolId,
+                                      //                         context),
+                                      //                 child: Text(
+                                      //                   "/" + user.schoolId,
+                                      //                   style: TextStyle(
+                                      //                       color: Palette
+                                      //                           .themeColor,
+                                      //                       fontSize: 13),
+                                      //                 ),
+                                      //               ),
+                                      //           error: (error, stackTrace) =>
+                                      //               ErrorText(
+                                      //                   error:
+                                      //                       error.toString()),
+                                      //           loading: () => const Loader()),
                                     ],
                                   ),
-                                  Spacer(),
-                                  Container(
-                                    margin: EdgeInsets.only(right: 5.0),
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    decoration: BoxDecoration(
-                                      color: Palette.iconBackgroundColor,
-                                      borderRadius: BorderRadius.circular(5.0),
-                                    ),
-                                    child: Text(
-                                      "${timeago.format(widget.note.createdAt, locale: 'tr_short')}",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
+                                  Text(
+                                    "\t\t\t•\t\t\t${timeago.format(widget.note.createdAt, locale: 'tr_short')}",
+                                    style: TextStyle(
+                                        color: Palette.placeholderColor),
                                   ),
+                                  Spacer(),
                                   GestureDetector(
                                     child: const Icon(
                                       CupertinoIcons.ellipsis,
@@ -227,13 +232,9 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                   child: Text(
                                     widget.note.content,
                                     style: const TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16,
                                     ),
                                   ),
-                                )
-                              else
-                                const SizedBox(
-                                  height: 10,
                                 ),
                               if (isTypeImage)
                                 Padding(
@@ -362,10 +363,10 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                       children: [
                         ref.watch(getNoteCommentsProvider(widget.note.id)).when(
                               data: (comments) => TextSpan(
-                                text: '${comments.length}\t',
+                                text: '${comments.length}\t\t',
                                 style: const TextStyle(
                                     fontSize: 17,
-                                    fontFamily: 'JetBrainsMonoBold'),
+                                    fontFamily: 'SFProDisplayMedium'),
                               ),
                               error: (error, stackTrace) => TextSpan(
                                 text: error.toString(),
@@ -379,7 +380,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                           style: const TextStyle(
                               color: Palette.placeholderColor,
                               fontSize: 14,
-                              fontFamily: 'JetBrainsMonoRegular'),
+                              fontFamily: 'SFProDisplayRegular'),
                         ),
                       ],
                     )),
@@ -390,6 +391,13 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
 
                     GestureDetector(
                       onTap: () {
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => ViewUsersByUids(
+                        //               uids: widget.note.likes,
+                        //               isLiker: true,
+                        //             )));
                         showModalBottomSheet(
                           backgroundColor: Palette.darkGreyColor,
                           context: context,
@@ -405,10 +413,10 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: '${widget.note.likes.length}\t',
+                              text: '${widget.note.likes.length}\t\t',
                               style: const TextStyle(
                                 fontSize: 17,
-                                fontFamily: 'JetBrainsMonoBold',
+                                fontFamily: 'SFProDisplayMedium',
                               ),
                             ),
                             TextSpan(
@@ -416,7 +424,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                               style: const TextStyle(
                                 color: Palette.placeholderColor,
                                 fontSize: 14,
-                                fontFamily: 'JetBrainsMonoRegular',
+                                fontFamily: 'SFProDisplayRegular',
                               ),
                             ),
                           ],
@@ -430,7 +438,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                       style: const TextStyle(
                         color: Palette.placeholderColor,
                         fontSize: 14,
-                        fontFamily: 'JetBrainsMonoRegular',
+                        fontFamily: 'SFProDisplayRegular',
                       ),
                     )
                   ],
@@ -560,12 +568,12 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                     title: const Text(
                                       "emin misin?",
                                       style: TextStyle(
-                                          fontFamily: 'JetBrainsMonoExtraBold'),
+                                          fontFamily: 'SFProDisplayBold'),
                                     ),
                                     content: const Text(
                                       'bu notu siliyorsun',
                                       style: TextStyle(
-                                        fontFamily: 'JetBrainsMonoBold',
+                                        fontFamily: 'SFProDisplayMedium',
                                         color: Palette.redColor,
                                       ),
                                     ),
@@ -579,7 +587,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                           'hayır',
                                           style: TextStyle(
                                             color: Palette.themeColor,
-                                            fontFamily: 'JetBrainsMonoRegular',
+                                            fontFamily: 'SFProDisplayRegular',
                                           ),
                                         ),
                                       ),
@@ -595,7 +603,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                           'evet',
                                           style: TextStyle(
                                             color: Palette.themeColor,
-                                            fontFamily: 'JetBrainsMonoRegular',
+                                            fontFamily: 'SFProDisplayRegular',
                                           ),
                                         ),
                                       ),
@@ -658,13 +666,13 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                             builder: (context) => CupertinoAlertDialog(
                               title: const Text(
                                 "emin misin?",
-                                style: TextStyle(
-                                    fontFamily: 'JetBrainsMonoExtraBold'),
+                                style:
+                                    TextStyle(fontFamily: 'SFProDisplayBold'),
                               ),
                               content: const Text(
                                 'bu notu siliyorsun',
                                 style:
-                                    TextStyle(fontFamily: 'JetBrainsMonoBold'),
+                                    TextStyle(fontFamily: 'SFProDisplayMedium'),
                               ),
                               actions: <CupertinoDialogAction>[
                                 CupertinoDialogAction(
@@ -676,7 +684,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                     'hayır',
                                     style: TextStyle(
                                       color: Palette.themeColor,
-                                      fontFamily: 'JetBrainsMonoRegular',
+                                      fontFamily: 'SFProDisplayRegular',
                                     ),
                                   ),
                                 ),
@@ -692,7 +700,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                                     'evet',
                                     style: TextStyle(
                                       color: Palette.redColor,
-                                      fontFamily: 'JetBrainsMonoRegular',
+                                      fontFamily: 'SFProDisplayRegular',
                                     ),
                                   ),
                                 ),
@@ -733,7 +741,7 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                           context: context,
                           builder: (context) => ReportDialog(
                             noteId: widget.note.id,
-                            accountId: '',
+                            accountId: widget.note.uid,
                           ),
                         );
                       },

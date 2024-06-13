@@ -35,6 +35,27 @@ final schoolControllerProvider =
   );
 });
 
+class RefreshController extends StateNotifier<bool> {
+  RefreshController() : super(false);
+
+  void refresh() {
+    state = !state;
+  }
+}
+
+final refreshControllerProvider =
+    StateNotifierProvider<RefreshController, bool>(
+        (ref) => RefreshController());
+
+final notesProvider = StreamProvider.autoDispose.family((ref, String schoolId) {
+  ref.watch(refreshControllerProvider);
+  if (schoolId.isEmpty) {
+    return ref.read(schoolControllerProvider.notifier).getWorldNotes();
+  } else {
+    return ref.read(schoolControllerProvider.notifier).getSchoolNotes(schoolId);
+  }
+});
+
 final getSchoolByIdProvider = StreamProvider.family((ref, String id) {
   return ref.watch(schoolControllerProvider.notifier).getSchoolById(id);
 });
@@ -54,13 +75,18 @@ final searchFollowerProvider = StreamProvider.family((ref, String query) {
 final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
   return ref.read(schoolControllerProvider.notifier).getSchoolNotes(name);
 });
+final getSchoolAppliersProvider = StreamProvider.family((ref, String name) {
+  return ref.read(schoolControllerProvider.notifier).getSchoolAppliers(name);
+});
 
 final getWorldNotesProvider = StreamProvider((ref) {
   return ref.read(schoolControllerProvider.notifier).getWorldNotes();
 });
 
 final getCloseFriendsFeedProvider = StreamProvider((ref) {
-  return ref.read(schoolControllerProvider.notifier).getCloseFriendsFeedProvider();
+  return ref
+      .read(schoolControllerProvider.notifier)
+      .getCloseFriendsFeedProvider();
 });
 
 final getAllSchoolsProvider = StreamProvider((ref) {
@@ -79,6 +105,9 @@ class SchoolController extends StateNotifier<bool> {
         _ref = ref,
         _storageRepository = storageRepository,
         super(false);
+  void refreshData(BuildContext context) {
+    _ref.read(refreshControllerProvider.notifier).refresh();
+  }
 
   void createSchool(String name, BuildContext context) async {
     state = true;
@@ -195,11 +224,27 @@ class SchoolController extends StateNotifier<bool> {
     );
   }
 
-  Stream<List<Note>> getSchoolNotes(String name) {
-    return _schoolRepository.getSchoolNotes(name);
+  void userSchoolAction(String schoolName, String uid, BuildContext context,
+      bool isApproved) async {
+    final res =
+        await _schoolRepository.userSchoolAction(schoolName, uid, isApproved);
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) => null,
+    );
   }
 
-  Stream<List<Note>> getCloseFriendsFeedProvider()  {
+  Stream<List<Note>> getSchoolNotes(String name) {
+    final currentUser = _ref.read(userProvider)!;
+    return _schoolRepository.getSchoolNotes(name, currentUser);
+  }
+
+  Stream<List<UserModel>> getSchoolAppliers(String name) {
+    final currentUser = _ref.read(userProvider)!;
+    return _schoolRepository.getSchoolAppliers(name, currentUser);
+  }
+
+  Stream<List<Note>> getCloseFriendsFeedProvider() {
     UserModel currentUser = _ref.read(userProvider)!;
 
     // for (var i = 0; i < currentUser.closeFriendsFeedNoteIds.length; i++) {
@@ -209,12 +254,12 @@ class SchoolController extends StateNotifier<bool> {
     // }
 
     // _ref.read(userProvider.notifier).update((state) => );
-    return  _schoolRepository.getCloseFriendsFeedProvider(currentUser);
-
+    return _schoolRepository.getCloseFriendsFeedProvider(currentUser);
   }
 
   Stream<List<Note>> getWorldNotes() {
-    return _schoolRepository.getWorldNotes();
+    final currentUser = _ref.read(userProvider)!;
+    return _schoolRepository.getWorldNotes(currentUser);
   }
 
   Stream<List<School>> getAllSchools() {

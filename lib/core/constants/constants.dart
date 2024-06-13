@@ -84,7 +84,11 @@ class Constants {
   static const String edit = 'assets/svgs/edit.svg';
 
   static const String crown = "assets/svgs/crown.svg";
+  static const String eulaLink =
+      "https://docs.google.com/document/d/1o61TIQ6T5z-SWfjd8FiTn6Pn4gZVwhbULhoBGCnaNsw/edit?usp=sharing";
 
+  static const String privacyPolicyLink =
+      "https://doc-hosting.flycricket.io/defter-terms-of-use/0e499657-c82d-4f12-bbdf-fbb5d665bfaa/terms";
   //defaults
   static const String bannerDefault =
       'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Flag_of_Libya_%281977%E2%80%932011%29.svg/300px-Flag_of_Libya_%281977%E2%80%932011%29.svg.png';

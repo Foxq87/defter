@@ -97,7 +97,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 //               theme: ThemeData(
 //                 brightness: Brightness.dark,
 //                 scaffoldBackgroundColor: Palette.backgroundColor,
-//                 fontFamily: "JetBrainsMonoRegular",
+//                 fontFamily: "SFProDisplayRegular",
 //               ),
 //               routerDelegate: RoutemasterDelegate(
 //                   navigatorKey: Get.key,
@@ -139,7 +139,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             theme: ThemeData(
               brightness: Brightness.dark,
               scaffoldBackgroundColor: Palette.backgroundColor,
-              fontFamily: "JetBrainsMonoRegular",
+              fontFamily: "SFProDisplayRegular",
             ),
             // ... other properties ...
             routerDelegate: RoutemasterDelegate(
@@ -155,7 +155,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             theme: ThemeData(
               brightness: Brightness.dark,
               scaffoldBackgroundColor: Palette.backgroundColor,
-              fontFamily: "JetBrainsMonoRegular",
+              fontFamily: "SFProDisplayRegular",
             ),
             // ... other properties ...
             routerDelegate: RoutemasterDelegate(
@@ -173,7 +173,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                       theme: ThemeData(
                         brightness: Brightness.dark,
                         scaffoldBackgroundColor: Palette.backgroundColor,
-                        fontFamily: "JetBrainsMonoRegular",
+                        fontFamily: "SFProDisplayRegular",
                       ),
                       // ... other properties ...
                       routerDelegate: RoutemasterDelegate(
@@ -193,7 +193,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                             theme: ThemeData(
                               brightness: Brightness.dark,
                               scaffoldBackgroundColor: Palette.backgroundColor,
-                              fontFamily: "JetBrainsMonoRegular",
+                              fontFamily: "SFProDisplayRegular",
                             ),
                             routerDelegate: RoutemasterDelegate(
                               navigatorKey: Get.key,
@@ -212,7 +212,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                             theme: ThemeData(
                               brightness: Brightness.dark,
                               scaffoldBackgroundColor: Palette.backgroundColor,
-                              fontFamily: "JetBrainsMonoRegular",
+                              fontFamily: "SFProDisplayRegular",
                             ),
                             // ... other properties ...
                             routerDelegate: RoutemasterDelegate(

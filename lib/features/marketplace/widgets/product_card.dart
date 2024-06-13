@@ -57,7 +57,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                             style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 12,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -117,7 +117,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                   'stokta yok',
                   style: const TextStyle(
                       color: Palette.orangeColor,
-                      fontFamily: 'JetBrainsMonoRegular'),
+                      fontFamily: 'SFProDisplayRegular'),
                 ),
               ),
 
@@ -129,14 +129,14 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
-                  fontFamily: 'JetBrainsMonoBold'),
+                  fontFamily: 'SFProDisplayMedium'),
               overflow: TextOverflow.ellipsis,
             ),
             Text('${widget.product.price.toStringAsFixed(2)} ₺',
                 style: const TextStyle(
-                    color: Palette.justGrayColor,
+                    color: Palette.justGreyColor,
                     fontSize: 12,
-                    fontFamily: 'JetBrainsMonoRegular')),
+                    fontFamily: 'SFProDisplayRegular')),
 
             // Padding(
             //   padding: const EdgeInsets.all(
@@ -157,7 +157,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
             //             widget.product.stock > 0 ? 'detay' : 'stokta yok',
             //             style: const TextStyle(
             //                 color: Colors.white,
-            //                 fontFamily: 'JetBrainsMonoRegular'),
+            //                 fontFamily: 'SFProDisplayRegular'),
             //           ),
             //         ),
             //       ),

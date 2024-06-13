@@ -347,7 +347,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                                         .createdAt),
                                                                 style: TextStyle(
                                                                     color: Palette
-                                                                        .justGrayColor),
+                                                                        .justGreyColor),
                                                               ),
                                                               Expanded(
                                                                 child: Divider(
@@ -389,7 +389,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                                             data.username,
                                                                         style: TextStyle(
                                                                             color:
-                                                                                Palette.justGrayColor),
+                                                                                Palette.justGreyColor),
                                                                       ),
                                                                     )),
                                                             error: (error,
@@ -632,7 +632,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                         minLines: 1,
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontFamily: 'JetBrainsMonoRegular',
+                                          fontFamily: 'SFProDisplayRegular',
                                         ),
                                         controller: messageController,
                                         decoration: BoxDecoration(

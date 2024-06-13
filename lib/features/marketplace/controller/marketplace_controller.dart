@@ -28,7 +28,8 @@ final marketplaceControllerProvider =
   );
 });
 
-final getSchoolProductsByCategorieAndSubcategorieProvider = StreamProvider.family((ref, String schoolId) {
+final getSchoolProductsByCategorieAndSubcategorieProvider =
+    StreamProvider.family((ref, String schoolId) {
   return ref
       .read(marketplaceControllerProvider.notifier)
       .getSchoolProducts(schoolId);
@@ -97,29 +98,32 @@ class MarketplaceController extends StateNotifier<bool> {
     required String categorie,
     required String subcategorie,
     required List<File> imageFiles,
+    required List<String> imageLinks,
     required BuildContext context,
+    required String productId,
   }) async {
     state = true;
     int errorCounter = 0;
-    List<String> imageLinks = [];
+
     Either imageRes;
-    String productId = const Uuid().v4();
-    final uid = _ref.read(userProvider)?.uid ?? '';
-    for (int i = 0; i < imageFiles.length; i++) {
-      var file = imageFiles[i];
-      String imageId = const Uuid().v4();
+    if (imageLinks.isEmpty) {
+      final uid = _ref.read(userProvider)?.uid ?? '';
+      for (int i = 0; i < imageFiles.length; i++) {
+        var file = imageFiles[i];
+        String imageId = const Uuid().v4();
 
-      imageRes = await _storageRepository.storeFile(
-        path: 'products/${vendor.schoolId}/$uid/$productId',
-        id: imageId,
-        file: file,
-      );
+        imageRes = await _storageRepository.storeFile(
+          path: 'products/${vendor.schoolId}/$uid/$productId',
+          id: imageId,
+          file: file,
+        );
 
-      imageRes.fold((l) => showSnackBar(context, l.message), (r) {
-        imageLinks.add(r);
-        errorCounter++;
-      });
-      print(imageLinks);
+        imageRes.fold((l) => showSnackBar(context, l.message), (r) {
+          imageLinks.add(r);
+          errorCounter++;
+        });
+        print(imageLinks);
+      }
     }
     ProductModel product = ProductModel(
       id: productId,
@@ -145,13 +149,18 @@ class MarketplaceController extends StateNotifier<bool> {
     });
   }
 
-  void deleteUpdate(Update update, BuildContext context) async {
+  void deleteProduct(ProductModel product, BuildContext context) async {
     try {
-      await _marketplaceRepository.deleteUpdate(update);
-      if (update.imageLinks.isNotEmpty) {
-        final res = await _storageRepository.deleteUpdateImages(update: update);
-        res.fold((l) => showSnackBar(context, l.message),
-            (r) => showSnackBar(context, 'yenilik başarıyla silindi'));
+      await _marketplaceRepository.deleteProduct(product);
+      if (product.images.isNotEmpty) {
+        final res =
+            await _storageRepository.deleteObjectImages(product: product);
+        res.fold((l) => showSnackBar(context, l.message), (r) {
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          showSnackBar(context, 'ürün başarıyla silindi');
+        });
       }
     } catch (e) {
       showSnackBar(context, 'hata oluştu, lütfen daha sonra tekrar deneyin');
@@ -201,7 +210,7 @@ class MarketplaceController extends StateNotifier<bool> {
         );
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'ürün onaylandı.');
+      // showSnackBar(context, 'ürün onaylandı.');
     });
   }
 

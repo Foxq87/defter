@@ -2,6 +2,7 @@ import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 
 import '../../theme/palette.dart';
 
@@ -25,7 +26,10 @@ class SignInButton extends ConsumerWidget {
         onPressed: () => signInWithGoogle(ref, context),
         label: const Text(
           "google ile devam et",
-          style: TextStyle(fontSize: 20, color: Colors.black),
+          style: TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+              fontFamily: 'JetBrainsMonoRegular'),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
@@ -50,6 +54,7 @@ class CreateAccButton extends StatelessWidget {
         width: double.infinity,
         child: CupertinoButton(
             onPressed: () {
+              Routemaster.of(context).push('/create-account');
               // List<School> schools = [
               //   School(
               //       id: 'BAIHL',
@@ -87,7 +92,7 @@ class CreateAccButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(17),
             child: const Center(
                 child: Text(
-              "create acc",
+              "hesap oluştur",
               style: TextStyle(fontSize: 20, fontFamily: "JetBrainsMonoBold"),
             ))),
       ),
@@ -124,10 +129,10 @@ class LogInButton extends StatelessWidget {
           minimumSize: const Size(double.infinity, 55),
         ),
         child: const Text(
-          "log in",
+          "giriş yap",
           style: TextStyle(
               fontSize: 20,
-              fontFamily: "JetBrainsMonoBold",
+              fontFamily: "JetBrainMonoRegulars",
               color: Palette.themeColor),
         ),
       ),

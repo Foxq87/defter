@@ -203,7 +203,7 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                                         style: const TextStyle(
                                             color: Colors.white,
                                             inherit: false,
-                                            fontFamily: 'JetBrainsMonoRegular',
+                                            fontFamily: 'SFProDisplayRegular',
                                             fontSize: 13),
                                       ),
                                     ),
@@ -223,7 +223,7 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                             widget.message.text,
                             style: const TextStyle(
                                 color: Colors.white,
-                                fontFamily: 'JetBrainsMonoRegular',
+                                fontFamily: 'SFProDisplayRegular',
                                 fontSize: 16,
                                 inherit: false),
                           ),
@@ -237,9 +237,9 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                               style: TextStyle(
                                   color: isMyMessage
                                       ? Colors.grey[700]
-                                      : Palette.justGrayColor,
+                                      : Palette.justGreyColor,
                                   inherit: false,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                   fontSize: 12),
                             ),
                             // Icon(UniconsLine.check)

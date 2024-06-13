@@ -52,7 +52,7 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
             'ürünler',
             style: TextStyle(
               color: Colors.white,
-              fontFamily: 'JetBrainsMonoRegular',
+              fontFamily: 'SFProDisplayRegular',
               fontSize: 18,
             ),
           ),
@@ -119,8 +119,8 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
                                 ),
                                 child: Text(
                                   Constants.categories[index][0],
-                                  style: TextStyle(
-                                      fontFamily: 'JetBrainsMonoExtraBold'),
+                                  style:
+                                      TextStyle(fontFamily: 'SFProDisplayBold'),
                                 ),
                               )),
                         ],
@@ -163,8 +163,7 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
                                     : null),
                             child: Text(
                               Constants.categories[categorieIndex][1][index],
-                              style: TextStyle(
-                                  fontFamily: 'JetBrainsMonoExtraBold'),
+                              style: TextStyle(fontFamily: 'SFProDisplayBold'),
                             ),
                           )),
                     ),
@@ -213,7 +212,6 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
                                                         [1][i]);
                                       },
                                     ).toList();
-
                                     return Column(
                                       children: [
                                         if (products.isNotEmpty)

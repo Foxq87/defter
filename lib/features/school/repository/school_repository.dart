@@ -192,18 +192,59 @@ class SchoolRepository {
     }
   }
 
+  FutureVoid userSchoolAction(
+      String schoolName, String uid, bool isApproved) async {
+    try {
+      return right(_users.doc(uid).update({
+        'schoolId': isApproved ? schoolName : '',
+      }));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   Stream<List<Note>> getSchoolNotes(
     String name,
+    UserModel currentUser,
   ) {
+    print(currentUser.blockedAccountIds);
     return _notes
         .where('schoolName', isEqualTo: name)
         .where('repliedTo', isEqualTo: '')
+        .where('uid',
+            whereNotIn: currentUser.blockedAccountIds.isNotEmpty
+                ? currentUser.blockedAccountIds
+                : [''])
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
           (event) => event.docs
               .map(
                 (e) => Note.fromMap(
+                  e.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Stream<List<UserModel>> getSchoolAppliers(
+    String schoolId,
+    UserModel currentUser,
+  ) {
+    print(currentUser.blockedAccountIds);
+    return _users
+        .where('schoolId', isNotEqualTo: '')
+        .where('schoolId', isGreaterThanOrEqualTo: 'onay bekliyor: $schoolId')
+        .where('schoolId', isLessThan: 'onay bekliyor: $schoolId' + 'z')
+        .orderBy('creation', descending: false)
+        .snapshots()
+        .map(
+          (event) => event.docs
+              .map(
+                (e) => UserModel.fromMap(
                   e.data() as Map<String, dynamic>,
                 ),
               )
@@ -252,10 +293,14 @@ class SchoolRepository {
     // });
   }
 
-  Stream<List<Note>> getWorldNotes() {
+  Stream<List<Note>> getWorldNotes(UserModel currentUser) {
     return _notes
         .where('schoolName', isEqualTo: "")
         .where('repliedTo', isEqualTo: '')
+        .where('uid',
+            whereNotIn: currentUser.blockedAccountIds.isNotEmpty
+                ? currentUser.blockedAccountIds
+                : [''])
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(

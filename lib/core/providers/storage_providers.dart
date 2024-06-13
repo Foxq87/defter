@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:acc/models/note_model.dart';
+import 'package:acc/models/product_model.dart';
 import 'package:acc/models/update_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,17 +61,21 @@ class StorageRepository {
     }
   }
 
-  FutureEither<void> deleteUpdateImages({
-    required Update update,
+  FutureEither<void> deleteObjectImages({
+    required ProductModel product,
   }) async {
     try {
       return right(await _firebaseStorage
           .ref()
-          .child('updates/${update.uid}/${update.id}')
+          .child('products/${product.uid}/${product.id}')
           .listAll()
           .then((value) {
         for (var element in value.items) {
-          element.delete();
+          element.listAll().then((val) {
+            for (var element2 in val.items) {
+              element2.delete();
+            }
+          });
         }
       }));
     } catch (e) {

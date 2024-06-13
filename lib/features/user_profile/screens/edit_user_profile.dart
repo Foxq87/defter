@@ -164,7 +164,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           'profili düzenle',
                           style: TextStyle(
                               color: Colors.white,
-                              fontFamily: 'JetBrainsMonoExtraBold'),
+                              fontFamily: 'SFProDisplayBold'),
                         ),
                         trailing: TextButton(
                           onPressed: () async {
@@ -174,7 +174,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             isLoading ? '...' : 'kaydet',
                             style: TextStyle(
                                 color: Palette.themeColor,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                           ),
                         ),
                       ),
@@ -279,7 +279,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   style: const TextStyle(
                                       color: Palette.redColor,
                                       fontSize: 16,
-                                      fontFamily: 'JetBrainsMonoExtraBold'),
+                                      fontFamily: 'SFProDisplayBold'),
                                 ),
                               SizedBox(
                                 height: 5,
@@ -291,7 +291,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
-                                    fontFamily: 'JetBrainsMonoBold',
+                                    fontFamily: 'SFProDisplayMedium',
                                   ),
                                 ),
                               ),
@@ -302,11 +302,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 placeholder: 'isim',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                 ),
                                 placeholderStyle: const TextStyle(
                                   color: Colors.grey,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                 ),
                                 decoration: BoxDecoration(
                                   color: Palette.textFieldColor,
@@ -327,7 +327,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
-                                    fontFamily: 'JetBrainsMonoBold',
+                                    fontFamily: 'SFProDisplayMedium',
                                   ),
                                 ),
                               ),
@@ -338,11 +338,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 placeholder: 'kullanıcı adı',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                 ),
                                 placeholderStyle: const TextStyle(
                                   color: Colors.grey,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                 ),
                                 decoration: BoxDecoration(
                                   color: Palette.textFieldColor,
@@ -363,7 +363,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
-                                    fontFamily: 'JetBrainsMonoBold',
+                                    fontFamily: 'SFProDisplayMedium',
                                   ),
                                 ),
                               ),
@@ -377,10 +377,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 textAlignVertical: TextAlignVertical.top,
                                 style: const TextStyle(
                                     color: Colors.white,
-                                    fontFamily: 'JetBrainsMonoRegular'),
+                                    fontFamily: 'SFProDisplayRegular'),
                                 placeholderStyle: const TextStyle(
                                   color: Colors.grey,
-                                  fontFamily: 'JetBrainsMonoRegular',
+                                  fontFamily: 'SFProDisplayRegular',
                                 ),
                                 decoration: BoxDecoration(
                                     color: Palette.textFieldColor,

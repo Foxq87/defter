@@ -45,7 +45,7 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                 'düzenle',
                 style: TextStyle(
                     color: Colors.white,
-                    fontFamily: 'JetBrainsMonoRegular',
+                    fontFamily: 'SFProDisplayRegular',
                     fontSize: 16),
               ),
               onPressed: () {}),
@@ -90,7 +90,7 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                                   widget.chat.members.length.toString() +
                                       " üye",
                                   style: TextStyle(
-                                      color: Palette.justGrayColor,
+                                      color: Palette.justGreyColor,
                                       fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
@@ -100,7 +100,7 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                               Text(
                                 widget.chat.description,
                                 style: TextStyle(
-                                    color: Palette.justGrayColor, fontSize: 16),
+                                    color: Palette.justGreyColor, fontSize: 16),
                                 textAlign: TextAlign.center,
                               ),
                               SizedBox(

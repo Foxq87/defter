@@ -1,9 +1,12 @@
 import 'package:acc/features/auth/repository/auth_repository.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
+import 'package:acc/features/widget_tree.dart';
 import 'package:acc/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 
 import '../../../core/utils.dart';
 
@@ -45,6 +48,16 @@ class AuthController extends StateNotifier<bool> {
             _ref.read(userProvider.notifier).update((state) => userModel));
   }
 
+  void createUserWithEmailAndPassword(BuildContext context,String email, String password) async {
+    state = true;
+    final user = await _authRepository.createUserWithEmailAndPassword(context,email,password);
+    state = false;
+    user.fold(
+        (l) => print(l.message), //showSnackBar(context, l.message),
+        (userModel) =>
+            _ref.read(userProvider.notifier).update((state) => userModel));
+  }
+
   Stream<UserModel> getUserData(String uid) {
     return _authRepository.getUserData(uid);
   }
@@ -53,7 +66,44 @@ class AuthController extends StateNotifier<bool> {
     _authRepository.logOut();
   }
 
+  void deleteAccount(String uid, BuildContext context) async {
+    state = true;
+    final result = await _authRepository.deleteAccount(uid);
+    state = false;
+    result.fold(
+      (error) => showSnackBar(context, error.message),
+      (success) => showSnackBar(context, 'hesabınız silinmiştir'),
+    );
+  }
+
   void suspendAccount(String uid, BuildContext context) async {
+    state = true;
+    final result = await _authRepository.suspendAccount(uid);
+    state = false;
+    result.fold(
+      (error) => showSnackBar(context, error.message),
+      (success) => print('Account suspended successfully.'),
+    );
+  }
+
+  void blockAccount(String uid, BuildContext context) async {
+    state = true;
+    UserModel currentUser = _ref.read(userProvider)!;
+    final result = await _authRepository.blockAccount(currentUser, uid);
+    currentUser.blockedAccountIds.add(uid);
+    final updatedCurrentUser =
+        currentUser.copyWith(blockedAccountIds: currentUser.blockedAccountIds);
+    print("blockeds:" + updatedCurrentUser.blockedAccountIds.toString());
+    state = false;
+    result.fold(
+      (error) => showSnackBar(context, error.message),
+      (success) => _ref
+          .read(userProvider.notifier)
+          .update((state) => updatedCurrentUser),
+    );
+  }
+
+  void warnUser(String uid, BuildContext context) async {
     state = true;
     final result = await _authRepository.suspendAccount(uid);
     state = false;
@@ -78,6 +128,12 @@ class AuthController extends StateNotifier<bool> {
   ) async {
     String defterUid = 'vchV88dY6FMdXcT1mwac8VWFPG73';
     // state = true;
+    UserModel currentUser = _ref.read(userProvider)!;
+    if (currentUser.schoolId.isNotEmpty) {
+      schoolId = currentUser.schoolId;
+    } else if (currentUser.schoolId.isEmpty) {
+      schoolId = "onay bekliyor: " + schoolId;
+    }
     _ref.read(notificationControllerProvider.notifier).sendNotification(
           context: context,
           content: "aramıza hoşgeldin!",
@@ -88,15 +144,54 @@ class AuthController extends StateNotifier<bool> {
         );
     final res = await _authRepository.setupUser(uid, fullName,
         fullNameInsensitive, username, usernameInsensitive, schoolId);
+    currentUser = currentUser.copyWith(
+      name: fullName,
+      name_insensitive: fullNameInsensitive,
+      username: username,
+      username_insensitive: usernameInsensitive,
+      schoolId: schoolId,
+    );
+    res.fold((l) => print(l.message), (r) {
+      print(currentUser.username);
+      _ref.read(userProvider.notifier).update((state) => currentUser);
+    });
+    // state = false;
+  }
+
+  void acceptEULA(
+    BuildContext context,
+    String uid,
+  ) async {
+    UserModel myUser = _ref.read(userProvider)!;
+    // String defterUid = 'vchV88dY6FMdXcT1mwac8VWFPG73';
+    // state = true;
+    // _ref.read(notificationControllerProvider.notifier).sendNotification(
+    //       context: context,
+    //       content: "aramıza hoşgeldin!",
+    //       type: "follow",
+    //       id: uid,
+    //       receiverUid: uid,
+    //       senderId: defterUid,
+    //     );
+    myUser = myUser.copyWith(didAcceptEula: true);
+    _ref.read(userProvider.notifier).update((state) => myUser);
+    final res = await _authRepository.acceptEULA(uid);
 
     res.fold((l) => print(l.message), (r) => null);
     // state = false;
   }
 
-  bool isUserNotSetup(WidgetRef ref) {
-    final UserModel myUser = ref.watch(userProvider)!;
+  bool isUserNotSetup(WidgetRef ref, UserModel myUser) {
     return myUser.name.isEmpty ||
         myUser.username.isEmpty ||
-        myUser.schoolId.isEmpty;
+        myUser.schoolId.isEmpty ||
+        !myUser.didAcceptEula;
+  }
+
+  bool didNotUserAcceptedEula(WidgetRef ref) {
+    UserModel myUser = ref.read(userProvider)!;
+
+    print("did i accept eula:" + myUser.didAcceptEula.toString());
+    return myUser.didAcceptEula;
   }
 }

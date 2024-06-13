@@ -28,9 +28,9 @@ class MarketplaceRepository {
     }
   }
 
-  FutureVoid deleteUpdate(Update update) async {
+  FutureVoid deleteProduct(ProductModel product) async {
     try {
-      return right(_updates.doc(update.id).delete());
+      return right(_products.doc(product.id).delete());
     } on FirebaseException catch (e) {
       throw e.message!;
     } catch (e) {

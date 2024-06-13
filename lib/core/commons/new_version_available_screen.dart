@@ -51,7 +51,7 @@ class NewVersionAvailable extends ConsumerWidget {
                     'güncelle',
                     style: TextStyle(
                       color: Colors.white,
-                      fontFamily: 'JetBrainsMonoRegular',
+                      fontFamily: 'SFProDisplayRegular',
                     ),
                   ),
                   onPressed: () {
@@ -61,7 +61,7 @@ class NewVersionAvailable extends ConsumerWidget {
                           'itms-beta://beta.itunes.apple.com/v1/app/app.web.defter.defter';
                     } else if (Platform.isAndroid) {
                       url =
-                          'https://play.google.com/apps/test/app.web.defter.acc';
+                          'https://play.google.com/apps/internaltest/4701084933969947624';
                     }
                     launchURL(url);
                   }),

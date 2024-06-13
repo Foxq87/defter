@@ -148,7 +148,7 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
                             'agalar',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                           ),
                         ],
                       ),
@@ -314,7 +314,7 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
                                                                       color: Colors
                                                                           .white,
                                                                       fontFamily:
-                                                                          'JetBrainsMonoRegular',
+                                                                          'SFProDisplayRegular',
                                                                       fontSize:
                                                                           11),
                                                                   textAlign:
@@ -349,7 +349,10 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
                           itemCount: data.length,
                           itemBuilder: (context, index) {
                             final note = data[index];
-                            return NoteCard(note: note, isComment: false,);
+                            return NoteCard(
+                              note: note,
+                              isComment: false,
+                            );
                           },
                         );
                         // return ListView.builder(
@@ -427,7 +430,7 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed> {
                       'yakın arkadaş ekle',
                       style: TextStyle(
                         color: Colors.white,
-                        fontFamily: 'JetBrainsMonoRegular',
+                        fontFamily: 'SFProDisplayRegular',
                       ),
                     ),
                   ],

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../theme/palette.dart';
 
@@ -10,12 +11,12 @@ void showSnackBar(BuildContext context, String text) {
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(400)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Text(
           text,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: Palette.darkGreyColor,
+        backgroundColor: Colors.white,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -45,6 +46,19 @@ Future<List<File>> pickImages({required bool allowMultiple}) async {
   } else {
     return [];
   }
+}
+
+Future<List<File>> camera({required bool allowMultiple}) async {
+  List<File> images = [];
+  final picker = ImagePicker();
+  final pickedFile =
+      await picker.pickImage(source: ImageSource.camera, imageQuality: 15);
+
+  if (pickedFile != null) {
+    images.add(File(pickedFile.path));
+  }
+
+  return images;
 }
 
 // Future<File> compressImage(String noteId, File file, int index) async {
@@ -94,7 +108,7 @@ Future<dynamic> alertNotAvailable(BuildContext context) {
                   color: Palette.themeColor,
                   child: Text(
                     'tamam',
-                    style: TextStyle(fontFamily: 'JetBrainsMonoRegular'),
+                    style: TextStyle(),
                   ),
                   onPressed: () {
                     Navigator.pop(context);

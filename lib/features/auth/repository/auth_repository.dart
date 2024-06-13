@@ -2,6 +2,7 @@ import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/core/failure.dart';
 import 'package:acc/core/type_defs.dart';
+import 'package:acc/core/utils.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:acc/core/providers/firebase_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,6 +40,82 @@ class AuthRepository {
 
   Stream<User?> get authStatesChanges => _auth.authStateChanges();
 
+  FutureEither<UserModel> createUserWithEmailAndPassword(
+      BuildContext context, String email, String password) async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      UserModel userModel = UserModel(
+        warningCount: 0,
+        uid: userCredential.user!.uid,
+        name: '',
+        name_insensitive: '',
+        username: '',
+        username_insensitive: '',
+        profilePic: Constants.avatarDefault,
+        schoolId: '',
+        banner: Constants.bannerDefault,
+        email: email,
+        bio: '',
+        isSuspended: false,
+        creation: DateTime.now(),
+        roles: [],
+        followers: [],
+        following: [],
+        closeFriends: [],
+        ofCloseFriends: [],
+        didAcceptEula: false,
+        blockedAccountIds: [],
+      );
+
+      // if (/* this is new user */
+      //     userCredential.additionalUserInfo!.isNewUser) {
+      //   print("sikecem aa" + userCredential.user!.uid);
+      //   await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+      // } else /* this is defter user */ {
+      //   userModel = await getUserData(userCredential.user!.uid).first;
+      // }
+      if (userCredential.additionalUserInfo!.isNewUser) {
+        print("sikecem aa" + userCredential.user!.uid);
+        await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+      } else {
+        final docSnapshot = await _users.doc(userCredential.user!.uid).get();
+        
+        if (docSnapshot.exists) {
+          userModel = UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
+        } else {
+          // Handle the situation when the document doesn't exist, e.g., create it.
+          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+        }
+      }
+      // if (waiterEmails.contains(userCredential.user!.email)) {
+      //   await _users.doc(userCredential.user!.uid).set(userModel.copyWith(
+      //         roles: ['waitLister'],
+      //         email: formattedEmail,
+      //       ));
+      // }
+
+      // await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+      return right(userModel);
+    } on FirebaseException catch (e) {
+      if (e.code == 'weak-password') {
+        showSnackBar(context, 'şifre en az 6 karakter içermeli');
+      } else if (e.code == 'email-already-in-use') {
+        showSnackBar(
+            context, 'bu email ile kayıt olmuş bir hesap zaten bulunuyor');
+      } else if (e.code == 'invalid-email') {
+        showSnackBar(context, 'lütfen geçerli bir email girin');
+      }
+      print(e.code);
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   FutureEither<UserModel> signInWithGoogle() async {
     String appbeyogluUserUid = '';
     try {
@@ -51,6 +128,7 @@ class AuthRepository {
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
       UserModel userModel = await UserModel(
+        warningCount: 0,
         uid: userCredential.user!.uid,
         name: userCredential.user!.displayName ?? '',
         name_insensitive: userCredential.user!.displayName?.toLowerCase() ?? '',
@@ -68,7 +146,8 @@ class AuthRepository {
         following: [],
         closeFriends: [],
         ofCloseFriends: [],
-        closeFriendsFeedNoteIds: [],
+        didAcceptEula: false,
+        blockedAccountIds: [],
       );
       // String formattedEmail = await emailFormatter(userCredential.user!.email!);
 
@@ -109,7 +188,6 @@ class AuthRepository {
           //change uid, username, creation, roles and schoolId
           userModel = userModel.copyWith(
             uid: userCredential.user!.uid,
-            username: '',
             creation: userModel.creation,
             roles: ['appbeyoglu-user'],
             schoolId: 'BAIHL',
@@ -143,6 +221,51 @@ class AuthRepository {
     try {
       await _users.doc(uid).update({
         "isSuspended": true,
+      });
+      return right(null);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureEither<void> deleteAccount(String uid) async {
+    try {
+      await _users.doc(uid).delete();
+      await _auth.currentUser!.delete();
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      return right(null);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureEither<void> blockAccount(UserModel currentUser, String uid) async {
+    try {
+      await _users.doc(currentUser.uid).update({
+        "blockedAccountIds": FieldValue.arrayUnion([uid]),
+      });
+      return right(null);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureEither<void> warnUser(String uid) async {
+    try {
+      final user = await _users.doc(uid).get();
+      int warningCount = user.get('warningCount');
+      if (warningCount + 1 >= 3) {
+        await suspendAccount(uid);
+      }
+      await _users.doc(uid).update({
+        "warningCount": warningCount + 1,
       });
       return right(null);
     } on FirebaseException catch (e) {
@@ -186,11 +309,27 @@ class AuthRepository {
         "name": fullName,
         "name_insensitive": fullNameInsensitive,
         "schoolId": schoolId,
+        "didAcceptEula": true,
       });
       _schools.doc(schoolId).update({
         "students": FieldValue.arrayUnion([uid]),
       });
 
+      return right(true);
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureEither acceptEULA(
+    String uid,
+  ) async {
+    try {
+      _users.doc(uid).update({
+        "didAcceptEula": true,
+      });
       return right(true);
     } on FirebaseException catch (e) {
       throw e.message!;

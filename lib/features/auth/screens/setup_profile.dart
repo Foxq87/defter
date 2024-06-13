@@ -1,17 +1,19 @@
 import 'dart:math';
 
 import 'package:acc/core/commons/loader.dart';
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../../../models/user_model.dart';
 
 class SetupProfile extends ConsumerStatefulWidget {
@@ -26,6 +28,7 @@ class SetupProfile extends ConsumerStatefulWidget {
 }
 
 class _SetupProfileState extends ConsumerState<SetupProfile> {
+  bool isEulaAccepted = false;
   bool isLoading = false;
   String errorText = '';
   List<String> schoolIds = [];
@@ -33,6 +36,14 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
   TextEditingController schoolController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
   TextEditingController fullnameController = TextEditingController();
+  void launchURL(String url) async {
+    Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   void dispose() {
@@ -49,6 +60,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
   String schoolId = '';
   @override
   void initState() {
+    isEulaAccepted = widget.user.didAcceptEula;
     fullnameController = TextEditingController(text: widget.user.name);
     usernameController = TextEditingController(text: widget.user.username);
 
@@ -83,7 +95,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                       'kaydet',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontFamily: 'JetBrainsMonoBold',
+                        fontFamily: 'SFProDisplayMedium',
                       ),
                     ),
               onPressed: () async {
@@ -120,7 +132,11 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 print(schoolIds);
 
                 //are all the fields filled? if not show an error text
-                if (fullnameController.text.trim().isEmpty ||
+                if (!isEulaAccepted) {
+                  setState(() {
+                    errorText = "kullanıcı sözleşmesini onaylamak mecburidir";
+                  });
+                } else if (fullnameController.text.trim().isEmpty ||
                     usernameController.text.trim().isEmpty ||
                     schoolController.text.trim().isEmpty) {
                   setState(() {
@@ -153,8 +169,8 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                   setState(() {
                     errorText = "lütfen bir okul seçin";
                   });
-                } else if (!usernames
-                        .contains(usernameController.text.trim()) &&
+                } else if (isEulaAccepted &&
+                    !usernames.contains(usernameController.text.trim()) &&
                     schoolIds.contains(schoolController.text.trim()) &&
                     (fullnameController.text.trim().isNotEmpty ||
                         usernameController.text.trim().isNotEmpty ||
@@ -175,9 +191,13 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                         fullnameController.text.trim().toLowerCase(),
                         usernameController.text.trim(),
                         usernameController.text.trim().toLowerCase(),
-                        "onay bekliyor: " +
-                            schoolController.text.trim(), //onay bekliyor
+                        schoolController.text.trim(), //onay bekliyor
                       );
+                  if (widget.user.schoolId.contains("onay bekliyor: ") ||
+                      widget.user.schoolId.isEmpty) {
+                    schoolId = "onay bekliyor: " + schoolId.trim();
+                  }
+                  print(schoolId + 'zaart');
                   ref.read(userProvider.notifier).update(
                         (state) => widget.user.copyWith(
                           username: usernameController.text.trim(),
@@ -186,17 +206,14 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                           name: fullnameController.text.trim(),
                           name_insensitive:
                               fullnameController.text.trim().toLowerCase(),
-                          schoolId: isAppBeyogluUser
-                              ? "BAIHL"
-                              : "onay bekliyor: " +
-                                  schoolController.text.trim(), //onay bekliyor
+                          didAcceptEula: true,
+                          schoolId: schoolId, //onay bekliyor
                         ),
                       );
 
                   setState(() {
                     isLoading = false;
                   });
-                  Routemaster.of(context).push('/');
                 } else {
                   errorText =
                       "bir hata oluştu lütfen daha sonra tekrar deneyin";
@@ -208,8 +225,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
         ),
         middle: const Text(
           "hesabını tamamla",
-          style: TextStyle(
-              fontFamily: 'JetBrainsMonoExtraBold', color: Colors.white),
+          style: TextStyle(fontFamily: 'SFProDisplayBold', color: Colors.white),
         ),
       ),
       body: Form(
@@ -226,14 +242,14 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                   style: const TextStyle(
                       color: Palette.redColor,
                       fontSize: 16,
-                      fontFamily: 'JetBrainsMonoExtraBold'),
+                      fontFamily: 'SFProDisplayBold'),
                 ),
               const Text(
                 'kişisel bilgiler',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 22,
-                    fontFamily: 'JetBrainsMonoBold'),
+                    fontFamily: 'SFProDisplayMedium'),
               ),
               const SizedBox(
                 height: 10,
@@ -243,7 +259,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 controller: fullnameController,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontFamily: 'JetBrainsMonoRegular',
+                  fontFamily: 'SFProDisplayRegular',
                 ),
                 decoration: BoxDecoration(
                   color: Palette.textFieldColor,
@@ -252,7 +268,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 placeholder: 'tam isim',
                 placeholderStyle: const TextStyle(
                     color: Palette.placeholderColor,
-                    fontFamily: 'JetBrainsMonoRegular'),
+                    fontFamily: 'SFProDisplayRegular'),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(
                       RegExp(r'^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]*$')),
@@ -266,7 +282,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 cursorColor: Palette.themeColor,
                 controller: usernameController,
                 style: const TextStyle(
-                    color: Colors.white, fontFamily: 'JetBrainsMonoRegular'),
+                    color: Colors.white, fontFamily: 'SFProDisplayRegular'),
                 decoration: BoxDecoration(
                   color: Palette.textFieldColor,
                   borderRadius: BorderRadius.circular(10),
@@ -274,7 +290,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 placeholder: 'kullanıcı adı',
                 placeholderStyle: const TextStyle(
                     color: Palette.placeholderColor,
-                    fontFamily: 'JetBrainsMonoRegular'),
+                    fontFamily: 'SFProDisplayRegular'),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(
                       r'^[a-zA-ZğüşıöçĞÜŞİÖÇ][a-zA-Z0-9ğüşıöçĞÜŞİÖÇ_]*$')),
@@ -288,7 +304,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 22,
-                    fontFamily: 'JetBrainsMonoBold'),
+                    fontFamily: 'SFProDisplayMedium'),
               ),
               const SizedBox(
                 height: 10,
@@ -300,16 +316,18 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                     height: 40,
                     child: CupertinoTextField(
                       cursorColor: Palette.themeColor,
-                      onChanged: (val) => setState(() {
-                        textEditingController.text = val;
-                      }),
+                      onChanged: (val) {
+                        setState(() {
+                          textEditingController.text = val;
+                        });
+                      },
                       style: const TextStyle(
                           color: Colors.white,
-                          fontFamily: 'JetBrainsMonoRegular'),
+                          fontFamily: 'SFProDisplayRegular'),
                       placeholder: "Okul ör: BAIHL",
                       placeholderStyle: const TextStyle(
                         color: Palette.placeholderColor,
-                        fontFamily: 'JetBrainsMonoRegular',
+                        fontFamily: 'SFProDisplayRegular',
                       ),
                       focusNode: focusNode,
                       controller: schoolController,
@@ -348,7 +366,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                                 options.elementAt(index),
                                 style: const TextStyle(
                                     fontSize: 19,
-                                    fontFamily: 'JetBrainsMonoExtraBold'),
+                                    fontFamily: 'SFProDisplayBold'),
                               ),
                             ),
                           ),
@@ -387,6 +405,46 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                 },
                 displayStringForOption: ((option) =>
                     option.characters.toString()),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    activeColor: Palette.themeColor,
+                    checkColor: Colors.white,
+                    value: isEulaAccepted,
+                    onChanged: (value) {
+                      setState(() {
+                        isEulaAccepted = value!;
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => launchURL(Constants.eulaLink),
+                      child: RichText(
+                        text: TextSpan(children: [
+                          TextSpan(
+                            text: 'Kullanıcı Sözleşmesi',
+                            style: TextStyle(
+                              color: Palette.themeColor,
+                              fontFamily: 'SFProDisplayRegular',
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                          TextSpan(
+                            text: '\'ni Kabul Ediyorum',
+                            style: TextStyle(
+                              fontFamily: 'SFProDisplayRegular',
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

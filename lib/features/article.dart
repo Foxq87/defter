@@ -54,7 +54,7 @@ class _ArticleViewState extends State<ArticleView> {
               'Article',
               style: TextStyle(
                 color: Colors.white,
-                fontFamily: 'JetBrainsMonoExtraBold',
+                fontFamily: 'SFProDisplayBold',
               ),
             ),
             // trailing: navBarButton(Icons.more_horiz),

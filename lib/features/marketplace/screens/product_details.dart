@@ -5,8 +5,10 @@ import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/screens/chat_screen.dart';
 import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
+import 'package:acc/features/marketplace/screens/create_product_screen.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:acc/models/chat_model.dart';
+import 'package:acc/models/product_model.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +31,41 @@ class ProductDetails extends ConsumerStatefulWidget {
 class _ProductDetailsState extends ConsumerState<ProductDetails> {
   CarouselController carouselController = CarouselController();
   int currentCarouselIndex = 0;
+  void deleteProduct(ProductModel product) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('silme işlemini onayla'),
+          content: Text('ürünü silmek istediğinize emin misiniz?'),
+          actions: [
+            TextButton(
+              child: Text(
+                'geri',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                'ürünü sil',
+                style: TextStyle(color: Palette.redColor, fontSize: 18),
+              ),
+              onPressed: () {
+                ref
+                    .read(marketplaceControllerProvider.notifier)
+                    .deleteProduct(product, context);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.read(userProvider)!;
@@ -183,6 +220,29 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                     ],
                   ),
                 ),
+                if (product.uid == currentUser.uid)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15.0, vertical: 10),
+                    child: CupertinoButton(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        color: Palette.justGreyColor,
+                        borderRadius: BorderRadius.circular(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'ürünü sil',
+                              style: TextStyle(color: Palette.redColor),
+                            ),
+                            Icon(
+                              CupertinoIcons.delete,
+                              color: Palette.redColor,
+                            ),
+                          ],
+                        ),
+                        onPressed: () => deleteProduct(product)),
+                  ),
                 Divider(
                   thickness: 0.5,
                   color: Palette.darkGreyColor2,
@@ -213,15 +273,15 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 17,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
                             "@" + vendor.username,
                             style: const TextStyle(
-                                color: Palette.justGrayColor,
+                                color: Palette.placeholderColor,
                                 fontSize: 15,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                             overflow: TextOverflow.ellipsis,
                           ),
                           trailing: RichText(
@@ -231,7 +291,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                                   text: "fiyat: ",
                                   style: TextStyle(
                                     fontSize: 17,
-                                    fontFamily: 'JetBrainsMonoRegular',
+                                    fontFamily: 'SFProDisplayRegular',
                                   ),
                                 ),
                                 TextSpan(
@@ -239,7 +299,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: 'JetBrainsMonoRegular',
+                                    fontFamily: 'SFProDisplayRegular',
                                   ),
                                 ),
                               ],
@@ -274,7 +334,15 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                                 profilePic: null,
                                 context: context,
                                 isDM: true);
-                          } else {}
+                          } else {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CreateProductScreen(
+                                      product: product, editing: true),
+                                ));
+                          }
 
                           // ref.read(chatControllerProvider.notifier).startChat(
                           //     uids: [product.uid],
@@ -312,7 +380,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 19,
-                                fontFamily: 'JetBrainsMonoExtraBold',
+                                fontFamily: 'SFProDisplayBold',
                               ),
                             ),
                           ],
@@ -326,7 +394,7 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                             style: TextStyle(
                               color: Palette.redColor,
                               fontSize: 17,
-                              fontFamily: 'JetBrainsMonoRegular',
+                              fontFamily: 'SFProDisplayRegular',
                             ),
                           ),
                         ),

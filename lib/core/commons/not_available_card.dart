@@ -30,8 +30,7 @@ class NotAvailable extends StatelessWidget {
             Expanded(
               child: Text(
                 'bu özellik şu anda aktif değil, sonraki sürümleri bekleyin',
-                style: TextStyle(
-                    fontSize: 18, fontFamily: 'JetBrainsMonoExtraBold'),
+                style: TextStyle(fontSize: 18, fontFamily: 'SFProDisplayBold'),
               ),
             ),
           ],

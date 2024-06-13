@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../theme/palette.dart';
 
-Text largeText(String title, bool isHome,) {
+Text largeText(
+  String title,
+  bool isHome,
+) {
   return Text(
     title,
     style: TextStyle(
         fontSize: isHome ? 25 : 20,
-        fontFamily: "JetBrainsMonoExtraBold",
+        fontFamily: "SFProDisplayBold",
         color: isHome ? Palette.themeColor : Colors.white),
   );
 }
@@ -26,7 +29,7 @@ TextButton smallTextButton(
     child: Text(
       title,
       style: TextStyle(
-          fontSize: fontSize, fontFamily: "JetBrainsMonoRegular", color: color),
+          fontSize: fontSize, fontFamily: "SFProDisplayRegular", color: color),
     ),
   );
 }
