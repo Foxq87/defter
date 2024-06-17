@@ -48,12 +48,16 @@ class AuthController extends StateNotifier<bool> {
             _ref.read(userProvider.notifier).update((state) => userModel));
   }
 
-  void createUserWithEmailAndPassword(BuildContext context,String email, String password) async {
+  void createUserWithEmailAndPassword(
+      BuildContext context, String email, String password) async {
     state = true;
-    final user = await _authRepository.createUserWithEmailAndPassword(context,email,password);
+    final user = await _authRepository.createUserWithEmailAndPassword(
+        context, email, password);
     state = false;
-    user.fold(
-        (l) => print(l.message), //showSnackBar(context, l.message),
+    user.fold((l) {
+      // showSnackBar(context,
+      //     'bir hata oluştu. lütfen daha sonra tekrar deneyin: ' + l.toString());
+    }, //showSnackBar(context, l.message),
         (userModel) =>
             _ref.read(userProvider.notifier).update((state) => userModel));
   }
@@ -151,9 +155,12 @@ class AuthController extends StateNotifier<bool> {
       username_insensitive: usernameInsensitive,
       schoolId: schoolId,
     );
-    res.fold((l) => print(l.message), (r) {
+    res.fold(
+        (l) => showSnackBar(
+            context,
+            'bir hata oluştu. lütfen daha sonra tekrar deneyin: ' +
+                l.toString()), (r) {
       print(currentUser.username);
-      _ref.read(userProvider.notifier).update((state) => currentUser);
     });
     // state = false;
   }

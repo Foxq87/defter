@@ -39,67 +39,90 @@ class AuthRepository {
       _firestore.collection(FirebaseConstants.schoolsCollection);
 
   Stream<User?> get authStatesChanges => _auth.authStateChanges();
+  String normalizeEmail(String email) {
+    final parts = email.split('@');
+    return '${parts[0].replaceAll('.', '')}@${parts[1]}';
+  }
 
   FutureEither<UserModel> createUserWithEmailAndPassword(
       BuildContext context, String email, String password) async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      UserModel userModel = UserModel(
-        warningCount: 0,
-        uid: userCredential.user!.uid,
-        name: '',
-        name_insensitive: '',
-        username: '',
-        username_insensitive: '',
-        profilePic: Constants.avatarDefault,
-        schoolId: '',
-        banner: Constants.bannerDefault,
-        email: email,
-        bio: '',
-        isSuspended: false,
-        creation: DateTime.now(),
-        roles: [],
-        followers: [],
-        following: [],
-        closeFriends: [],
-        ofCloseFriends: [],
-        didAcceptEula: false,
-        blockedAccountIds: [],
-      );
+      email = normalizeEmail(email);
+      bool isEmailRegistered = false;
+      await _users.get().then((value) {
+        value.docs.forEach((element) {
+          if ((email == element.get('email') ||
+              normalizeEmail(email) == element.get('email'))&&element.get('dormType') == null) {
+            isEmailRegistered = true;
+          }
+        });
+      });
 
-      // if (/* this is new user */
-      //     userCredential.additionalUserInfo!.isNewUser) {
-      //   print("sikecem aa" + userCredential.user!.uid);
-      //   await _users.doc(userCredential.user!.uid).set(userModel.toMap());
-      // } else /* this is defter user */ {
-      //   userModel = await getUserData(userCredential.user!.uid).first;
-      // }
-      if (userCredential.additionalUserInfo!.isNewUser) {
-        print("sikecem aa" + userCredential.user!.uid);
-        await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+      if (isEmailRegistered) {
+        throw FirebaseAuthException(
+          code: 'email-already-in-use',
+          message: 'The email address is already in use by another account.',
+        );
       } else {
-        final docSnapshot = await _users.doc(userCredential.user!.uid).get();
-        
-        if (docSnapshot.exists) {
-          userModel = UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
-        } else {
-          // Handle the situation when the document doesn't exist, e.g., create it.
-          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
-        }
-      }
-      // if (waiterEmails.contains(userCredential.user!.email)) {
-      //   await _users.doc(userCredential.user!.uid).set(userModel.copyWith(
-      //         roles: ['waitLister'],
-      //         email: formattedEmail,
-      //       ));
-      // }
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        UserModel userModel = UserModel(
+          warningCount: 0,
+          uid: userCredential.user!.uid,
+          name: '',
+          name_insensitive: '',
+          username: '',
+          username_insensitive: '',
+          profilePic: Constants.avatarDefault,
+          schoolId: '',
+          banner: Constants.bannerDefault,
+          email: email,
+          bio: '',
+          isSuspended: false,
+          creation: DateTime.now(),
+          roles: [],
+          followers: [],
+          following: [],
+          closeFriends: [],
+          ofCloseFriends: [],
+          didAcceptEula: false,
+          blockedAccountIds: [],
+        );
 
-      // await _users.doc(userCredential.user!.uid).set(userModel.toMap());
-      return right(userModel);
+        // if (/* this is new user */
+        //     userCredential.additionalUserInfo!.isNewUser) {
+        //   print("sikecem aa" + userCredential.user!.uid);
+        //   await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+        // } else /* this is defter user */ {
+        //   userModel = await getUserData(userCredential.user!.uid).first;
+        // }
+        if (userCredential.additionalUserInfo!.isNewUser) {
+
+          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+        } else {
+          final docSnapshot = await _users.doc(userCredential.user!.uid).get();
+
+          if (docSnapshot.exists) {
+            userModel =
+                UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
+          } else {
+            // Handle the situation when the document doesn't exist, e.g., create it.
+            await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+          }
+        }
+        // if (waiterEmails.contains(userCredential.user!.email)) {
+        //   await _users.doc(userCredential.user!.uid).set(userModel.copyWith(
+        //         roles: ['waitLister'],
+        //         email: formattedEmail,
+        //       ));
+        // }
+
+        // await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+        return right(userModel);
+      }
     } on FirebaseException catch (e) {
       if (e.code == 'weak-password') {
         showSnackBar(context, 'şifre en az 6 karakter içermeli');
@@ -108,6 +131,8 @@ class AuthRepository {
             context, 'bu email ile kayıt olmuş bir hesap zaten bulunuyor');
       } else if (e.code == 'invalid-email') {
         showSnackBar(context, 'lütfen geçerli bir email girin');
+      } else {
+        showSnackBar(context, e.message.toString());
       }
       print(e.code);
       throw e.message!;
@@ -137,7 +162,9 @@ class AuthRepository {
         profilePic: userCredential.user!.photoURL ?? Constants.avatarDefault,
         schoolId: '',
         banner: Constants.bannerDefault,
-        email: userCredential.user!.email ?? '',
+        email: userCredential.user!.email == null
+            ? ''
+            : normalizeEmail(userCredential.user!.email!),
         bio: '',
         isSuspended: false,
         creation: DateTime.now(),
@@ -303,6 +330,11 @@ class AuthRepository {
       String usernameInsensitive,
       String schoolId) async {
     try {
+      final userdoc = await _users.doc(uid).get();
+      if (userdoc.exists) {
+      } else {
+        
+      }
       _users.doc(uid).update({
         "username": username,
         "username_insensitive": usernameInsensitive,

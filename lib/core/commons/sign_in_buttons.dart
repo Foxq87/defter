@@ -6,8 +6,8 @@ import 'package:routemaster/routemaster.dart';
 
 import '../../theme/palette.dart';
 
-class SignInButton extends ConsumerWidget {
-  const SignInButton({super.key});
+class ContinueWithGoogleButton extends ConsumerWidget {
+  const ContinueWithGoogleButton({super.key});
 
   void signInWithGoogle(WidgetRef ref, BuildContext context) {
     ref.read(authControllerProvider.notifier).signInWithGoogle(context);

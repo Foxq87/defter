@@ -183,6 +183,11 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                   setState(() {
                     isLoading = true;
                   });
+                  if (widget.user.uid.isEmpty) {
+                    print('we got problem to solve');
+                  } else {
+                    print('we dont have problem');
+                  }
 
                   ref.read(authControllerProvider.notifier).setupUser(
                         context,
