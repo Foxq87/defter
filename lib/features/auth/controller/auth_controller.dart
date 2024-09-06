@@ -36,7 +36,7 @@ class AuthController extends StateNotifier<bool> {
         _ref = ref,
         super(false);
 
-  Stream<User?> get authStateChanges => _authRepository.authStatesChanges;
+  Stream<User?> get authStateChanges => _authRepository.authStateChanges;
 
   void signInWithGoogle(BuildContext context) async {
     state = true;
@@ -46,6 +46,33 @@ class AuthController extends StateNotifier<bool> {
         (l) => print(l.message), //showSnackBar(context, l.message),
         (userModel) =>
             _ref.read(userProvider.notifier).update((state) => userModel));
+  }
+
+  void signInWithApple(BuildContext context) async {
+    state = true;
+    final user = await _authRepository.signInWithApple();
+    state = false;
+    user.fold(
+      (l) => print(l.message),
+      (userModel) =>
+          _ref.read(userProvider.notifier).update((state) => userModel),
+    );
+  }
+
+  void signInWithEmailAndPassword(
+      BuildContext context, String email, String password) async {
+    state = true;
+    final user = await _authRepository.signInWithEmailAndPassword(
+        context, email, password);
+    state = false;
+    user.fold(
+      (error) {
+        // showSnackBar(context, error.message);
+        print(error.message);
+      },
+      (userModel) =>
+          _ref.read(userProvider.notifier).update((state) => userModel),
+    );
   }
 
   void createUserWithEmailAndPassword(
@@ -130,7 +157,7 @@ class AuthController extends StateNotifier<bool> {
     String usernameInsensitive,
     String schoolId,
   ) async {
-    String defterUid = 'vchV88dY6FMdXcT1mwac8VWFPG73';
+    String defterUid = 'ku0DDDpShoR8dqhhhx3IIbtpE5u1';
     // state = true;
     UserModel currentUser = _ref.read(userProvider)!;
     if (currentUser.schoolId.isNotEmpty) {
@@ -148,20 +175,13 @@ class AuthController extends StateNotifier<bool> {
         );
     final res = await _authRepository.setupUser(uid, fullName,
         fullNameInsensitive, username, usernameInsensitive, schoolId);
-    currentUser = currentUser.copyWith(
-      name: fullName,
-      name_insensitive: fullNameInsensitive,
-      username: username,
-      username_insensitive: usernameInsensitive,
-      schoolId: schoolId,
-    );
+
     res.fold(
         (l) => showSnackBar(
             context,
             'bir hata oluştu. lütfen daha sonra tekrar deneyin: ' +
-                l.toString()), (r) {
-      print(currentUser.username);
-    });
+                l.toString()),
+        (r) => null);
     // state = false;
   }
 

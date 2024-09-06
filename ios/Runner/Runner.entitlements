@@ -8,9 +8,5 @@
 	<array>
 		<string>Default</string>
 	</array>
-	<key>keychain-access-groups</key>
-	<array>
-		<string>$(AppIdentifierPrefix)app.web.defter.defter</string>
-	</array>
 </dict>
 </plist>

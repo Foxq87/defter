@@ -1,3 +1,4 @@
+import 'package:acc/models/test_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,13 +13,13 @@ import '../../../core/type_defs.dart';
 import '../../../models/note_model.dart';
 import '../../../models/school_model.dart';
 
-final schoolRepositoryProvider = Provider((ref) {
-  return SchoolRepository(firestore: ref.watch(firestoreProvider));
+final trackerRepositoryProvider = Provider((ref) {
+  return TrackerRepository(firestore: ref.watch(firestoreProvider));
 });
 
-class SchoolRepository {
+class TrackerRepository {
   final FirebaseFirestore _firestore;
-  SchoolRepository({required FirebaseFirestore firestore})
+  TrackerRepository({required FirebaseFirestore firestore})
       : _firestore = firestore;
 
   FutureVoid createSchool(School school) async {
@@ -29,6 +30,16 @@ class SchoolRepository {
       }
 
       return right(_schools.doc(school.id).set(school.toMap()));
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureVoid addtest(TestModel test) async {
+    try {
+      return right(_tests.doc(test.testId).set(test.toMap()));
     } on FirebaseException catch (e) {
       throw e.message!;
     } catch (e) {
@@ -333,6 +344,9 @@ class SchoolRepository {
               .toList(),
         );
   }
+
+  CollectionReference get _tests =>
+      _firestore.collection(FirebaseConstants.testsCollection);
 
   CollectionReference get _notes =>
       _firestore.collection(FirebaseConstants.notesCollection);

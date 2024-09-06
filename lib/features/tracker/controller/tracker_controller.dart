@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:acc/features/notes/controller/note_controller.dart';
+import 'package:acc/features/tracker/repository/tracker_repository.dart';
+import 'package:acc/models/test_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:get/get.dart';
 
 import 'package:routemaster/routemaster.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/constants.dart';
 import '../../../core/failure.dart';
@@ -17,19 +21,18 @@ import '../../../core/utils.dart';
 import '../../../models/note_model.dart';
 import '../../../models/school_model.dart';
 import '../../auth/controller/auth_controller.dart';
-import '../repository/school_repository.dart';
 
 final userCommunitiesProvider = StreamProvider((ref) {
-  final schoolController = ref.watch(schoolControllerProvider.notifier);
-  return schoolController.getUserCommunities();
+  final trackerController = ref.watch(trackerControllerProvider.notifier);
+  return trackerController.getUserCommunities();
 });
 
-final schoolControllerProvider =
-    StateNotifierProvider<SchoolController, bool>((ref) {
-  final schoolRepository = ref.watch(schoolRepositoryProvider);
+final trackerControllerProvider =
+    StateNotifierProvider<TrackerController, bool>((ref) {
+  final trackerRepository = ref.watch(trackerRepositoryProvider);
   final storageRepository = ref.watch(storageRepositoryProvider);
-  return SchoolController(
-    schoolRepository: schoolRepository,
+  return TrackerController(
+    trackerRepository: trackerRepository,
     storageRepository: storageRepository,
     ref: ref,
   );
@@ -50,58 +53,60 @@ final refreshControllerProvider =
 final notesProvider = StreamProvider.autoDispose.family((ref, String schoolId) {
   ref.watch(refreshControllerProvider);
   if (schoolId.isEmpty) {
-    return ref.read(schoolControllerProvider.notifier).getWorldNotes();
+    return ref.read(trackerControllerProvider.notifier).getWorldNotes();
   } else {
-    return ref.read(schoolControllerProvider.notifier).getSchoolNotes(schoolId);
+    return ref
+        .read(trackerControllerProvider.notifier)
+        .getSchoolNotes(schoolId);
   }
 });
 
 final getSchoolByIdProvider = StreamProvider.family((ref, String id) {
-  return ref.watch(schoolControllerProvider.notifier).getSchoolById(id);
+  return ref.watch(trackerControllerProvider.notifier).getSchoolById(id);
 });
 
 final searchSchoolProvider = StreamProvider.family((ref, String query) {
-  return ref.watch(schoolControllerProvider.notifier).searchSchool(query);
+  return ref.watch(trackerControllerProvider.notifier).searchSchool(query);
 });
 
 final searchUserProvider = StreamProvider.family((ref, String query) {
-  return ref.watch(schoolControllerProvider.notifier).searchUser(query);
+  return ref.watch(trackerControllerProvider.notifier).searchUser(query);
 });
 
 final searchFollowerProvider = StreamProvider.family((ref, String query) {
-  return ref.watch(schoolControllerProvider.notifier).searchFollower(query);
+  return ref.watch(trackerControllerProvider.notifier).searchFollower(query);
 });
 
 final getSchoolNotesProvider = StreamProvider.family((ref, String name) {
-  return ref.read(schoolControllerProvider.notifier).getSchoolNotes(name);
+  return ref.read(trackerControllerProvider.notifier).getSchoolNotes(name);
 });
 final getSchoolAppliersProvider = StreamProvider.family((ref, String name) {
-  return ref.read(schoolControllerProvider.notifier).getSchoolAppliers(name);
+  return ref.read(trackerControllerProvider.notifier).getSchoolAppliers(name);
 });
 
 final getWorldNotesProvider = StreamProvider((ref) {
-  return ref.read(schoolControllerProvider.notifier).getWorldNotes();
+  return ref.read(trackerControllerProvider.notifier).getWorldNotes();
 });
 
 final getCloseFriendsFeedProvider = FutureProvider.family((ref, int page) {
   return ref
-      .read(schoolControllerProvider.notifier)
+      .read(trackerControllerProvider.notifier)
       .getCloseFriendsFeedProvider(page);
 });
 
 final getAllSchoolsProvider = StreamProvider((ref) {
-  return ref.watch(schoolControllerProvider.notifier).getAllSchools();
+  return ref.watch(trackerControllerProvider.notifier).getAllSchools();
 });
 
-class SchoolController extends StateNotifier<bool> {
-  final SchoolRepository _schoolRepository;
+class TrackerController extends StateNotifier<bool> {
+  final TrackerRepository _trackerRepository;
   final Ref _ref;
   final StorageRepository _storageRepository;
-  SchoolController({
-    required SchoolRepository schoolRepository,
+  TrackerController({
+    required TrackerRepository trackerRepository,
     required Ref ref,
     required StorageRepository storageRepository,
-  })  : _schoolRepository = schoolRepository,
+  })  : _trackerRepository = trackerRepository,
         _ref = ref,
         _storageRepository = storageRepository,
         super(false);
@@ -109,19 +114,22 @@ class SchoolController extends StateNotifier<bool> {
     _ref.read(refreshControllerProvider.notifier).refresh();
   }
 
-  void createSchool(String name, BuildContext context) async {
+  void addTest(String uid, String lesson, int correct, int wrong, int empty,
+      BuildContext context) async {
     state = true;
     final uid = _ref.read(userProvider)?.uid ?? '';
-    School school = School(
-      id: name,
-      title: name,
-      banner: Constants.bannerDefault,
-      avatar: Constants.avatarDefault,
-      students: [uid],
-      mods: [uid],
+    TestModel test = TestModel(
+      uid: uid,
+      testId: Uuid().v4(),
+      createdAt: DateTime.now(),
+      lesson: lesson,
+      correct: correct,
+      wrong: wrong,
+      empty: empty,
+      net: correct - (1.25 * wrong),
     );
 
-    final res = await _schoolRepository.createSchool(school);
+    final res = await _trackerRepository.addtest(test);
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       showSnackBar(context, 'School created successfully!');
@@ -134,9 +142,9 @@ class SchoolController extends StateNotifier<bool> {
 
     Either<Failure, void> res;
     if (school.students.contains(user.uid)) {
-      res = await _schoolRepository.leaveSchool(school.id, user.uid);
+      res = await _trackerRepository.leaveSchool(school.id, user.uid);
     } else {
-      res = await _schoolRepository.joinSchool(school.id, user.uid);
+      res = await _trackerRepository.joinSchool(school.id, user.uid);
     }
 
     res.fold((l) => showSnackBar(context, l.message), (r) {
@@ -150,11 +158,11 @@ class SchoolController extends StateNotifier<bool> {
 
   Stream<List<School>> getUserCommunities() {
     final uid = _ref.read(userProvider)!.uid;
-    return _schoolRepository.getUserCommunities(uid);
+    return _trackerRepository.getUserCommunities(uid);
   }
 
   Stream<School> getSchoolById(String name) {
-    return _schoolRepository.getSchoolById(name);
+    return _trackerRepository.getSchoolById(name);
   }
 
   void editSchool({
@@ -194,7 +202,7 @@ class SchoolController extends StateNotifier<bool> {
       );
     }
 
-    final res = await _schoolRepository.editSchool(school);
+    final res = await _trackerRepository.editSchool(school);
     state = false;
     res.fold(
       (l) => showSnackBar(context, l.message),
@@ -203,21 +211,21 @@ class SchoolController extends StateNotifier<bool> {
   }
 
   Stream<List<School>> searchSchool(String query) {
-    return _schoolRepository.searchSchool(query);
+    return _trackerRepository.searchSchool(query);
   }
 
   Stream<List<UserModel>> searchUser(String query) {
-    return _schoolRepository.searchUser(query);
+    return _trackerRepository.searchUser(query);
   }
 
   Stream<List<UserModel>> searchFollower(String query) {
     final currentUser = _ref.read(userProvider)!;
-    return _schoolRepository.searchFollower(query, currentUser);
+    return _trackerRepository.searchFollower(query, currentUser);
   }
 
   void addMods(
       String schoolName, List<String> uids, BuildContext context) async {
-    final res = await _schoolRepository.addMods(schoolName, uids);
+    final res = await _trackerRepository.addMods(schoolName, uids);
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) => Navigator.of(context).pop(),
@@ -227,7 +235,7 @@ class SchoolController extends StateNotifier<bool> {
   void userSchoolAction(String schoolName, String uid, BuildContext context,
       bool isApproved) async {
     final res =
-        await _schoolRepository.userSchoolAction(schoolName, uid, isApproved);
+        await _trackerRepository.userSchoolAction(schoolName, uid, isApproved);
     res.fold(
       (l) => showSnackBar(context, l.message),
       (r) => null,
@@ -236,12 +244,12 @@ class SchoolController extends StateNotifier<bool> {
 
   Stream<List<Note>> getSchoolNotes(String name) {
     final currentUser = _ref.read(userProvider)!;
-    return _schoolRepository.getSchoolNotes(name, currentUser);
+    return _trackerRepository.getSchoolNotes(name, currentUser);
   }
 
   Stream<List<UserModel>> getSchoolAppliers(String name) {
     final currentUser = _ref.read(userProvider)!;
-    return _schoolRepository.getSchoolAppliers(name, currentUser);
+    return _trackerRepository.getSchoolAppliers(name, currentUser);
   }
 
   Future<List<Note>> getCloseFriendsFeedProvider(int page) {
@@ -254,15 +262,15 @@ class SchoolController extends StateNotifier<bool> {
     // }
 
     // _ref.read(userProvider.notifier).update((state) => );
-    return _schoolRepository.fetchFromDataSource(currentUser, page, 10);
+    return _trackerRepository.fetchFromDataSource(currentUser, page, 10);
   }
 
   Stream<List<Note>> getWorldNotes() {
     final currentUser = _ref.read(userProvider)!;
-    return _schoolRepository.getWorldNotes(currentUser);
+    return _trackerRepository.getWorldNotes(currentUser);
   }
 
   Stream<List<School>> getAllSchools() {
-    return _schoolRepository.getAllSchools();
+    return _trackerRepository.getAllSchools();
   }
 }

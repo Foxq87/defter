@@ -199,7 +199,7 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                                         fontFamily: 'SFProDisplayRegular'),
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10),
-                                    placeholder: 'aklından ne geçiyor?',
+                                    placeholder: 'hmmmm...',
                                     placeholderStyle: const TextStyle(
                                         color: Palette.placeholderColor,
                                         fontFamily: 'SFProDisplayRegular'),
@@ -357,14 +357,14 @@ class _CreateNoteState extends ConsumerState<CreateNote> {
                     fontFamily: "SFProDisplayMedium",
                   ),
                 ),
-                3: Text(
-                  "agalar",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontFamily: "SFProDisplayMedium",
-                  ),
-                ),
+                // 3: Text(
+                //   "agalar",
+                //   style: TextStyle(
+                //     fontSize: 14,
+                //     color: Colors.white,
+                //     fontFamily: "SFProDisplayMedium",
+                //   ),
+                // ),
               },
               decoration: BoxDecoration(
                 border: Border.all(color: Palette.themeColor, width: 1.5),

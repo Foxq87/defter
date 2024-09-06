@@ -8,6 +8,7 @@ import 'package:acc/features/marketplace/screens/product_approval_view.dart';
 import 'package:acc/features/notes/screens/reports_view.dart';
 import 'package:acc/features/school/screens/school_approval.dart';
 import 'package:acc/features/school/screens/school_screen.dart';
+import 'package:acc/features/tracker/screens/tracker_home.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:toggle_list/toggle_list.dart';
 import 'package:unicons/unicons.dart';
+import '../../../core/commons/native_ad_widget.dart';
 import '../../../theme/palette.dart';
 
 void navigateToProfile(BuildContext context, UserModel user) {
@@ -37,6 +39,14 @@ void navigateToSaved(BuildContext context, UserModel user) {
       MaterialPageRoute(
         builder: (context) => SavedContent(uid: user.uid),
       ));
+  // Routemaster.of(context).push('/user-profile/${user.uid}');
+}
+void navigateToTracker(BuildContext context, UserModel user) {
+  // Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => TrackerHome(uid: user.uid),
+  //     ));
   // Routemaster.of(context).push('/user-profile/${user.uid}');
 }
 
@@ -272,6 +282,26 @@ class DrawerView extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        navigateToTracker(context, currentUser);
+                      },
+                      child: ListTile(
+                        leading: SvgPicture.asset(
+                          Constants.send,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        title: Text(
+                          'soru takip',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                    ),
+                    // MyBannerAdWidget(),
                     Divider(
                       color: Colors.grey[900],
                       thickness: 1.2,
@@ -374,19 +404,19 @@ class DrawerView extends ConsumerWidget {
                           // });
 
                           // *** ADD BOOKMARKS FIELD TO NOTES ***
-                          // FirebaseFirestore.instance
-                          //     .collection('posts')
-                          //     .get()
-                          //     .then((val) {
-                          //   val.docs.forEach((element) {
-                          //     String uid = element.get('uid');
-                          //     if (element.get('schoolName') == "BAIHL") {
-                          //       element.reference.update({
-                          //         'schoolName': 'closeFriends-$uid',
-                          //       });
-                          //     }
-                          //   });
-                          // });
+                          FirebaseFirestore.instance
+                              .collection('posts')
+                              .get()
+                              .then((val) {
+                            val.docs.forEach((element) {
+                              String uid = element.get('uid');
+                              if (element.get('schoolName') == "BAIHL") {
+                                element.reference.update({
+                                  'schoolName': 'closeFriends-$uid',
+                                });
+                              }
+                            });
+                          });
 
                           // *** ADD PRODUCT_ID FIELD TO NOTIFICATIONS ***
                           // FirebaseFirestore.instance

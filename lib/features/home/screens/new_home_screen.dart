@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/commons/commons.dart';
+import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/features/article.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/home/screens/close_friends_feed.dart';
 import 'package:acc/features/notes/widgets/notes_loading_view.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
+import 'package:acc/features/search/screens/search_screen.dart';
+import 'package:acc/models/note_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -70,25 +75,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       });
     });
     // Setup the listener.
-    scrollController.addListener(() {
-      if (scrollController.position.atEdge) {
-        bool isTop = scrollController.position.pixels == 0;
-        if (!isTop) {
-          setState(() {
-            isLoading = true;
-            noteLimit += 10;
-          });
-        }
-        // if (scrollController.position.pixels ==
-        //     scrollController.position.maxScrollExtent) {
-        //   setState(() {
-        //     isLoading = false;
-        //   });
-        //   // Page is all the way down
-        //   // Add your code here
-        // }
-      }
-    });
+    // scrollController.addListener(() {
+    //   if (scrollController.position.atEdge) {
+    //     bool isTop = scrollController.position.pixels == 0;
+    //     if (!isTop) {
+    //       setState(() {
+    //         isLoading = true;
+    //         noteLimit += 10;
+    //       });
+    //     }
+    // if (scrollController.position.pixels ==
+    //     scrollController.position.maxScrollExtent) {
+    //   setState(() {
+    //     isLoading = false;
+    //   });
+    //   // Page is all the way down
+    //   // Add your code here
+    // }
+    //     }
+    // });
   }
 
   // @override
@@ -139,6 +144,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final user = ref.read(userProvider)!;
+    final notesQuery = FirebaseFirestore.instance
+        .collection(FirebaseConstants.notesCollection)
+        .where('schoolName',
+            isEqualTo: segmentedValue == 1 ? "" : user.schoolId)
+        .where('repliedTo', isEqualTo: '')
+        .where('uid',
+            whereNotIn: user.blockedAccountIds.isNotEmpty
+                ? user.blockedAccountIds
+                : [''])
+        .orderBy('createdAt', descending: true);
     return Scaffold(
       appBar: CupertinoNavigationBar(
         border: Border(
@@ -154,7 +169,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             icon: userSquare(context, user.profilePic),
           ),
         ),
-        middle: largeText("defter", true),
+        middle: largeText("defder", true),
         trailing: Padding(
           padding: const EdgeInsets.only(right: 15.0, bottom: 5),
           child: SizedBox(
@@ -170,10 +185,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     SizedBox(
                       width: 5,
                     ),
-                    Text(
-                      'agalar',
-                      style: TextStyle(
-                          color: Colors.white, fontFamily: 'JetBrainsMonoBold'),
+                    SvgPicture.asset(
+                      Constants.searchOutlined,
+                      colorFilter:
+                          const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      height: 20,
+                      width: 20,
                     ),
                   ],
                 ),
@@ -184,12 +201,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   // print(currentVersion.toString() +
                   //     ', this is my lovely version');
 
-                  Navigator.push(
-                    context,
+                  Navigator.of(context).push(
                     PageRouteBuilder(
                       transitionDuration: Duration(milliseconds: 500),
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                          CloseFriendsFeed(),
+                          SearchScreen(),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) {
                         var begin = Offset(0.0, 1.0);
@@ -216,91 +232,104 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         color: Palette.themeColor,
         onRefresh: _refreshData,
         child: Scrollbar(
-          scrollbarOrientation: ScrollbarOrientation.right,
-          thumbVisibility: true,
-          trackVisibility: true,
-          controller: skeletonLoading ? null : scrollController,
-          child: ref
-              .watch(notesProvider(segmentedValue == 1 ? "" : user.schoolId))
-              .when(
-                data: (notes) {
-                  // if (notes.length <= noteLimit) {
-                  //   setState(() {
-                  //     isLoading = false;
-                  //   });
-                  // } else {
-                  //   setState(() {
-                  //     isLoading = true;
-                  //   });
-                  // }
+            scrollbarOrientation: ScrollbarOrientation.right,
+            thumbVisibility: true,
+            trackVisibility: true,
+            controller: skeletonLoading ? null : scrollController,
+            child:
+                // if (notes.length <= noteLimit) {
+                //   setState(() {
+                //     isLoading = false;
+                //   });
+                // } else {
+                //   setState(() {
+                //     isLoading = true;
+                //   });
+                // }
 
-                  if (skeletonLoading) {
-                    return NotesLoadingView();
-                  } else {
-                    return ListView.builder(
-                      controller: scrollController,
-                      shrinkWrap: true,
-                      itemCount: notes.length +
-                          (notes.length / 3)
-                              .floor(), // Adjust itemCount for every 3 notes
-                      itemBuilder: (context, index) {
-                        // Calculate the actual index of the note considering ads
-                        int noteIndex = index -
-                            (index / 4).floor(); // Adjust for every 3 notes
+                skeletonLoading
+                    ? NotesLoadingView()
+                    : 
+FirestoreQueryBuilder(
+  pageSize: 5,
+  query: notesQuery,
+  builder: (context, snapshot, child) {
+    if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    }
 
-                        // Check if the position should display an ad
-                        if (index % 4 == 3) {
-                          // Create a new BannerAd instance for this ad placement
-                          BannerAd bannerAd = createBannerAd();
-                          bannerAd.load(); // Start loading the ad
+    // Calculate the total item count including ads
+    int itemCount = snapshot.docs.length + (snapshot.docs.length / 4).floor();
 
-                          return Container(
-                            alignment: Alignment.center,
-                            child: AdWidget(ad: bannerAd!),
-                            height: bannerAd!.size.height.toDouble(),
-                          );
-                        } else {
-                          // Display note
-                          final note = notes[noteIndex];
-                          return NoteCard(note: note);
-                        }
-                      },
-                    );
-                  }
-                },
-                error: (error, stackTrace) {
-                  print(error.toString());
-                  return Text(error.toString());
-                },
-                loading: () => const NotesLoadingView(),
-              ),
+    return ListView.builder(
+      controller: scrollController,
+      shrinkWrap: true,
+      itemCount: itemCount, // Adjust itemCount for every 4 notes
+      itemBuilder: (context, index) {
+          if (snapshot.hasMore &&
+                          index + 1 == snapshot.docs.length) {
+                        // Tell FirestoreQueryBuilder to try to obtain more items.
+                        // It is safe to call this function from within the build method.
+                        snapshot.fetchMore();
+                      }
+        // Check if the position should display an ad
+        if (index % 4 == 3) {
+          // Create a new BannerAd instance for this ad placement
+          BannerAd bannerAd = BannerAd(
+            adUnitId: 'ca-app-pub-9838840200304232/7133588550', // Replace with your actual Ad Unit ID
+            size: AdSize.banner,
+            request: AdRequest(),
+            listener: BannerAdListener(
+              onAdLoaded: (Ad ad) => print('Ad loaded.'),
+              onAdFailedToLoad: (Ad ad, LoadAdError error) {
+                ad.dispose();
+                print('Ad failed to load: $error');
+              },
+            ),
+          );
+          bannerAd.load(); // Start loading the ad
 
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     CupertinoButton(
-          //       padding: EdgeInsets.symmetric(horizontal: 20),
-          //       color: Palette.orangeColor,
-          //       borderRadius: BorderRadius.circular(20),
-          //       child: Text(
-          //         'daha fazla',
-          //         textAlign: TextAlign.center,
-          //         style: TextStyle(
-          //           fontSize: 18,
-          //           color: Colors.white,
-          //           fontFamily: 'SFProDisplayRegular',
-          //         ),
-          //       ),
-          //       onPressed: () {
-          //         setState(() {
-          //           noteLimit += 10;
-          //         });
-          //       },
-          //     ),
-          //   ],
-          // ),
-          // if (isLoading) CupertinoActivityIndicator(),
-        ),
+          return Container(
+            alignment: Alignment.center,
+            child: AdWidget(ad: bannerAd),
+            height: bannerAd.size.height.toDouble(),
+          );
+        } else {
+          // Calculate the actual index of the note considering ads
+          int noteIndex = index - (index / 4).floor();
+          Note note = Note.fromMap(snapshot.docs[noteIndex].data());
+          return NoteCard(note: note);
+        }
+      },
+    );
+  },
+)
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     CupertinoButton(
+            //       padding: EdgeInsets.symmetric(horizontal: 20),
+            //       color: Palette.orangeColor,
+            //       borderRadius: BorderRadius.circular(20),
+            //       child: Text(
+            //         'daha fazla',
+            //         textAlign: TextAlign.center,
+            //         style: TextStyle(
+            //           fontSize: 18,
+            //           color: Colors.white,
+            //           fontFamily: 'SFProDisplayRegular',
+            //         ),
+            //       ),
+            //       onPressed: () {
+            //         setState(() {
+            //           noteLimit += 10;
+            //         });
+            //       },
+            //     ),
+            //   ],
+            // ),
+            // if (isLoading) CupertinoActivityIndicator(),
+            ),
       ),
       //Articles
       // Padding(

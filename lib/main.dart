@@ -14,6 +14,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:routemaster/routemaster.dart';
 import 'firebase_options.dart';
@@ -23,6 +24,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -52,7 +56,22 @@ class _MyAppState extends ConsumerState<MyApp> {
     });
   }
 
+  Future<void> checkUserExists(User user) async {
+    try {
+      await user.reload();
+    } catch (e) {
+      if (e is FirebaseAuthException && e.code == 'user-not-found') {
+        // The user doesn't exist, sign them out.
+        await FirebaseAuth.instance.signOut();
+      } else {
+        // Some other error occurred, rethrow the exception.
+        throw e;
+      }
+    }
+  }
+
   Future<void> getData(WidgetRef ref, User data) async {
+    await checkUserExists(FirebaseAuth.instance.currentUser!);
     userModel = await ref
         .read(authControllerProvider.notifier)
         .getUserData(data.uid)

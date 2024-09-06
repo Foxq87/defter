@@ -66,6 +66,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isTypeMessage = widget.notification.type == 'message';
     final isTypeFollow = widget.notification.type == 'follow';
     final isTypeLike = widget.notification.type == 'like';
     final isTypeComment = widget.notification.type == 'comment';
@@ -107,7 +108,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                   child: Container(
                     padding: EdgeInsets.only(top: 2, left: 2),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Palette.backgroundColor,
                       borderRadius:
                           BorderRadius.only(topLeft: Radius.circular(5)),
                     ),
@@ -124,7 +125,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                                           ? CupertinoIcons.heart_fill
                                           : isTypeComment
                                               ? CupertinoIcons.bubble_left_fill
-                                              : CupertinoIcons.alarm,
+                                              : CupertinoIcons.mail,
                       color:
                           isTypeFollow || isTypeEmpty || isTypeProductApproval
                               ? Palette.themeColor

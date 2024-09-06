@@ -4,6 +4,7 @@ import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/screens/chat_details.dart';
 import 'package:acc/features/chats/widgets/message_card.dart';
 import 'package:acc/features/chats/widgets/reactions_my.dart';
+import 'package:acc/features/notifications/controller/notification_controller.dart';
 import 'package:acc/models/chat_model.dart';
 import 'package:acc/models/message_model.dart';
 import 'package:acc/models/user_model.dart';
@@ -104,7 +105,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.read(chatControllerProvider.notifier).deleteMessage(message, context);
   }
 
-  Future sendMessage(bool isLoading, List<MessageModel> messages) async {
+  Future sendMessage(List<String> receivers, bool isLoading,
+      List<MessageModel> messages, UserModel currentUser) async {
     setState(() {
       counter += 1;
     });
@@ -123,6 +125,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           content: messageController.text.trim(),
           link: link,
           chatId: widget.chat.id);
+    }
+    for (var i = 0; i < receivers.length; i++) {
+      ref.read(notificationControllerProvider.notifier).sendNotification(
+          context: context,
+          content:
+              "@" + currentUser.username + ": " + messageController.text.trim(),
+          type: 'message',
+          id: 'message',
+          receiverUid: receivers[i],
+          senderId: messages.first.uid);
     }
 
     messageController.clear();
@@ -331,33 +343,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                                   left: 5.0,
                                                                   bottom: 10),
                                                           child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
                                                             children: [
-                                                              Expanded(
-                                                                child: Divider(
-                                                                  endIndent: 15,
-                                                                  thickness: 1,
-                                                                  color: Palette
-                                                                      .darkGreyColor2,
-                                                                  height: 0,
-                                                                ),
-                                                              ),
+                                                              // Expanded(
+                                                              //   child: Divider(
+                                                              //     endIndent: 15,
+                                                              //     thickness: 1,
+                                                              //     color: Palette
+                                                              //         .darkGreyColor2,
+                                                              //     height: 0,
+                                                              //   ),
+                                                              // ),
                                                               Text(
                                                                 formattedDate(
                                                                     message
                                                                         .createdAt),
                                                                 style: TextStyle(
                                                                     color: Palette
-                                                                        .justGreyColor),
+                                                                        .lightGreyColor),
                                                               ),
-                                                              Expanded(
-                                                                child: Divider(
-                                                                  indent: 15,
-                                                                  thickness: 1,
-                                                                  color: Palette
-                                                                      .darkGreyColor2,
-                                                                  height: 0,
-                                                                ),
-                                                              ),
+                                                              // Expanded(
+                                                              //   child: Divider(
+                                                              //     indent: 15,
+                                                              //     thickness: 1,
+                                                              //     color: Palette
+                                                              //         .darkGreyColor2,
+                                                              //     height: 0,
+                                                              //   ),
+                                                              // ),
                                                             ],
                                                           ),
                                                         )),
@@ -389,7 +404,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                                             data.username,
                                                                         style: TextStyle(
                                                                             color:
-                                                                                Palette.justGreyColor),
+                                                                                Palette.lightGreyColor),
                                                                       ),
                                                                     )),
                                                             error: (error,
@@ -653,8 +668,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     borderRadius: BorderRadius.circular(130.0),
                                     padding: EdgeInsets.zero,
                                     color: Palette.themeColor,
-                                    onPressed: () =>
-                                        sendMessage(isLoading, messages),
+                                    onPressed: () => sendMessage(
+                                        widget.chat.members
+                                            .where((member) =>
+                                                member != currentUser.uid)
+                                            .toList(),
+                                        isLoading,
+                                        messages,
+                                        currentUser),
                                     //   final currentUser = ref.read(userProvider)!;
                                     //   String currentUserUid = currentUser.uid;
                                     //   if (commentController.text.trim().isNotEmpty) {

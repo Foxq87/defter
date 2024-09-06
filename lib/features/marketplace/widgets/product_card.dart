@@ -134,7 +134,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
             ),
             Text('${widget.product.price.toStringAsFixed(2)} ₺',
                 style: const TextStyle(
-                    color: Palette.justGreyColor,
+                    color: Palette.lightGreyColor,
                     fontSize: 12,
                     fontFamily: 'SFProDisplayRegular')),
 

@@ -365,6 +365,7 @@ class _SetupProfileState extends ConsumerState<SetupProfile> {
                                 setState(() {
                                   schoolController.text =
                                       options.elementAt(index);
+                                  schoolId = options.elementAt(index);
                                 });
                               },
                               title: Text(

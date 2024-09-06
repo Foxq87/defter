@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/commons/sign_in_buttons.dart';
 import 'package:acc/core/constants/constants.dart';
@@ -7,7 +9,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../core/utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +24,50 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  Widget loginButton(BuildContext context, WidgetRef ref) {
+    bool isValidEmail(String email) {
+      // Use a regular expression to validate the email format
+      final emailRegex = RegExp(
+          r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$');
+      return emailRegex.hasMatch(email);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: CupertinoButton(
+            onPressed: () {
+              if (emailController.text.trim().isEmpty ||
+                  passwordController.text.trim().isEmpty) {
+                showSnackBar(context, 'lütfen tüm alanları doldurun');
+              } else if (!isValidEmail(emailController.text.trim())) {
+                showSnackBar(context, 'lütfen geçerli bir email girin');
+              } else if (passwordController.text.trim().length < 6) {
+                showSnackBar(context, 'şifre en az 6 karakter içermeli');
+              } else {
+                ref
+                    .read(authControllerProvider.notifier)
+                    .signInWithEmailAndPassword(
+                        context,
+                        emailController.text.trim(),
+                        passwordController.text.trim());
+              }
+            },
+            color: Palette.themeColor,
+            borderRadius: BorderRadius.circular(17),
+            child: const Center(
+                child: Text(
+              "giriş yap",
+              style: TextStyle(
+                  fontSize: 20,
+                  fontFamily: "JetBrainsMonoBold",
+                  color: Colors.white),
+            ))),
+      ),
+    );
+  }
 
   void launchURL(String url) async {
     Uri uri = Uri.parse(url);
@@ -36,33 +85,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       child: Scaffold(
         body: isLoading
             ? const Loader()
-            : Column(
+            : ListView(
                 children: [
                   const SizedBox(
                     height: 30,
                   ),
-                  Center(
-                    child: RichText(
-                      text: const TextSpan(children: [
-                        TextSpan(
-                            text: "bize katıl >>> ",
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "JetBrainsMonoExtraBold")),
-                        TextSpan(
-                            text: 'defter',
-                            style: TextStyle(
-                                color: Palette.themeColor,
-                                fontSize: 30,
-                                fontFamily: "JetBrainsMonoExtraBold"))
-                      ]),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RichText(
+                          text: const TextSpan(children: [
+                            TextSpan(
+                                text: "bize katıl >>> ",
+                                style: TextStyle(
+                                    fontSize: 23,
+                                    fontFamily: "JetBrainsMonoExtraBold")),
+                            TextSpan(
+                                text: 'defter',
+                                style: TextStyle(
+                                    color: Palette.themeColor,
+                                    fontSize: 25,
+                                    fontFamily: "JetBrainsMonoExtraBold"))
+                          ]),
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          'assets/defter-icon-rounded.png',
+                          height: 40,
+                          width: 40,
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Image.asset(
-                    'assets/defter-icon-rounded.png',
-                    height: 150,
-                    width: 150,
                   ),
                   const SizedBox(
                     height: 20,
@@ -105,7 +160,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(
                     height: 15,
                   ),
-                  const LogInButton(),
+                  loginButton(context, ref),
                   const SizedBox(
                     height: 15,
                   ),
@@ -122,7 +177,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Text(
                         "veya",
                         style: TextStyle(
-                            fontSize: 17, fontFamily: 'JetBrainsMonoRegular'),
+                          fontSize: 17,
+                          fontFamily: 'JetBrainsMonoRegular',
+                        ),
                       ),
                       Expanded(
                         child: Divider(
@@ -135,39 +192,63 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 15,
                   ),
                   const ContinueWithGoogleButton(),
-                  const Spacer(),
-                  Text(
-                    'henüz hesabın yok mu?',
+                  if (Platform.isIOS)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: const ContinueWithAppleButton(),
+                    ),
+                ],
+              ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'henüz hesabın yok mu? ',
                     style: TextStyle(
                         color: Palette.placeholderColor,
                         fontSize: 17,
                         fontFamily: 'JetBrainsMonoRegular'),
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  CreateAccButton(
-                    ref: ref,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Divider(
-                    thickness: 0.45,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  agreements(),
-                  SizedBox(
-                    height: 5,
+                  TextSpan(
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Routemaster.of(context).push('/create-account');
+                      },
+                    text: 'hesap oluştur',
+                    style: TextStyle(
+                        color: Palette.orangeColor,
+                        // decoration: TextDecoration.underline,
+                        fontSize: 17,
+                        fontFamily: 'JetBrainsMonoRegular'),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Divider(
+              thickness: 0.45,
+              color: Colors.grey,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            agreements(),
+            SizedBox(
+              height: 5,
+            ),
+          ],
+        ),
       ),
     );
   }

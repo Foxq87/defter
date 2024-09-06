@@ -61,7 +61,7 @@ class NewVersionAvailable extends ConsumerWidget {
                           'itms-beta://beta.itunes.apple.com/v1/app/app.web.defter.defter';
                     } else if (Platform.isAndroid) {
                       url =
-                          'https://play.google.com/apps/internaltest/4701084933969947624';
+                          'https://play.google.com/store/apps/details?id=app.web.defter.defter';
                     }
                     launchURL(url);
                   }),

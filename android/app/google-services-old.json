@@ -59,42 +59,6 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:256943613795:android:213298c90ea132ae8bd556",
-        "android_client_info": {
-          "package_name": "app.web.defter.defter"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB13XAt1HFpA1HBc469uKYnj9yAJKsnBKw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "256943613795-q89vml0bdscrgmuc9t7asojsagoiek0e.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "256943613795-29cc705crac16cnt76qb2ap7t2vo4mk9.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.appbeygolu"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:256943613795:android:c9b84e1511c1265c8bd556",
         "android_client_info": {
           "package_name": "com.app.acc"

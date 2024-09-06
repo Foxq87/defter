@@ -237,7 +237,7 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                               style: TextStyle(
                                   color: isMyMessage
                                       ? Colors.grey[700]
-                                      : Palette.justGreyColor,
+                                      : Palette.lightGreyColor,
                                   inherit: false,
                                   fontFamily: 'SFProDisplayRegular',
                                   fontSize: 12),

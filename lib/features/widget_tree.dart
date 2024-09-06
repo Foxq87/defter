@@ -229,28 +229,28 @@ class _WidgetTreeState extends ConsumerState<WidgetTree>
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
                 ),
+                // BottomNavigationBarItem(
+                //   activeIcon: SvgPicture.asset(
+                //     Constants.searchFilled,
+                //     colorFilter:
+                //         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                //   ),
+                //   icon: SvgPicture.asset(
+                //     Constants.searchOutlined,
+                //     colorFilter:
+                //         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                //   ),
+                // ),
                 BottomNavigationBarItem(
                   activeIcon: SvgPicture.asset(
-                    Constants.searchFilled,
+                    Constants.shoppingBagFilled,
                     colorFilter:
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
                   icon: SvgPicture.asset(
-                    Constants.searchOutlined,
+                    Constants.shoppingBag,
                     colorFilter:
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                  ),
-                ),
-                BottomNavigationBarItem(
-                  activeIcon: SvgPicture.asset(
-                    Constants.squareFilled,
-                    colorFilter: const ColorFilter.mode(
-                        Palette.themeColor, BlendMode.srcIn),
-                  ),
-                  icon: SvgPicture.asset(
-                    Constants.squareOutlined,
-                    colorFilter: const ColorFilter.mode(
-                        Palette.themeColor, BlendMode.srcIn),
                   ),
                 ),
                 BottomNavigationBarItem(

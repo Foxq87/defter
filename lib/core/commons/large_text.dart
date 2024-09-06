@@ -9,7 +9,7 @@ Text largeText(
     title,
     style: TextStyle(
         fontSize: isHome ? 25 : 20,
-        fontFamily: "SFProDisplayBold",
+        fontFamily: "JetBrainsMonoExtraBold",
         color: isHome ? Palette.themeColor : Colors.white),
   );
 }

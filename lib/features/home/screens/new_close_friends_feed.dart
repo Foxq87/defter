@@ -2,17 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:acc/features/home/drawers/drawer.dart';
-import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
-import 'package:acc/models/user_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../../core/commons/large_text.dart';
-import '../../../core/commons/loader.dart';
+
 import '../../../core/commons/user_square.dart';
 import '../../../models/note_model.dart';
 import '../../../theme/palette.dart';
@@ -245,7 +242,7 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed>
                             'agalar',
                             style: TextStyle(
                                 color: Colors.white,
-                                fontFamily: 'JetBrainsMonoBold'),
+                                fontFamily: 'SFProDisplayMedium'),
                           ),
                         ],
                       ),
@@ -445,13 +442,13 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed>
                     reverse: true,
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: notes.length +
-                        (notes.length / 3).floor() +
-                        1, // Adjust itemCount for every 3 notes
+                    itemCount: _notes.length +
+                        (_notes.length / 3).floor() 
+                        , // Adjust itemCount for every 3 _notes
                     itemBuilder: (context, index) {
                       // Calculate the actual index of the note considering ads
                       int noteIndex = index -
-                          (index / 4).floor(); // Adjust for every 3 notes
+                          (index / 4).floor(); // Adjust for every 3 _notes
 
                       // Check if the position should display an ad
                       if (index % 4 == 3) {
@@ -466,16 +463,10 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed>
                         );
                       } else {
                         // Display note
-                        // final note = notes[noteIndex];
-                        if (index == notes.length) {
-                          // Bottom of the list
-
-                          return isLoading
-                              ? CircularProgressIndicator()
-                              : SizedBox.shrink();
-                        }
+                        // final note = _notes[noteIndex];
+                 
                         return NoteCard(
-                            note: notes[
+                            note: _notes[
                                 index]); // Your method to build each post item
                       }
                     },

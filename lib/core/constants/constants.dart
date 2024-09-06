@@ -1,3 +1,4 @@
+import 'package:acc/core/commons/native_ad_widget.dart';
 import 'package:acc/features/chats/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import '../../features/features.dart';
@@ -100,13 +101,17 @@ class Constants {
   static const String moderator = "assets/svgs/moderator.svg";
   static const String developer = "assets/svgs/html-code.svg";
   static const String systemUid = 'ku0DDDpShoR8dqhhhx3IIbtpE5u1';
+  static const String shoppingBag =
+      'assets/svgs/bottom-nav-bar-icons/shopping_bag.svg';
+  static const String shoppingBagFilled =
+      'assets/svgs/bottom-nav-bar-icons/shopping_bag_filled.svg';
 }
 
 List<Widget> screens = [
   //Home
   const HomeScreen(),
   //Search
-  const SearchScreen(),
+  // const SearchScreen(),
   //Events
   const MarketplaceScreen(),
   //Notifications

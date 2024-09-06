@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:acc/core/commons/commons.dart';
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/notes/controller/note_controller.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:unicons/unicons.dart';
 
@@ -125,51 +127,52 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     final currentUser = ref.read(userProvider)!;
     super.build(context);
     return Scaffold(
-      appBar: CupertinoNavigationBar(
-        leading: widget.isForChat! || widget.isForCloseFriends!
-            ? CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Text(
-                  widget.isForChat! && currentPage == 1 ? 'geri' : 'kapat',
-                  style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                      fontFamily: 'SFProDisplayRegular'),
-                ),
-                onPressed: () {
-                  if (currentPage == 0) {
-                    Navigator.pop(context);
-                  } else {
-                    pageController.animateToPage(0,
-                        duration: Duration(milliseconds: 200),
-                        curve: Curves.bounceInOut);
-                  }
-                })
-            : null,
-        automaticallyImplyLeading: false,
-        transitionBetweenRoutes: false,
-        backgroundColor: Palette.backgroundColor,
-        middle: Column(
-          children: [
-            if (widget.isForChat! || widget.isForCloseFriends!)
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 5),
-                height: 5,
-                width: 40,
-                decoration: BoxDecoration(
-                    color: Palette.darkGreyColor2,
-                    borderRadius: BorderRadius.circular(100)),
-              ),
-            largeText(
-                widget.isForChat!
-                    ? 'yeni sohbet'
-                    : widget.isForCloseFriends!
-                        ? 'yakın arkadaş ekle'
-                        : 'ara',
-                false),
-          ],
-        ),
-      ),
+      // appBar: CupertinoNavigationBar(
+      //   leading: widget.isForChat! || widget.isForCloseFriends!
+      //       ? CupertinoButton(
+      //           padding: EdgeInsets.zero,
+      //           child: Text(
+      //             widget.isForChat! && currentPage == 1 ? 'geri' : 'kapat',
+      //             style: TextStyle(
+      //                 fontSize: 18,
+      //                 color: Colors.grey,
+      //                 fontFamily: 'SFProDisplayRegular'),
+      //           ),
+      //           onPressed: () {
+      //             if (currentPage == 0) {
+      //               Navigator.pop(context);
+      //             } else {
+      //               pageController.animateToPage(0,
+      //                   duration: Duration(milliseconds: 200),
+      //                   curve: Curves.bounceInOut);
+      //             }
+      //           })
+      //       : null,
+      //   automaticallyImplyLeading: false,
+      //   transitionBetweenRoutes: false,
+      //   backgroundColor: Palette.backgroundColor,
+      //   middle: Column(
+      //     children: [
+      //       if (widget.isForChat! || widget.isForCloseFriends!)
+      //         Container(
+      //           margin: EdgeInsets.symmetric(vertical: 5),
+      //           height: 5,
+      //           width: 40,
+      //           decoration: BoxDecoration(
+      //               color: Palette.darkGreyColor2,
+      //               borderRadius: BorderRadius.circular(100)),
+      //         ),
+      //       if (widget.isForChat! || widget.isForCloseFriends!)
+      //         largeText(
+      //             widget.isForChat!
+      //                 ? 'yeni sohbet'
+      //                 : widget.isForCloseFriends!
+      //                     ? 'yakın arkadaş ekle'
+      //                     : 'ara',
+      //             false),
+      //     ],
+      //   ),
+      // ),
       body: isLoading
           ? Loader()
           : PageView(
@@ -181,34 +184,99 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               children: [
                 Column(
                   children: [
+                    SizedBox(
+                      height: 30,
+                    ),
                     Form(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 10),
-                        child: SizedBox(
-                          height: 40,
-                          child: CupertinoTextField(
-                            cursorColor: Palette.themeColor,
-                            onChanged: (text) {
-                              setState(() {
-                                query = text;
-                              });
-                            },
-                            controller: searchController,
-                            decoration: BoxDecoration(
-                              color: Palette.textFieldColor,
-                              borderRadius: BorderRadius.circular(12),
+                            horizontal: 20.0, vertical: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoTextField(
+                                  cursorColor: Palette.themeColor,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      query = text;
+                                    });
+                                  },
+                                  controller: searchController,
+                                  decoration: BoxDecoration(
+                                    color: Palette.textFieldColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "SFProDisplayRegular",
+                                  ),
+                                  placeholder: 'ara',
+                                  placeholderStyle: const TextStyle(
+                                    color: Palette.placeholderColor,
+                                    fontFamily: 'SFProDisplayMedium',
+                                  ),
+                                ),
+                              ),
                             ),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontFamily: "SFProDisplayRegular",
+                            SizedBox(
+                              width: 10,
                             ),
-                            placeholder: 'ara',
-                            placeholderStyle: const TextStyle(
-                              color: Palette.placeholderColor,
-                              fontFamily: 'SFProDisplayMedium',
+                            CupertinoButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              padding: EdgeInsets.zero,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: SizedBox(
+                                  height: 30,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Palette.darkGreyColor2,
+                                        radius: 15,
+                                        child: Center(
+                                          child: Icon(
+                                            CupertinoIcons.clear,
+                                            size: 17,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 6,
+                                      ),
+                                      CupertinoButton(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          disabledColor: Palette.themeColor,
+                                          color: Palette.themeColor,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SvgPicture.asset(
+                                                Constants.searchFilled,
+                                                colorFilter:
+                                                    const ColorFilter.mode(
+                                                  Colors.white,
+                                                  BlendMode.srcIn,
+                                                ),
+                                                height: 20,
+                                                width: 20,
+                                              ),
+                                            ],
+                                          ),
+                                          onPressed: null),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),

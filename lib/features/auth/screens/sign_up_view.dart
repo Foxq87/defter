@@ -22,25 +22,11 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
   TextEditingController passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void registerNewUser(String email, String password) async {
-    try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // The user has been created successfully.
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        showSnackBar(context, 'şifreniz çok zayıf');
-      } else if (e.code == 'email-already-in-use') {
-        showSnackBar(
-            context, 'bu email ile kayıt olmuş bir hesap zaten bulunuyor');
-      }
-    } catch (e) {
-      print(e);
-    }
+  bool isValidEmail(String email) {
+    // Use a regular expression to validate the email format
+    final emailRegex = RegExp(
+        r'^[\w-]+(\.[\w-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})$');
+    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -51,10 +37,21 @@ class _SignUpViewState extends ConsumerState<SignUpView> {
         borderRadius: BorderRadius.circular(20),
         color: Palette.orangeColor,
         onPressed: () {
-          ref
-              .read(authControllerProvider.notifier)
-              .createUserWithEmailAndPassword(context,
-                  emailController.text.trim(), passwordController.text.trim());
+          if (emailController.text.trim().isEmpty ||
+              passwordController.text.trim().isEmpty) {
+            showSnackBar(context, 'lütfen tüm alanları doldurun');
+          } else if (!isValidEmail(emailController.text.trim())) {
+            showSnackBar(context, 'lütfen geçerli bir email girin');
+          } else if (passwordController.text.trim().length < 6) {
+            showSnackBar(context, 'şifre en az 6 karakter içermeli');
+          } else {
+            ref
+                .read(authControllerProvider.notifier)
+                .createUserWithEmailAndPassword(
+                    context,
+                    emailController.text.trim(),
+                    passwordController.text.trim());
+          }
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,

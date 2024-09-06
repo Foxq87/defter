@@ -90,7 +90,7 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                                   widget.chat.members.length.toString() +
                                       " üye",
                                   style: TextStyle(
-                                      color: Palette.justGreyColor,
+                                      color: Palette.lightGreyColor,
                                       fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
@@ -100,7 +100,7 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                               Text(
                                 widget.chat.description,
                                 style: TextStyle(
-                                    color: Palette.justGreyColor, fontSize: 16),
+                                    color: Palette.lightGreyColor, fontSize: 16),
                                 textAlign: TextAlign.center,
                               ),
                               SizedBox(

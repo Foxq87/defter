@@ -3,11 +3,11 @@ import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
-import 'package:acc/features/chats/screens/chat_screen.dart';
+
 import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
 import 'package:acc/features/marketplace/screens/create_product_screen.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
-import 'package:acc/models/chat_model.dart';
+
 import 'package:acc/models/product_model.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -15,7 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+
 
 import '../../../core/constants/constants.dart';
 import '../../auth/controller/auth_controller.dart';
@@ -29,7 +29,7 @@ class ProductDetails extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailsState extends ConsumerState<ProductDetails> {
-  CarouselController carouselController = CarouselController();
+  CarouselSliderController carouselController = CarouselSliderController();
   int currentCarouselIndex = 0;
   void deleteProduct(ProductModel product) {
     showDialog(

@@ -28,6 +28,7 @@ import 'package:timeago/timeago.dart' as timeago;
 class NoteCard extends ConsumerStatefulWidget {
   final Note note;
   final bool? isComment;
+
   const NoteCard({super.key, required this.note, this.isComment = true});
 
   @override
@@ -195,7 +196,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                             left: 10.0,
                             top: threads.isEmpty || !widget.isComment!
                                 ? 10.0
-                                : 2.0,
+                                : 10.0,
                             right: 10),
                         child: IntrinsicHeight(
                             child: Row(
@@ -373,7 +374,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                               error: error
                                                                                   .toString()),
                                                                       loading: () =>
-                                                                          const Loader()),
+                                                                          const SizedBox()),
                                                             ),
                                                           ],
                                                         ),
@@ -1121,7 +1122,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                                 .toString()),
                                                                         loading:
                                                                             () =>
-                                                                                const Loader()),
+                                                                                const SizedBox()),
                                                               ),
                                                             ],
                                                           ),
@@ -1622,7 +1623,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                           .toString(),
                                                                     ),
                                                                     loading: () =>
-                                                                        const Loader(),
+                                                                        const SizedBox(),
                                                                   ),
                                                           ],
                                                         ),

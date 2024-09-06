@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.6+6
+version: 1.0.15+15
 
 environment:
   sdk: '>=3.1.0-30.0.dev <4.0.0'
@@ -39,7 +39,7 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.0
   firebase_core: ^2.27.0
   firebase_storage: ^11.6.9
-  cloud_firestore: ^4.15.8
+  cloud_firestore: ^4.17.5
   firebase_auth: ^4.17.8
   google_sign_in: ^6.2.1
   flutter_riverpod: ^2.4.4
@@ -47,7 +47,7 @@ dependencies:
   routemaster: ^1.0.1
   file_picker: ^6.1.1
   uuid: ^4.3.3
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.0.0
   any_link_preview: ^3.0.1
   unicons: ^2.1.1
   intl: ^0.19.0
@@ -66,10 +66,15 @@ dependencies:
   upgrader: ^10.3.0
   rxdart: ^0.27.7
   firebase_remote_config: ^4.4.6
-  package_info_plus: ^8.0.0
+  package_info_plus: ^8.0.2
   firebase_analytics: ^10.10.6
   flutter_pdfview: ^1.3.2
   image_picker: ^1.1.2
+  sign_in_with_apple: ^6.1.1
+  the_apple_sign_in: ^1.1.1
+  google_mobile_ads: ^5.1.0
+  calendar_timeline: ^1.1.3
+  firebase_ui_firestore: ^1.6.3
 
 dev_dependencies:
   flutter_test:
