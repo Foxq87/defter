@@ -215,7 +215,9 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                             GestureDetector(
                                               onTap: () {
                                                 if (!user.followers.contains(
-                                                    currentUser.uid)) {
+                                                        currentUser.uid) &&
+                                                    (user.uid !=
+                                                        currentUser.uid)) {
                                                   followUser(context,
                                                       currentUser, user);
                                                 } else {
@@ -293,7 +295,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                       loading: () => SizedBox(),
                                     ),
                                 const SizedBox(
-                                  height: 5,
+                                  height: 10,
                                 ),
                                 if (threads.isNotEmpty)
                                   Flexible(
@@ -580,10 +582,6 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                           child: AnyLinkPreview(
                                                             removeElevation:
                                                                 true,
-                                                            errorBody:
-                                                                'öğrenci sosyal medya platformu',
-                                                            errorImage:
-                                                                'https://firebasestorage.googleapis.com/v0/b/appbeyoglu.appspot.com/o/defter-logo.png?alt=media&token=25fdfec5-ca45-4c37-b4ed-e5a09cae249e',
                                                             displayDirection:
                                                                 UIDirection
                                                                     .uiDirectionHorizontal,
@@ -899,23 +897,32 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                   else if (threads.isNotEmpty)
                     Column(
                       children: [
-                        SizedBox(
-                          height: 5,
-                        ),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: SizedBox(
-                            height: 17,
                             child: CupertinoButton(
-                              padding: EdgeInsets.only(
-                                left: 15,
-                              ),
-                              child: Text(
-                                'zinciri gör',
-                                style: TextStyle(
-                                    color: Palette.themeColor,
-                                    fontFamily: 'SFProDisplayRegular',
-                                    fontSize: 14),
+                              padding: EdgeInsets.only(left: 10 + 8),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                      radius: 12,
+                                      // backgroundColor: Palette.orangeColor,
+                                      backgroundColor: Palette.themeColor,
+                                      child: SvgPicture.asset(
+                                          Constants.downArrow)),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'zinciri gör',
+                                    style: TextStyle(
+                                        // color: Palette.orangeColor,
+                                        color: Palette.themeColor,
+                                        fontFamily: 'JetbrainsMonoRegular',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
                               onPressed: () => navigateToNote(context),
                             ),
@@ -1330,10 +1337,6 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                 AnyLinkPreview(
                                                               removeElevation:
                                                                   true,
-                                                              errorBody:
-                                                                  'öğrenci sosyal medya platformu',
-                                                              errorImage:
-                                                                  'https://firebasestorage.googleapis.com/v0/b/appbeyoglu.appspot.com/o/defter-logo.png?alt=media&token=25fdfec5-ca45-4c37-b4ed-e5a09cae249e',
                                                               displayDirection:
                                                                   UIDirection
                                                                       .uiDirectionHorizontal,
@@ -1694,94 +1697,84 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                 child: Column(
                   children: [
                     if (widget.note.uid == currentUser.uid)
-                      Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              showCupertinoDialog(
-                                barrierDismissible: true,
-                                context: context,
-                                builder: (context) => CupertinoAlertDialog(
-                                  title: const Text(
-                                    "emin misin?",
+                      InkWell(
+                        onTap: () {
+                          showCupertinoDialog(
+                            barrierDismissible: true,
+                            context: context,
+                            builder: (context) => CupertinoAlertDialog(
+                              title: const Text(
+                                "emin misin?",
+                                style:
+                                    TextStyle(fontFamily: 'SFProDisplayBold'),
+                              ),
+                              content: const Text(
+                                'bu notu siliyorsun',
+                                style:
+                                    TextStyle(fontFamily: 'SFProDisplayMedium'),
+                              ),
+                              actions: <CupertinoDialogAction>[
+                                CupertinoDialogAction(
+                                  isDefaultAction: true,
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    'geri',
                                     style: TextStyle(
-                                        fontFamily: 'SFProDisplayBold'),
+                                      color: Palette.themeColor,
+                                      fontFamily: 'SFProDisplayRegular',
+                                    ),
                                   ),
-                                  content: const Text(
-                                    'bu notu siliyorsun',
+                                ),
+                                CupertinoDialogAction(
+                                  isDestructiveAction: true,
+                                  onPressed: () async {
+                                    deleteNote(context);
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    'evet',
                                     style: TextStyle(
-                                        fontFamily: 'SFProDisplayMedium'),
-                                  ),
-                                  actions: <CupertinoDialogAction>[
-                                    CupertinoDialogAction(
-                                      isDefaultAction: true,
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text(
-                                        'geri',
-                                        style: TextStyle(
-                                          color: Palette.themeColor,
-                                          fontFamily: 'SFProDisplayRegular',
-                                        ),
-                                      ),
+                                      color: Palette.redColor,
+                                      fontFamily: 'SFProDisplayRegular',
                                     ),
-                                    CupertinoDialogAction(
-                                      isDestructiveAction: true,
-                                      onPressed: () async {
-                                        deleteNote(context);
-                                        Navigator.pop(context);
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text(
-                                        'evet',
-                                        style: TextStyle(
-                                          color: Palette.redColor,
-                                          fontFamily: 'SFProDisplayRegular',
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'notu sil',
-                                        style: TextStyle(
-                                            color: Palette.redColor,
-                                            fontSize: 17),
-                                      ),
-                                      Spacer(),
-                                      Icon(
-                                        CupertinoIcons.delete,
-                                        color: Palette.redColor,
-                                      )
-                                    ],
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 10,
                                 ),
                               ],
                             ),
-                          ),
-                          Divider(
-                            thickness: 0.45,
-                            height: 0,
-                            color: Palette.darkGreyColor2,
-                          ),
-                        ],
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'notu sil',
+                                    style: TextStyle(
+                                        color: Palette.redColor, fontSize: 17),
+                                  ),
+                                  Spacer(),
+                                  Icon(
+                                    CupertinoIcons.delete,
+                                    color: Palette.redColor,
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        ),
                       ),
-                    GestureDetector(
+                    InkWell(
                       onTap: () {
                         showDialog(
                           context: context,
@@ -1823,6 +1816,7 @@ class _NoteCardState extends ConsumerState<NoteCard> {
               ),
               if (currentUser.roles.contains('admin'))
                 GestureDetector(
+                  behavior: HitTestBehavior.translucent,
                   onTap: () {
                     showCupertinoDialog(
                       barrierDismissible: true,

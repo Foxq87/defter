@@ -41,6 +41,7 @@ void navigateToSaved(BuildContext context, UserModel user) {
       ));
   // Routemaster.of(context).push('/user-profile/${user.uid}');
 }
+
 void navigateToTracker(BuildContext context, UserModel user) {
   // Navigator.push(
   //     context,
@@ -135,25 +136,33 @@ class DrawerView extends ConsumerWidget {
                                         child: CupertinoActionSheet(
                                           cancelButton:
                                               CupertinoActionSheetAction(
-                                                  child: const Text('Back'),
+                                                  child: const Text(
+                                                    'geri',
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            'JetbrainsMonoBold',
+                                                        color:
+                                                            Palette.themeColor),
+                                                  ),
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   }),
                                           actions: [
                                             CupertinoActionSheetAction(
                                                 child: const Text(
-                                                  'Sign Out',
+                                                  'çıkış yap',
                                                   style: TextStyle(
-                                                      color: Palette.redColor),
+                                                    color: Palette.redColor,
+                                                    fontFamily:
+                                                        'JetbrainsMonoBold',
+                                                  ),
                                                 ),
                                                 onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  Navigator.of(context).pop();
                                                   ref
                                                       .read(
                                                           authControllerProvider
                                                               .notifier)
-                                                      .logout();
+                                                      .logout(context);
                                                 })
                                           ],
                                         ),
@@ -404,19 +413,52 @@ class DrawerView extends ConsumerWidget {
                           // });
 
                           // *** ADD BOOKMARKS FIELD TO NOTES ***
-                          FirebaseFirestore.instance
-                              .collection('posts')
-                              .get()
-                              .then((val) {
-                            val.docs.forEach((element) {
-                              String uid = element.get('uid');
-                              if (element.get('schoolName') == "BAIHL") {
-                                element.reference.update({
-                                  'schoolName': 'closeFriends-$uid',
-                                });
-                              }
-                            });
-                          });
+                          // FirebaseFirestore.instance
+                          //     .collection('posts')
+                          //     .get()
+                          //     .then((val) {
+                          //   val.docs.forEach((element) {
+                          //     String uid = element.get('uid');
+                          //     if (element.get('schoolName') == "BAIHL") {
+                          //       element.reference.update({
+                          //         'schoolName': 'closeFriends-$uid',
+                          //       });
+                          //     }
+                          //   });
+                          // });
+
+                          // FirebaseFirestore.instance
+                          //     .collection('posts')
+                          //     .get()
+                          //     .then((val) {
+                          //   val.docs.forEach((element) {
+                          //     String uid = element.get('uid');
+                          //     if (element.get('createdAt') != null) {
+                          //       // Check if the createdAt field is a timestamp
+                          //       var createdAtField = element.get('createdAt');
+                          //       DateTime createdAt;
+
+                          //       if (createdAtField is Timestamp) {
+                          //         createdAt = createdAtField.toDate();
+                          //       } else if (createdAtField is int) {
+                          //         createdAt =
+                          //             DateTime.fromMillisecondsSinceEpoch(
+                          //                 createdAtField);
+                          //       } else {
+                          //         createdAt =
+                          //             DateTime.parse(createdAtField.toString());
+                          //       }
+
+                          //       DateTime threeMonthsAgo =
+                          //           DateTime.now().subtract(Duration(days: 60));
+                          //       if (createdAt.isAfter(threeMonthsAgo)) {
+                          //         element.reference.update({
+                          //           'schoolName': 'BAIHL',
+                          //         });
+                          //       }
+                          //     }
+                          //   });
+                          // });
 
                           // *** ADD PRODUCT_ID FIELD TO NOTIFICATIONS ***
                           // FirebaseFirestore.instance

@@ -21,6 +21,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:routemaster/routemaster.dart';
 import '../../../models/models.dart';
+import '../../../models/user_model.dart';
 import '../../../theme/palette.dart';
 import '../../notes/widgets/note_card.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
@@ -30,6 +31,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+}
+
+Stream<DocumentSnapshot> getUserStream(String userId) {
+  return FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
@@ -134,6 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     ref.read(schoolControllerProvider.notifier).refreshData(context);
   }
 
+  bool checkLoading = false;
   int segmentedValue = 2;
   int noteLimit = 10;
 
@@ -195,6 +201,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ],
                 ),
                 onPressed: () async {
+                  ref.read(userProvider.notifier).update((state) =>
+                      user.copyWith(schoolId: "onay bekliyor: BAIHL"));
                   // final PackageInfo info = await PackageInfo.fromPlatform();
                   // final int currentVersion = int.parse(info.buildNumber);
 
@@ -249,61 +257,108 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
                 skeletonLoading
                     ? NotesLoadingView()
-                    : 
-FirestoreQueryBuilder(
-  pageSize: 5,
-  query: notesQuery,
-  builder: (context, snapshot, child) {
-    if (snapshot.hasError) {
-      return Center(child: Text('Error: ${snapshot.error}'));
-    }
+                    : Column(
+                        children: [
+                          if (user.schoolId.contains('onay bekliyor:'))
+                            StreamBuilder<DocumentSnapshot>(
+                                stream: getUserStream(user.uid),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                  if (snapshot.hasError) {
+                                    return Center(
+                                        child:
+                                            Text('Error: ${snapshot.error}'));
+                                  }
+                                  if (!snapshot.hasData ||
+                                      !snapshot.data!.exists) {
+                                    return Center(
+                                        child: Text('User not found'));
+                                  }
 
-    // Calculate the total item count including ads
-    int itemCount = snapshot.docs.length + (snapshot.docs.length / 4).floor();
+                                  UserModel userData = UserModel.fromMap(
+                                      snapshot.data!.data()
+                                          as Map<String, dynamic>);
+                                  String realtimeSchoolId = userData.schoolId;
+                                  if (realtimeSchoolId
+                                      .contains('onay bekliyor:')) {
+                                    return buildInReview();
+                                  } else {
+                                    return buildReviewed(userData);
+                                  }
+                                }),
+                          Expanded(
+                            child: FirestoreQueryBuilder(
+                              pageSize: 5,
+                              query: notesQuery,
+                              builder: (context, snapshot, child) {
+                                if (snapshot.hasError) {
+                                  return Center(
+                                      child: Text('Error: ${snapshot.error}'));
+                                }
 
-    return ListView.builder(
-      controller: scrollController,
-      shrinkWrap: true,
-      itemCount: itemCount, // Adjust itemCount for every 4 notes
-      itemBuilder: (context, index) {
-          if (snapshot.hasMore &&
-                          index + 1 == snapshot.docs.length) {
-                        // Tell FirestoreQueryBuilder to try to obtain more items.
-                        // It is safe to call this function from within the build method.
-                        snapshot.fetchMore();
-                      }
-        // Check if the position should display an ad
-        if (index % 4 == 3) {
-          // Create a new BannerAd instance for this ad placement
-          BannerAd bannerAd = BannerAd(
-            adUnitId: 'ca-app-pub-9838840200304232/7133588550', // Replace with your actual Ad Unit ID
-            size: AdSize.banner,
-            request: AdRequest(),
-            listener: BannerAdListener(
-              onAdLoaded: (Ad ad) => print('Ad loaded.'),
-              onAdFailedToLoad: (Ad ad, LoadAdError error) {
-                ad.dispose();
-                print('Ad failed to load: $error');
-              },
-            ),
-          );
-          bannerAd.load(); // Start loading the ad
+                                // Calculate the total item count including ads
+                                int itemCount = snapshot.docs.length +
+                                    (snapshot.docs.length / 4).floor();
 
-          return Container(
-            alignment: Alignment.center,
-            child: AdWidget(ad: bannerAd),
-            height: bannerAd.size.height.toDouble(),
-          );
-        } else {
-          // Calculate the actual index of the note considering ads
-          int noteIndex = index - (index / 4).floor();
-          Note note = Note.fromMap(snapshot.docs[noteIndex].data());
-          return NoteCard(note: note);
-        }
-      },
-    );
-  },
-)
+                                return ListView.builder(
+                                  controller: scrollController,
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      itemCount, // Adjust itemCount for every 4 notes
+                                  itemBuilder: (context, index) {
+                                    if (snapshot.hasMore &&
+                                        index + 1 == snapshot.docs.length) {
+                                      // Tell FirestoreQueryBuilder to try to obtain more items.
+                                      // It is safe to call this function from within the build method.
+                                      snapshot.fetchMore();
+                                    }
+                                    // Check if the position should display an ad
+                                    if (index % 4 == 3) {
+                                      // Create a new BannerAd instance for this ad placement
+                                      BannerAd bannerAd = BannerAd(
+                                        adUnitId:
+                                            'ca-app-pub-9838840200304232/7133588550', // Replace with your actual Ad Unit ID
+                                        size: AdSize.banner,
+                                        request: AdRequest(),
+                                        listener: BannerAdListener(
+                                          onAdLoaded: (Ad ad) =>
+                                              print('Ad loaded.'),
+                                          onAdFailedToLoad:
+                                              (Ad ad, LoadAdError error) {
+                                            ad.dispose();
+                                            print('Ad failed to load: $error');
+                                          },
+                                        ),
+                                      );
+                                      bannerAd.load(); // Start loading the ad
+
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        child: AdWidget(ad: bannerAd),
+                                        height: bannerAd.size.height.toDouble(),
+                                      );
+                                    } else {
+                                      // Calculate the actual index of the note considering ads
+                                      int noteIndex =
+                                          index - (index / 4).floor();
+                                      Note note = Note.fromMap(
+                                          snapshot.docs[noteIndex].data());
+                                      return NoteCard(
+                                        note: note,
+                                        isComment: false,
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      )
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.center,
             //   children: [
@@ -367,6 +422,18 @@ FirestoreQueryBuilder(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // FutureBuilder(
+            //     future: getUserStream(user.uid),
+            //     builder: (context, snapshot) {
+            //       if (snapshot.connectionState == ConnectionState.waiting) {
+            //         return Center(child: CupertinoActivityIndicator());
+            //       } else if (snapshot.hasError) {
+            //         return Center(child: Text('Error: ${snapshot.error}'));
+            //       } else {
+            //         // Your code here
+            //         final realtimeUser = UserModel.fromMap(
+            //             snapshot.data!.data() as Map<String, dynamic>);
+            //         return
             CustomSlidingSegmentedControl<int>(
               initialValue: 2,
               children: {
@@ -413,6 +480,7 @@ FirestoreQueryBuilder(
                 setState(() {
                   segmentedValue = v;
                 });
+                print(v);
               },
             ),
             const SizedBox(
@@ -438,6 +506,150 @@ FirestoreQueryBuilder(
           ],
         ),
       ),
+    );
+  }
+
+  Column buildReviewed(UserModel userData) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Palette.darkGreyColor),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 7,
+                    ),
+                    Icon(
+                      CupertinoIcons.check_mark_circled,
+                      size: 30,
+                      color: Palette.themeColor,
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Text(
+                        'okulun onaylandı!',
+                        maxLines: 4,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    CupertinoButton(
+                      color: Palette.themeColor,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: checkLoading
+                          ? CupertinoActivityIndicator()
+                          : Text(
+                              'yenile',
+                              style: TextStyle(
+                                  fontFamily: 'JetBrainsMonoBold',
+                                  color: Colors.white),
+                            ),
+                      onPressed: () async {
+                        setState(() {
+                          checkLoading = true;
+                        });
+                        _refreshData();
+                        ref
+                            .read(userProvider.notifier)
+                            .update((state) => userData);
+                        await Future.delayed(Duration(seconds: 2));
+                        setState(() {
+                          checkLoading = false;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Column buildInReview() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Palette.darkGreyColor),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 7,
+                    ),
+                    Icon(
+                      CupertinoIcons.alarm,
+                      size: 30,
+                      color: Palette.orangeColor,
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: Text(
+                        'okulun onay sürecinde\nsonuçlanınca sana haber vereceğiz',
+                        maxLines: 4,
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    // CupertinoButton(
+                    //   color: Palette.themeColor,
+                    //   padding: EdgeInsets.symmetric(
+                    //       horizontal: 20),
+                    //   child: checkLoading
+                    //       ? CupertinoActivityIndicator()
+                    //       : Text(
+                    //           'kontrol et',
+                    //           style: TextStyle(
+                    //               fontFamily:
+                    //                   'JetBrainsMonoBold',
+                    //               color: Colors.white),
+                    //         ),
+                    //   onPressed: () async {
+                    //     setState(() {
+                    //       checkLoading = true;
+                    //     });
+                    //     await Future.delayed(
+                    //         Duration(seconds: 2));
+                    //     setState(() {
+                    //       checkLoading = false;
+                    //     });
+                    //   },
+                    // ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        Text('')
+      ],
     );
   }
 }

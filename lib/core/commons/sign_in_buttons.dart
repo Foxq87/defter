@@ -16,29 +16,31 @@ class ContinueWithGoogleButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: ElevatedButton.icon(
-        icon: Image.asset(
+    return CupertinoButton(
+      color: Colors.white,
+      padding: EdgeInsets.all(8),
+      borderRadius: BorderRadius.circular(18),
+      child: Center(
+        child: Image.asset(
           "assets/images/google.png",
           height: 40,
           width: 40,
         ),
-        onPressed: () => signInWithGoogle(ref, context),
-        label: const Text(
-          "google ile devam et",
-          style: TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-              fontFamily: 'JetBrainsMonoRegular'),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 55),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        ),
       ),
+      onPressed: () => signInWithGoogle(ref, context),
+      // label: const Text(
+      //   "google ile devam et",
+      //   style: TextStyle(
+      //       fontSize: 20,
+      //       color: Colors.black,
+      //       fontFamily: 'JetBrainsMonoRegular'),
+      // ),
+      // style: ElevatedButton.styleFrom(
+      //   backgroundColor: Colors.white,
+      //   minimumSize: const Size(double.infinity, 55),
+      //   shape:
+      //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      // ),
     );
   }
 }
@@ -52,34 +54,34 @@ class ContinueWithAppleButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: ElevatedButton.icon(
-        icon: Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Image.asset(
-            "assets/images/apple.png",
-            height: 30,
-            width: 30,
-          ),
-        ),
-        onPressed: () => signInWithApple(ref, context),
-        label: const Text(
-          "apple ile devam et",
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.black,
-            fontFamily: 'JetBrainsMonoRegular',
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 55),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+    return CupertinoButton(
+      color: Colors.white,
+      padding: EdgeInsets.all(14),
+      borderRadius: BorderRadius.circular(18),
+      child: Center(
+        child: Image.asset(
+          "assets/images/apple.png",
+          height: 30,
+          width: 30,
         ),
       ),
+      onPressed: () => signInWithApple(ref, context),
+      // label: const Text(
+      //   "apple ile devam et",
+      //   style: TextStyle(
+      //     fontSize: 20,
+      //     color: Colors.black,
+      //     fontFamily: 'JetBrainsMonoRegular',
+      //   ),
+      // ),
+      // label: SizedBox(),
+      // style: ElevatedButton.styleFrom(
+      //   backgroundColor: Colors.white,
+      //   minimumSize: const Size(double.infinity, 55),
+      //   shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.circular(18),
+      //   ),
+      // ),
     );
   }
 }

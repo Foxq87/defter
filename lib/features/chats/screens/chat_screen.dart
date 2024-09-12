@@ -134,7 +134,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           type: 'message',
           id: 'message',
           receiverUid: receivers[i],
-          senderId: messages.first.uid);
+          senderId: currentUser.uid);
     }
 
     messageController.clear();
@@ -708,11 +708,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     //   messageController.clear();
                                     // },
                                     child: SvgPicture.asset(
-                                      Constants.send,
+                                      Constants.upArrow,
                                       fit: BoxFit.cover,
                                       alignment: Alignment.center,
-                                      height: 20,
-                                      width: 20,
+                                      height: 35,
+                                      width: 35,
                                       colorFilter: const ColorFilter.mode(
                                           Colors.black, BlendMode.srcIn),
                                     ),

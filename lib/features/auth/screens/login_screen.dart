@@ -92,29 +92,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Image.asset(
+                          'assets/defter-icon-rounded.png',
+                          height: 80,
+                          width: 80,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         RichText(
                           text: const TextSpan(children: [
-                            TextSpan(
-                                text: "bize katıl >>> ",
-                                style: TextStyle(
-                                    fontSize: 23,
-                                    fontFamily: "JetBrainsMonoExtraBold")),
                             TextSpan(
                                 text: 'defter',
                                 style: TextStyle(
                                     color: Palette.themeColor,
-                                    fontSize: 25,
+                                    fontSize: 35,
                                     fontFamily: "JetBrainsMonoExtraBold"))
                           ]),
                         ),
-                        SizedBox(width: 10),
-                        Image.asset(
-                          'assets/defter-icon-rounded.png',
-                          height: 40,
-                          width: 40,
+                        RichText(
+                          text: const TextSpan(children: [
+                            TextSpan(
+                                text: "bize katıl",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: "JetBrainsMonoExtraBold")),
+                          ]),
                         ),
                       ],
                     ),
@@ -170,8 +176,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Divider(
                           endIndent: 10,
                           indent: 20,
-                          thickness: 0.5,
-                          color: Colors.grey,
+                          thickness: 0.25,
+                          color: Palette.noteIconColor,
                         ),
                       ),
                       Text(
@@ -183,10 +189,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       Expanded(
                         child: Divider(
-                          thickness: 0.5,
+                          thickness: 0.25,
                           endIndent: 20,
                           indent: 10,
-                          color: Colors.grey,
+                          color: Palette.noteIconColor,
                         ),
                       ),
                     ],
@@ -194,17 +200,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(
                     height: 15,
                   ),
-                  const ContinueWithGoogleButton(),
-                  if (Platform.isIOS)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: const ContinueWithAppleButton(),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const ContinueWithGoogleButton(),
+                      if (Platform.isIOS)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15.0),
+                          child: const ContinueWithAppleButton(),
+                        ),
+                    ],
+                  )
                 ],
               ),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Divider(
+              thickness: 0.45,
+              color: Colors.grey,
+              height: 40,
+            ),
+
             RichText(
               text: TextSpan(
                 children: [
@@ -233,17 +250,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(
               height: 5,
             ),
-            const SizedBox(
-              height: 5,
-            ),
-            Divider(
-              thickness: 0.45,
-              color: Colors.grey,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            agreements(),
+
+            // agreements(),
             SizedBox(
               height: 5,
             ),

@@ -563,8 +563,18 @@ class AuthRepository {
   //       myUser.schoolId.isEmpty;
   // }
 
-  void logOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+  Future<Either> logOut() async {
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      await _googleSignIn.disconnect();
+
+      return right(null);
+    } catch (e) {
+      return left(null);
+    }
+    // Disconnect from Google account
+
+    // await GoogleSignIn().currentUser.clearAuthCache();
   }
 }

@@ -105,6 +105,10 @@ class Constants {
       'assets/svgs/bottom-nav-bar-icons/shopping_bag.svg';
   static const String shoppingBagFilled =
       'assets/svgs/bottom-nav-bar-icons/shopping_bag_filled.svg';
+  static const String downArrow = 'assets/svgs/down-arrow.svg';
+  static const String upArrow = 'assets/svgs/up-arrow.svg';
+  static const String bagOutlined = 'assets/svgs/bag-outlined.svg';
+  static const String bagFilled = 'assets/svgs/bag-filled.svg';
 }
 
 List<Widget> screens = [

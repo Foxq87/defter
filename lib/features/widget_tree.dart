@@ -243,12 +243,12 @@ class _WidgetTreeState extends ConsumerState<WidgetTree>
                 // ),
                 BottomNavigationBarItem(
                   activeIcon: SvgPicture.asset(
-                    Constants.shoppingBagFilled,
+                    Constants.bagFilled,
                     colorFilter:
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
                   icon: SvgPicture.asset(
-                    Constants.shoppingBag,
+                    Constants.bagOutlined,
                     colorFilter:
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),

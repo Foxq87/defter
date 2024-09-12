@@ -94,6 +94,7 @@ class _NoteDetailsState extends ConsumerState<NoteDetails> {
                     ),
                     ref.watch(getNoteCommentsProvider(widget.noteId)).when(
                           data: (data) {
+                            data.sort((a, b) => a.uid == note.uid ? -1 : 1);
                             return ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
                               padding: EdgeInsets.zero,

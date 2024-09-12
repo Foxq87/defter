@@ -4,5 +4,7 @@
 - [ ] note threads
 - [ ] ability to delete all posts for developers
 - [ ] no internet handling
+- [ ] realtime school approval
+
 
 

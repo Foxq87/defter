@@ -26,7 +26,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
 
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -70,11 +69,11 @@ class _MyAppState extends ConsumerState<MyApp> {
     }
   }
 
-  Future<void> getData(WidgetRef ref, User data) async {
+  Future<void> getData(WidgetRef ref, User? data) async {
     await checkUserExists(FirebaseAuth.instance.currentUser!);
     userModel = await ref
         .read(authControllerProvider.notifier)
-        .getUserData(data.uid)
+        .getUserData(data!.uid)
         .first;
 
     ref.read(userProvider.notifier).update((state) => userModel);
@@ -151,7 +150,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     return FutureBuilder(
       future: _checkForUpdate(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState != ConnectionState.done) {
           return MaterialApp.router(
             title: 'defter',
             debugShowCheckedModeBanner: false,
@@ -205,25 +204,43 @@ class _MyAppState extends ConsumerState<MyApp> {
                       future: getData(ref, data),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.done) {
-                          return MaterialApp.router(
-                            // ... other properties ...
-                            title: 'defter',
-                            debugShowCheckedModeBanner: false,
-                            theme: ThemeData(
-                              brightness: Brightness.dark,
-                              scaffoldBackgroundColor: Palette.backgroundColor,
-                              fontFamily: "SFProDisplayRegular",
-                            ),
-                            routerDelegate: RoutemasterDelegate(
-                              navigatorKey: Get.key,
-                              routesBuilder: (context) => userModel != null
-                                  ? userModel!.isSuspended
-                                      ? suspendedAccountRoute
-                                      : loggedInRoute
-                                  : waitingToLoginRoute,
-                            ),
-                            routeInformationParser: const RoutemasterParser(),
-                          );
+                          if (userModel != null) {
+                            return MaterialApp.router(
+                              // ... other properties ...
+                              title: 'defter',
+                              debugShowCheckedModeBanner: false,
+                              theme: ThemeData(
+                                brightness: Brightness.dark,
+                                scaffoldBackgroundColor:
+                                    Palette.backgroundColor,
+                                fontFamily: "SFProDisplayRegular",
+                              ),
+                              routerDelegate: RoutemasterDelegate(
+                                navigatorKey: Get.key,
+                                routesBuilder: (context) =>
+                                    userModel!.isSuspended
+                                        ? suspendedAccountRoute
+                                        : loggedInRoute,
+                              ),
+                              routeInformationParser: const RoutemasterParser(),
+                            );
+                          } else {
+                            return MaterialApp.router(
+                              // ... other properties ...
+                              title: 'defter',
+                              debugShowCheckedModeBanner: false,
+                              theme: ThemeData(
+                                brightness: Brightness.dark,
+                                scaffoldBackgroundColor:
+                                    Palette.backgroundColor,
+                                fontFamily: "SFProDisplayRegular",
+                              ),
+                              routerDelegate: RoutemasterDelegate(
+                                  navigatorKey: Get.key,
+                                  routesBuilder: (context) => loggedOutRoute),
+                              routeInformationParser: const RoutemasterParser(),
+                            );
+                          }
                         } else {
                           return MaterialApp.router(
                             title: 'defter',
@@ -250,3 +267,9 @@ class _MyAppState extends ConsumerState<MyApp> {
     );
   }
 }
+
+// String getLocaleString(String stringId, String locale) {}
+
+// Map locales = {
+//   "": "",
+// };
