@@ -8,6 +8,11 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:defter.web.app</string>
+		<string>webcredentials:defter.web.app</string>
+	</array>
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)app.web.defter.defter</string>
