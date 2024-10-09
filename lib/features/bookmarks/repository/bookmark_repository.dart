@@ -172,6 +172,4 @@ class BookmarkRepository {
       _firestore.collection(FirebaseConstants.updatesCollection);
   CollectionReference get _products =>
       _firestore.collection(FirebaseConstants.productsCollection);
-  CollectionReference get _users =>
-      _firestore.collection(FirebaseConstants.usersCollection);
 }

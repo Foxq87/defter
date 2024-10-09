@@ -6,7 +6,6 @@ import '../../../core/constants/firebase_constants.dart';
 import '../../../core/failure.dart';
 import '../../../core/providers/firebase_providers.dart';
 import '../../../core/type_defs.dart';
-import '../../../models/update_model.dart';
 import '../../../models/user_model.dart';
 
 final marketplaceRepositoryProvider = Provider((ref) {
@@ -111,14 +110,6 @@ class MarketplaceRepository {
   //       );
   // }
 
-  CollectionReference get _Notes =>
-      _firestore.collection(FirebaseConstants.notesCollection);
-  CollectionReference get _schools =>
-      _firestore.collection(FirebaseConstants.schoolsCollection);
-  CollectionReference get _updates =>
-      _firestore.collection(FirebaseConstants.updatesCollection);
   CollectionReference get _products =>
       _firestore.collection(FirebaseConstants.productsCollection);
-  CollectionReference get _users =>
-      _firestore.collection(FirebaseConstants.usersCollection);
 }

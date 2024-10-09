@@ -1,7 +1,5 @@
 import 'package:acc/models/user_model.dart';
-import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -256,7 +254,7 @@ class SchoolRepository {
       UserModel currentUser, int page, int postsPerPage) async {
     List<Note> combinedNotes = [];
     List<QueryDocumentSnapshot> lastDocuments = [];
-    DocumentSnapshot? lastDocument; // Keep track of the last document
+// Keep track of the last document
 
     // Assuming currentUser.ofCloseFriends is available and _notes is a reference to the Firestore collection
     List<String> closeFriendOf = currentUser.ofCloseFriends;
@@ -271,11 +269,6 @@ class SchoolRepository {
           .where('repliedTo', isEqualTo: "")
           .orderBy('timestamp', descending: true)
           .limit(postsPerPage);
-
-      // Use lastDocument for pagination if available
-      if (lastDocument != null) {
-        query = query.startAfterDocument(lastDocument);
-      }
 
       final querySnapshot = await query.get();
 
@@ -294,8 +287,7 @@ class SchoolRepository {
 
     // Update lastDocument with the last of the fetched documents, if needed
     if (lastDocuments.isNotEmpty) {
-      lastDocument = lastDocuments
-          .last; // Assuming you have a way to determine which document to use for next pagination
+// Assuming you have a way to determine which document to use for next pagination
     }
 
     return combinedNotes;

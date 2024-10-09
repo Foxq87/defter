@@ -14,7 +14,7 @@ class _MyNativeAdState extends State<MyNativeAd> {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
 
-  // TODO: replace this test ad unit with your own ad unit.
+
   final String _adUnitId = Platform.isAndroid
       ? 'ca-app-pub-9838840200304232/6403487474'
       : 'ca-app-pub-3940256099942544/3986624511';

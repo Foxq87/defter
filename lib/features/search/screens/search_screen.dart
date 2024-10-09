@@ -4,7 +4,6 @@ import 'package:acc/core/commons/commons.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
-import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/features/user_profile/controller/user_profile_controller.dart';
 import 'package:acc/models/school_model.dart';
@@ -12,10 +11,8 @@ import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:unicons/unicons.dart';
 
 import '../../../core/commons/error_text.dart';
@@ -43,10 +40,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   int currentPage = 0;
   @override
   void initState() {
-    final currentUser = ref.read(userProvider)!;
-    if (widget.isForCloseFriends!) {
-      List<String> selectedProfileUids = currentUser.closeFriends;
-    }
+    if (widget.isForCloseFriends!) {}
 
     for (var i = 0; i < selectedProfileUids.length; i++) {
       ref.read(getUserDataProvider(selectedProfileUids[i])).when(
@@ -241,6 +235,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                         child: Center(
                                           child: Icon(
                                             CupertinoIcons.clear,
+                                            color: Colors.white,
                                             size: 17,
                                           ),
                                         ),
@@ -657,8 +652,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                             color: Palette.placeholderColor),
                                       ),
                                       onTap: () {
-                                        navigateToSchool(
-                                            context, item.id as String);
+                                        navigateToSchool(context, item.id);
                                       },
                                     );
                                   },
@@ -851,7 +845,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     fontFamily: 'SFProDisplayRegular'),
               ),
               onPressed: () {
-                bool isDM = selectedProfileUids.length == 1;
                 if (selectedProfileUids.isEmpty) {
                   pageController.animateToPage(0,
                       duration: Duration(milliseconds: 200),
@@ -912,7 +905,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       .read(userProfileControllerProvider.notifier)
                       .addCloseFriend(context, selectedProfiles, currentUser);
                 } else {
-                  bool isDM = selectedProfileUids.length == 1;
                   if (selectedProfileUids.isEmpty) {
                     pageController.animateToPage(0,
                         duration: Duration(milliseconds: 200),

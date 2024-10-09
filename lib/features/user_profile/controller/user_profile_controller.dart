@@ -11,10 +11,7 @@ import 'package:acc/core/utils.dart';
 import 'package:acc/features/user_profile/repository/user_profile_repository.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/user_model.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:routemaster/routemaster.dart';
 
-import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../auth/controller/auth_controller.dart';
 

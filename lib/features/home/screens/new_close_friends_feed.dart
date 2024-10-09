@@ -447,8 +447,7 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed>
                         , // Adjust itemCount for every 3 _notes
                     itemBuilder: (context, index) {
                       // Calculate the actual index of the note considering ads
-                      int noteIndex = index -
-                          (index / 4).floor(); // Adjust for every 3 _notes
+// Adjust for every 3 _notes
 
                       // Check if the position should display an ad
                       if (index % 4 == 3) {
@@ -458,8 +457,8 @@ class _CloseFriendsFeedState extends ConsumerState<CloseFriendsFeed>
 
                         return Container(
                           alignment: Alignment.center,
-                          child: AdWidget(ad: bannerAd!),
-                          height: bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: bannerAd),
+                          height: bannerAd.size.height.toDouble(),
                         );
                       } else {
                         // Display note

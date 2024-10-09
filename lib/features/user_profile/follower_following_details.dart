@@ -1,14 +1,11 @@
 import 'package:acc/core/commons/commons.dart';
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/commons/nav_bar_button.dart';
-import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/user_profile/controller/user_profile_controller.dart';
 import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:routemaster/routemaster.dart';
 
 import '../../theme/palette.dart';
 

@@ -4,13 +4,11 @@ import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/widgets/chat_card.dart';
 import 'package:acc/features/search/screens/search_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/commons/view_users_by_uids.dart';
 import '../../../theme/palette.dart';
 
 class ChatsScreen extends ConsumerStatefulWidget {

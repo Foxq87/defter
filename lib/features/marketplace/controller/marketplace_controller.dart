@@ -3,13 +3,10 @@ import 'dart:io';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/marketplace/repository/marketplace_repository.dart';
-import 'package:acc/features/marketplace/widgets/product_card.dart';
 import 'package:acc/models/product_model.dart';
-import 'package:acc/models/update_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/providers/storage_providers.dart';

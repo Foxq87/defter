@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:acc/core/constants/constants.dart';
+import 'package:acc/core/type_defs.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/repository/chat_repository.dart';
 import 'package:acc/features/chats/screens/chat_screen.dart';
 import 'package:acc/models/chat_model.dart';
 import 'package:acc/models/user_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../../core/utils.dart';
@@ -30,6 +31,10 @@ final getUserChatsProvider =
     StreamProvider.family((ref, String notificationId) {
   final chatController = ref.watch(chatControllerProvider.notifier);
   return chatController.getUserChats(notificationId);
+});
+
+final getChatByIdProvider = StreamProvider.family((ref, String id) {
+  return ref.watch(chatControllerProvider.notifier).getChatById(id);
 });
 
 final getChatContentProvider = StreamProvider.family((ref, String chatId) {
@@ -64,8 +69,8 @@ class ChatController extends StateNotifier<bool> {
       UserModel currentUser, ChatModel chat, BuildContext context) async {
     try {
       await _chatRepository.leaveGroup(currentUser, chat);
-      Navigator.pop(context);
-      Navigator.pop(context);
+      Routemaster.of(context).pop();
+      Routemaster.of(context).pop();
     } catch (e) {
       showSnackBar(context, e.toString());
     }
@@ -77,6 +82,10 @@ class ChatController extends StateNotifier<bool> {
 
   Stream<List<MessageModel>> getChatContent(String chatId) {
     return _chatRepository.getChatContent(chatId);
+  }
+
+  Stream<ChatModel> getChatById(String chatId) {
+    return _chatRepository.getChatById(chatId);
   }
 
   void reactMessage(MessageModel message, UserModel user, String reaction,
@@ -98,6 +107,15 @@ class ChatController extends StateNotifier<bool> {
     });
   }
 
+  void deleteChat(ChatModel chat, BuildContext context) async {
+    final res = await _chatRepository.deleteChat(chat);
+    state = false;
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      showSnackBar(context, 'sohbet silindi');
+      // Navigator.of(context).pop();
+    });
+  }
+
   void startChat({
     required List<String> uids,
     required String title,
@@ -113,6 +131,7 @@ class ChatController extends StateNotifier<bool> {
     if (!uids.contains(currentUid)) {
       uids.add(currentUid);
     }
+    // uids.sort();
 
     // bool isDM = uids.length == 2;
     String chatId = Uuid().v4();
@@ -132,7 +151,7 @@ class ChatController extends StateNotifier<bool> {
     uids.sort();
     print(uids);
     ChatModel chat = ChatModel(
-      id: isDM ? "dm-" + uids.toString() : chatId,
+      id: chatId,
       members: uids,
       title: title,
       description: description,
@@ -153,8 +172,9 @@ class ChatController extends StateNotifier<bool> {
     res.fold((l) => showSnackBar(context, l.message), (r) {
       // showSnackBar(context, 'grup oluşturuldu');
       Navigator.of(context).pop();
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ChatScreen(chat: chat)));
+      Routemaster.of(context).push('/chat/${chat.id}/true');
+      // Navigator.push(context,
+      // MaterialPageRoute(builder: (context) => ChatScreen(chatId: chat.id)));
     });
   }
 

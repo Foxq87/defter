@@ -1,6 +1,7 @@
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/core/commons/loader.dart';
+import 'package:acc/core/commons/share_bottom_sheet.dart';
 import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 
@@ -15,7 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:routemaster/routemaster.dart';
 
 import '../../../core/constants/constants.dart';
 import '../../auth/controller/auth_controller.dart';
@@ -57,7 +58,8 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                 ref
                     .read(marketplaceControllerProvider.notifier)
                     .deleteProduct(product, context);
-                Navigator.of(context).pop();
+                Routemaster.of(context).pop();
+                Routemaster.of(context).pop();
               },
             ),
           ],
@@ -84,25 +86,44 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                   size: 27,
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Routemaster.of(context).pop();
                 },
               ),
-              trailing: CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: SvgPicture.asset(
-                  isBookmarked
-                      ? Constants.bookmarkFilled
-                      : Constants.bookmarkOutlined,
-                  colorFilter: ColorFilter.mode(
-                    isBookmarked ? Palette.themeColor : Colors.white,
-                    BlendMode.srcIn,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: SvgPicture.asset(
+                      isBookmarked
+                          ? Constants.bookmarkFilled
+                          : Constants.bookmarkOutlined,
+                      colorFilter: ColorFilter.mode(
+                        isBookmarked ? Palette.themeColor : Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    onPressed: () {
+                      ref
+                          .read(bookmarkControllerProvider.notifier)
+                          .bookmarkProduct(product, context);
+                    },
                   ),
-                ),
-                onPressed: () {
-                  ref
-                      .read(bookmarkControllerProvider.notifier)
-                      .bookmarkProduct(product, context);
-                },
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: SvgPicture.asset(
+                      Constants.upload,
+                      colorFilter: ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    onPressed: () {
+                      showShareModalBottomSheet(context,
+                          'https://defter.web.app/product/${widget.productId}');
+                    },
+                  ),
+                ],
               ),
               backgroundColor: Colors.transparent,
               middle: largeText(
@@ -327,13 +348,8 @@ class _ProductDetailsState extends ConsumerState<ProductDetails> {
                       CupertinoButton(
                         onPressed: () {
                           if ((product.uid != currentUser.uid)) {
-                            ref.read(chatControllerProvider.notifier).startChat(
-                                uids: [product.uid],
-                                title: '',
-                                description: '',
-                                profilePic: null,
-                                context: context,
-                                isDM: true);
+                            Routemaster.of(context)
+                                .push('/chat/${product.uid}/true');
                           } else {
                             Navigator.pop(context);
                             Navigator.push(

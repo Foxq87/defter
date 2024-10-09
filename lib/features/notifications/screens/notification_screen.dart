@@ -1,5 +1,4 @@
 import 'package:acc/core/commons/commons.dart';
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
@@ -8,7 +7,6 @@ import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 import '../../../theme/palette.dart';
 import '../widgets/notification_card.dart';

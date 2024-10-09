@@ -34,7 +34,6 @@ class StackedReactions extends StatelessWidget {
 
     // Helper function to create a reaction widget with proper styling
     Widget createReactionWidget(String reaction, int index) {
-      final leftOffset = size - stackedValue;
 
       return Container(
         alignment: Alignment.center,

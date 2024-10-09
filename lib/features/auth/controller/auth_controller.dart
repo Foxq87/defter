@@ -1,13 +1,9 @@
-import 'package:acc/core/type_defs.dart';
 import 'package:acc/features/auth/repository/auth_repository.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
-import 'package:acc/features/widget_tree.dart';
 import 'package:acc/models/user_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:routemaster/routemaster.dart';
 
 import '../../../core/utils.dart';
@@ -52,7 +48,7 @@ class AuthController extends StateNotifier<bool> {
 
   void signInWithApple(BuildContext context) async {
     state = true;
-    final user = await _authRepository.signInWithApple();
+    final user = await _authRepository.signInWithApple(context);
     state = false;
     user.fold(
       (l) => print(l.message),
@@ -100,7 +96,7 @@ class AuthController extends StateNotifier<bool> {
     final res = await _authRepository.logOut();
     res.fold((l) => showSnackBar(context, "bir hata oluştu"), (r) {
       for (var i = 0; i < 1; i++) {
-        Navigator.pop(context);
+        Routemaster.of(context).pop();
       }
     });
   }

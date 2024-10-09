@@ -3,9 +3,14 @@ import 'package:acc/core/commons/large_text.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/widgets/stacked_reactions_my.dart';
+import 'package:acc/features/notes/controller/note_controller.dart';
+import 'package:acc/features/notes/screens/note_details.dart';
+import 'package:acc/features/notes/widgets/detailed_note_card.dart';
+import 'package:acc/features/notes/widgets/note_card.dart';
 import 'package:acc/models/message_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:acc/theme/palette.dart';
+import 'package:any_link_preview/any_link_preview.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
@@ -13,11 +18,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:timeago/timeago.dart' as timeago;
-import 'package:unicons/unicons.dart';
 
 import '../../../core/commons/loader.dart';
-import '../../../models/chat_model.dart';
 import '../../user_profile/screens/user_profile_screen.dart';
 
 class MessageCard extends ConsumerStatefulWidget {
@@ -36,6 +38,35 @@ class MessageCard extends ConsumerStatefulWidget {
 }
 
 class _MessageCardState extends ConsumerState<MessageCard> {
+  String messageText = '';
+  String noteId = '';
+  @override
+  void initState() {
+    final link = widget.message.link;
+    if (link.contains('defter.web.app/note/')) {
+      // Extract the post ID or any other identifier from the link
+      setState(() {
+        noteId = link.split('defter.web.app/note/').last;
+      });
+
+      // Navigate to the post screen within your app
+      // Get.to(() => NoteDetails(noteId: noteId));
+    }
+    setState(() {
+      messageText = widget.message.text;
+      messageText = messageText.replaceAll(widget.message.link, '');
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    noteId = '';
+
+    super.dispose();
+  }
+
   void removeReaction(
       UserModel currentUser, MessageModel message, String reaction) {
     ref
@@ -212,6 +243,202 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                                 ))
                           ],
                         ),
+                      if (widget.message.link.isNotEmpty &&
+                          widget.message.link.contains('defter.web.app/note/'))
+                        GestureDetector(
+                          onTap: () {
+                            final link = widget.message.link;
+                            if (link.contains('defter.web.app/note/')) {
+                              Get.to(() => NoteDetails(noteId: noteId));
+                            }
+                          },
+                          child: ref.watch(getNoteByIdProvider(noteId)).when(
+                                data: (note) => Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      color: Palette.darkGreyColor,
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                          width: 0.45,
+                                          color: Palette.darkGreyColor2)),
+                                  child: Column(
+                                    children: [
+                                      ref
+                                          .watch(getUserDataProvider(note.uid))
+                                          .when(
+                                            data: (author) => Row(
+                                              children: [
+                                                Container(
+                                                    height: 25,
+                                                    width: 25,
+                                                    decoration: BoxDecoration(
+                                                        color: Palette
+                                                            .iconBackgroundColor,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(7),
+                                                        image: DecorationImage(
+                                                          image: NetworkImage(
+                                                            author.profilePic,
+                                                          ),
+                                                          onError: (exception,
+                                                              stackTrace) {
+                                                            // Handle error and display a placeholder image
+                                                            // You can set a state or log the error here
+                                                            print(
+                                                                'Error loading image: $exception');
+                                                          },
+                                                          fit: BoxFit.cover,
+                                                        )),
+                                                    child: SizedBox()),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                  "@" + author.username,
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontFamily:
+                                                          'SFProDisplayBold'),
+                                                ),
+                                              ],
+                                            ),
+                                            error: (error, stackTrace) =>
+                                                Text(error.toString()),
+                                            loading: () =>
+                                                CupertinoActivityIndicator(),
+                                          ),
+                                      SizedBox(
+                                        height: 7,
+                                      ),
+                                      Text(note.content),
+                                      SizedBox(
+                                        height: 7,
+                                      ),
+                                      if (note.imageLinks.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 10.0,
+                                              bottom: 5.0,
+                                              top: 5.0),
+                                          child: Wrap(
+                                            spacing: 7.0,
+                                            runSpacing: 7.0,
+                                            children: note.imageLinks
+                                                .map((imageLink) {
+                                              return GestureDetector(
+                                                onTap: () => Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ImageView(
+                                                            imageUrls:
+                                                                note.imageLinks,
+                                                            imageFiles: const [],
+                                                            index: note
+                                                                .imageLinks
+                                                                .indexOf(
+                                                                    imageLink)),
+                                                  ),
+                                                ),
+                                                child: Container(
+                                                  height:
+                                                      note.imageLinks.length ==
+                                                              1
+                                                          ? 200.0
+                                                          : 130.0,
+                                                  width: note.imageLinks
+                                                              .length ==
+                                                          1
+                                                      ? MediaQuery.of(context)
+                                                          .size
+                                                          .width
+                                                      : 130.0,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Palette.textFieldColor,
+                                                    border: Border.all(
+                                                        width: 0.2,
+                                                        color: Colors.grey),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: Image.network(
+                                                      imageLink,
+                                                      fit: BoxFit.cover,
+                                                      // loadingBuilder: (BuildContext
+                                                      //         context,
+                                                      //     Widget child,
+                                                      //     ImageChunkEvent?
+                                                      //         loadingProgress) {
+                                                      //   if (loadingProgress ==
+                                                      //       null) {
+                                                      //     return child;
+                                                      //   }
+                                                      //   return Center(
+                                                      //     child: SizedBox(
+                                                      //       height: widget
+                                                      //                   .note
+                                                      //                   .imageLinks
+                                                      //                   .length ==
+                                                      //               1
+                                                      //           ? 200.0
+                                                      //           : 130.0,
+                                                      //       width: widget
+                                                      //                   .note
+                                                      //                   .imageLinks
+                                                      //                   .length ==
+                                                      //               1
+                                                      //           ? MediaQuery.of(
+                                                      //                   context)
+                                                      //               .size
+                                                      //               .width
+                                                      //           : 130.0,
+                                                      //       child:
+                                                      //           LinearProgressIndicator(
+                                                      //         color: Palette
+                                                      //             .themeColor,
+                                                      //         value: loadingProgress
+                                                      //                     .expectedTotalBytes !=
+                                                      //                 null
+                                                      //             ? loadingProgress
+                                                      //                     .cumulativeBytesLoaded /
+                                                      //                 loadingProgress
+                                                      //                     .expectedTotalBytes!
+                                                      //             : null,
+                                                      //       ),
+                                                      //     ),
+                                                      //   );
+                                                      // },
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                error: (error, stackTrace) =>
+                                    Text(error.toString()),
+                                loading: () => CupertinoActivityIndicator(),
+                              ),
+                        )
+                      else if (widget.message.link.isNotEmpty)
+                        AnyLinkPreview(
+                          backgroundColor: Colors.grey.withOpacity(0.3),
+                          removeElevation: true,
+                          displayDirection: UIDirection.uiDirectionVertical,
+                          errorImage: '',
+                          previewHeight: 100,
+                          link: widget.message.link,
+                        ),
                       if (widget.message.text.isNotEmpty)
                         Padding(
                           padding: isImageMessage
@@ -220,7 +447,7 @@ class _MessageCardState extends ConsumerState<MessageCard> {
                                 ).copyWith(bottom: 7, top: 5)
                               : EdgeInsets.zero,
                           child: Text(
-                            widget.message.text,
+                            messageText,
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'SFProDisplayRegular',

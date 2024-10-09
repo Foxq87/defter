@@ -57,8 +57,7 @@ class NewVersionAvailable extends ConsumerWidget {
                   onPressed: () {
                     String url = '';
                     if (Platform.isIOS) {
-                      url =
-                          'itms-beta://beta.itunes.apple.com/v1/app/app.web.defter.defter';
+                      url = 'https://apps.apple.com/tr/app/defder/id6503184877';
                     } else if (Platform.isAndroid) {
                       url =
                           'https://play.google.com/store/apps/details?id=app.web.defter.defter';

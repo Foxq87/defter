@@ -1,13 +1,7 @@
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
-import 'package:acc/features/auth/controller/auth_controller.dart';
-import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
-import 'package:acc/features/marketplace/screens/create_product_screen.dart';
 import 'package:acc/features/notifications/controller/notification_controller.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
-import 'package:acc/features/user_profile/controller/user_profile_controller.dart';
-import 'package:acc/models/product_model.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +26,6 @@ class _SchoolApprovalViewState extends ConsumerState<SchoolApprovalView> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.read(userProvider)!;
     return ref.watch(getSchoolAppliersProvider(widget.schoolId)).when(
         data: (users) => Scaffold(
               appBar: users.isEmpty

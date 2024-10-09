@@ -12,6 +12,7 @@ class Note {
   final List<String> likes;
   final List<String> bookmarks;
   final int commentCount;
+  final int likesCount;
   final String uid;
   final String type;
   final String repliedTo;
@@ -25,6 +26,7 @@ class Note {
     required this.likes,
     required this.bookmarks,
     required this.commentCount,
+    required this.likesCount,
     required this.uid,
     required this.type,
     required this.repliedTo,
@@ -40,6 +42,7 @@ class Note {
     List<String>? likes,
     List<String>? bookmarks,
     int? commentCount,
+    int? likesCount,
     String? uid,
     String? type,
     String? repliedTo,
@@ -54,6 +57,7 @@ class Note {
       likes: likes ?? this.likes,
       bookmarks: bookmarks ?? this.bookmarks,
       commentCount: commentCount ?? this.commentCount,
+      likesCount: likesCount ?? this.likesCount,
       uid: uid ?? this.uid,
       type: type ?? this.type,
       repliedTo: repliedTo ?? this.repliedTo,
@@ -71,6 +75,7 @@ class Note {
       'likes': likes,
       'bookmarks': bookmarks,
       'commentCount': commentCount,
+      'likesCount': likesCount,
       'uid': uid,
       'type': type,
       'repliedTo': repliedTo,
@@ -88,6 +93,7 @@ class Note {
       likes: List<String>.from((map['likes'] as List<dynamic>)),
       bookmarks: List<String>.from((map['bookmarks'] as List<dynamic>)),
       commentCount: map['commentCount'] as int,
+      likesCount: map['likesCount'] as int,
       uid: map['uid'] as String,
       type: map['type'] as String,
       repliedTo: map['repliedTo'] as String,
@@ -97,11 +103,12 @@ class Note {
 
   String toJson() => json.encode(toMap());
 
-  factory Note.fromJson(String source) => Note.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Note.fromJson(String source) =>
+      Note.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'Note(id: $id, link: $link, content: $content, schoolName: $schoolName, imageLinks: $imageLinks, likes: $likes, bookmarks: $bookmarks, commentCount: $commentCount, uid: $uid, type: $type, repliedTo: $repliedTo, createdAt: $createdAt)';
+    return 'Note(id: $id, link: $link, content: $content, schoolName: $schoolName, imageLinks: $imageLinks, likes: $likes, bookmarks: $bookmarks, commentCount: $commentCount, likesCount: $likesCount, uid: $uid, type: $type, repliedTo: $repliedTo, createdAt: $createdAt)';
   }
 
   @override
@@ -117,6 +124,7 @@ class Note {
       listEquals(other.likes, likes) &&
       listEquals(other.bookmarks, bookmarks) &&
       other.commentCount == commentCount &&
+      other.likesCount == likesCount &&
       other.uid == uid &&
       other.type == type &&
       other.repliedTo == repliedTo &&
@@ -133,6 +141,7 @@ class Note {
       likes.hashCode ^
       bookmarks.hashCode ^
       commentCount.hashCode ^
+      likesCount.hashCode ^
       uid.hashCode ^
       type.hashCode ^
       repliedTo.hashCode ^

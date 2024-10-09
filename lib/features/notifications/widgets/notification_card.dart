@@ -1,4 +1,3 @@
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/marketplace/screens/product_details.dart';
 import 'package:acc/features/notes/screens/note_details.dart';
@@ -7,6 +6,7 @@ import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 import '../../../models/notification_model.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../../theme/palette.dart';
@@ -25,48 +25,47 @@ class NotificationCard extends ConsumerStatefulWidget {
 }
 
 class _NotificationCardState extends ConsumerState<NotificationCard> {
-  void deleteNote(BuildContext context) async {
+  void deleteNotification(BuildContext context) async {
     ref
         .read(notificationControllerProvider.notifier)
         .deleteNotification(widget.notification, context);
   }
 
-  void navigateToUser(BuildContext context, String uid) => Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => UserProfileScreen(uid: uid)));
+  void navigateToUser(BuildContext context, String uid) =>
+      Routemaster.of(context).push('/user-profile/$uid');
+
+  // Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => UserProfileScreen(uid: uid)));
 
   //  {
-  //   // Routemaster.of(context).push('/user-profile/$uid');
+
   // }
 
   // void navigateToSchool(BuildContext context) {
   //   Routemaster.of(context).push('/school-profile/${widget.note.schoolName}');
   // }
 
-  void navigateToNote(BuildContext context, String noteId) => Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => NoteDetails(noteId: noteId)));
+  void navigateToNote(BuildContext context, String noteId) =>
+      Routemaster.of(context).push('/note/$noteId');
+  void navigateToChat(BuildContext context, String uid) =>
+      Routemaster.of(context).push('/chat/$uid/true');
 
   //  {
   //   Routemaster.of(context).push('/note/$noteId/details');
   // }
 
   void navigateToProduct(BuildContext context, String productId) =>
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ProductDetails(productId: productId)));
+      Routemaster.of(context).push('/product/$productId');
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     timeago.setLocaleMessages('tr_short', timeago.TrShortMessages());
   }
 
   @override
   Widget build(BuildContext context) {
-    final isTypeMessage = widget.notification.type == 'message';
     final isTypeFollow = widget.notification.type == 'follow';
     final isTypeLike = widget.notification.type == 'like';
     final isTypeComment = widget.notification.type == 'comment';
@@ -74,6 +73,7 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
         widget.notification.type == 'product-approval';
     final isTypeProductRejection =
         widget.notification.type == 'product-rejection';
+    final isTypeMessage = widget.notification.type == 'message';
     final isTypeEmpty = widget.notification.type.isEmpty;
 
     return ref.watch(getUserDataProvider(widget.notification.senderUid)).when(
@@ -88,6 +88,8 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
               } else if (isTypeProductApproval || isTypeProductRejection) {
                 print(widget.notification.productId);
                 navigateToProduct(context, widget.notification.productId!);
+              } else if (isTypeMessage) {
+                navigateToChat(context, widget.notification.senderUid);
               }
             },
             leading: Stack(
@@ -157,10 +159,57 @@ class _NotificationCardState extends ConsumerState<NotificationCard> {
                   color: Palette.noteIconColor,
                 ),
                 onPressed: () {
-                  deleteNote(context);
+                  deleteNotification(context);
                 }),
           ),
-          error: (error, stackTrace) => Text(error.toString()),
+          error: (error, stackTrace) => ListTile(
+            onTap: () {
+              if (isTypeFollow) {
+                navigateToUser(context, widget.notification.senderUid);
+              } else if (isTypeLike) {
+                navigateToNote(context, widget.notification.postId!);
+              } else if (isTypeComment) {
+                navigateToNote(context, widget.notification.postId!);
+              } else if (isTypeProductApproval || isTypeProductRejection) {
+                print(widget.notification.productId);
+                navigateToProduct(context, widget.notification.productId!);
+              } else if (isTypeMessage) {
+                navigateToChat(context, widget.notification.senderUid);
+              }
+            },
+            leading: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0),
+                  border:
+                      Border.all(width: 0.45, color: Palette.darkGreyColor2)),
+              child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    CupertinoIcons.clear,
+                    color: Palette.redColor,
+                  )),
+            ),
+            titleAlignment: ListTileTitleAlignment.center,
+            title: Text(
+              'silinmiş bildirim',
+              style: TextStyle(fontSize: 15),
+            ),
+            subtitle: Text(
+              "${timeago.format(widget.notification.createdAt, locale: 'tr_short')}",
+              style: TextStyle(color: Colors.grey),
+            ),
+            trailing: CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(
+                  CupertinoIcons.clear,
+                  size: 22,
+                  color: Palette.noteIconColor,
+                ),
+                onPressed: () {
+                  deleteNotification(context);
+                }),
+          ),
           loading: () => const Loader(),
         );
   }

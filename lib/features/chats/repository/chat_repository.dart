@@ -73,6 +73,18 @@ class ChatRepository {
     }
   }
 
+  FutureVoid deleteChat(ChatModel chat) async {
+    try {
+      // print(message.chatId);
+
+      return right(_chats.doc(chat.id).delete());
+    } on FirebaseException catch (e) {
+      throw e.message!;
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
   FutureVoid reactMessage(
       MessageModel message, UserModel currentUser, String reaction) async {
     try {
@@ -225,6 +237,14 @@ class ChatRepository {
         );
   }
 
+  Stream<ChatModel> getChatById(String chatId) {
+    return _chats
+        .doc(chatId)
+        .snapshots()
+        .map(
+            (event) => ChatModel.fromMap(event.data() as Map<String, dynamic>));
+  }
+
   Stream<List<MessageModel>> getChatContent(String chatId) {
     return _chats
         .doc(chatId)
@@ -235,7 +255,7 @@ class ChatRepository {
           (event) => event.docs
               .map(
                 (e) => MessageModel.fromMap(
-                  e.data() as Map<String, dynamic>,
+                  e.data(),
                 ),
               )
               .toList(),

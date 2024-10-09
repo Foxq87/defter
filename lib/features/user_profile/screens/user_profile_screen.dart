@@ -1,5 +1,6 @@
 import 'package:acc/core/commons/image_view.dart';
-import 'package:acc/core/utils.dart';
+import 'package:acc/core/commons/share_bottom_sheet.dart';
+import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
@@ -8,8 +9,7 @@ import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:unicons/unicons.dart';
-import '../../../core/commons/error_text.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../core/commons/loader.dart';
 // import 'package:acc/core/common/Note_card.dart';
 import '../../../core/commons/nav_bar_button.dart';
@@ -161,95 +161,158 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                                                         .darkGreyColor2)),
                                             child: Column(
                                               children: [
-                                                if (widget.uid !=
-                                                    currentUser.uid)
-                                                  Column(
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () async {
-                                                          blockAccount(
-                                                              widget.uid,
-                                                              context);
-                                                          Navigator.pop(
-                                                              context);
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Column(
-                                                          children: [
-                                                            SizedBox(
-                                                              height: 5,
-                                                            ),
-                                                            Padding(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          10),
-                                                              child: Row(
-                                                                children: [
-                                                                  Text(
-                                                                      'hesabı engelle'),
-                                                                  Spacer(),
-                                                                  Icon(CupertinoIcons
-                                                                      .nosign)
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Divider(
-                                                        height: 0,
-                                                        indent: 0,
-                                                        endIndent: 0,
-                                                        thickness: 0.25,
-                                                        color: Palette
-                                                            .darkGreyColor2,
-                                                      ),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder: (context) =>
-                                                                ReportDialog(
-                                                              noteId: '',
-                                                              accountId:
+                                                Column(
+                                                  children: [
+                                                    if (widget.uid !=
+                                                        currentUser.uid)
+                                                      Column(
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () async {
+                                                              blockAccount(
                                                                   widget.uid,
+                                                                  context);
+                                                              Navigator.pop(
+                                                                  context);
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: Column(
+                                                              children: [
+                                                                SizedBox(
+                                                                  height: 5,
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              10),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Text(
+                                                                          'hesabı engelle'),
+                                                                      Spacer(),
+                                                                      Icon(CupertinoIcons
+                                                                          .nosign)
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 10,
+                                                                ),
+                                                              ],
                                                             ),
-                                                          );
-                                                        },
-                                                        child: Column(
-                                                          children: [
-                                                            SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                            Padding(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      horizontal:
-                                                                          10),
-                                                              child: Row(
-                                                                children: [
-                                                                  Text(
-                                                                      'hesabı şikayet et'),
-                                                                  Spacer(),
-                                                                  Icon(
-                                                                      CupertinoIcons
+                                                          ),
+                                                          Divider(
+                                                            height: 0,
+                                                            indent: 0,
+                                                            endIndent: 0,
+                                                            thickness: 0.25,
+                                                            color: Palette
+                                                                .darkGreyColor2,
+                                                          ),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) =>
+                                                                        ReportDialog(
+                                                                  noteId: '',
+                                                                  accountId:
+                                                                      widget
+                                                                          .uid,
+                                                                ),
+                                                              );
+                                                            },
+                                                            child: Column(
+                                                              children: [
+                                                                SizedBox(
+                                                                  height: 10,
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              10),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Text(
+                                                                          'hesabı şikayet et'),
+                                                                      Spacer(),
+                                                                      Icon(CupertinoIcons
                                                                           .flag)
-                                                                ],
-                                                              ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 10,
+                                                                ),
+                                                              ],
                                                             ),
-                                                            SizedBox(
-                                                              height: 5,
-                                                            ),
-                                                          ],
-                                                        ),
+                                                          ),
+                                                          Divider(
+                                                            height: 0,
+                                                            indent: 0,
+                                                            endIndent: 0,
+                                                            thickness: 0.25,
+                                                            color: Palette
+                                                                .darkGreyColor2,
+                                                          ),
+                                                        ],
                                                       ),
-                                                    ],
-                                                  ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showShareModalBottomSheet(
+                                                            context,
+                                                            'https://defter.web.app/user-profile/${widget.uid}');
+                                                      },
+                                                      child: Column(
+                                                        children: [
+                                                          widget.uid !=
+                                                                  currentUser
+                                                                      .uid
+                                                              ? SizedBox(
+                                                                  height: 10,
+                                                                )
+                                                              : SizedBox(
+                                                                  height: 5,
+                                                                ),
+                                                          Padding(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        10),
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                    'profili paylaş'),
+                                                                Spacer(),
+                                                                SvgPicture
+                                                                    .asset(
+                                                                  Constants
+                                                                      .upload,
+                                                                  colorFilter:
+                                                                      ColorFilter
+                                                                          .mode(
+                                                                    Colors
+                                                                        .white,
+                                                                    BlendMode
+                                                                        .srcIn,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ],
                                             ),
                                           ),

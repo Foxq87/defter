@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:acc/core/commons/debounced_button.dart';
-import 'package:acc/core/commons/error_text.dart';
+
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:routemaster/routemaster.dart';
+
 
 import '../../../core/utils.dart';
 import '../../../models/user_model.dart';

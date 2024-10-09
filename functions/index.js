@@ -62,7 +62,23 @@ exports.onCreateActivityFeedItem = functions.firestore
         const message = {
             notification: { body },
             token: notificationToken,
-            data: { recipient: userId }
+            data: { recipient: userId },
+            apns: {
+                payload: {
+                    aps: {
+                        alert: {
+                            body: body
+                        },
+                        sound: "default"
+                    }
+                }
+            },
+            android: {
+                notification: {
+                    body: body,
+                    sound: "default"
+                }
+            }
         };
 
         admin

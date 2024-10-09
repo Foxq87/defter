@@ -1,9 +1,7 @@
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fpdart/fpdart.dart';
 
 import '../../../core/commons/large_text.dart';
 import '../../../core/commons/nav_bar_button.dart';
@@ -119,8 +117,12 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
                                 ),
                                 child: Text(
                                   Constants.categories[index][0],
-                                  style:
-                                      TextStyle(fontFamily: 'SFProDisplayBold'),
+                                  style: TextStyle(
+                                      color: categorie ==
+                                              Constants.categories[index][0]
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontFamily: 'SFProDisplayBold'),
                                 ),
                               )),
                         ],
@@ -133,154 +135,251 @@ class _ViewProductsState extends ConsumerState<ViewProducts> {
                   thickness: 0.45,
                   height: 0,
                 ),
-                SingleChildScrollView(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(
-                      Constants.categories[categorieIndex][1].length,
-                      (index) => GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              subcategorie = Constants
-                                  .categories[categorieIndex][1][index];
-                            });
-                            // Scrollable.ensureVisible(
-                            //     subcategorieKeys[index].currentContext!);
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 5, top: 5),
-                            padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 1,
-                                    color: Palette.iconBackgroundColor),
-                                borderRadius: BorderRadius.circular(8),
-                                color: subcategorie ==
-                                        Constants.categories[categorieIndex][1]
-                                            [index]
-                                    ? Palette.orangeColor
-                                    : null),
-                            child: Text(
-                              Constants.categories[categorieIndex][1][index],
-                              style: TextStyle(fontFamily: 'SFProDisplayBold'),
-                            ),
-                          )),
-                    ),
-                  ),
-                ),
+                // SingleChildScrollView(
+                //   controller: scrollController,
+                //   scrollDirection: Axis.horizontal,
+                //   child: Row(
+                //     children: List.generate(
+                //       Constants.categories[categorieIndex][1].length,
+                //       (index) => GestureDetector(
+                //           onTap: () {
+                //             setState(() {
+                //               subcategorie = Constants
+                //                   .categories[categorieIndex][1][index];
+                //             });
+                //             // Scrollable.ensureVisible(
+                //             //     subcategorieKeys[index].currentContext!);
+                //           },
+                //           child: Container(
+                //             margin: EdgeInsets.only(right: 5, top: 5),
+                //             padding: EdgeInsets.all(6),
+                //             decoration: BoxDecoration(
+                //                 border: Border.all(
+                //                     width: 1,
+                //                     color: Palette.iconBackgroundColor),
+                //                 borderRadius: BorderRadius.circular(8),
+                //                 color: subcategorie ==
+                //                         Constants.categories[categorieIndex][1]
+                //                             [index]
+                //                     ? Colors.white
+                //                     : null),
+                //             child: Text(
+                //               Constants.categories[categorieIndex][1][index],
+                //               style: TextStyle(
+                //                   color: subcategorie ==
+                //                           Constants.categories[categorieIndex]
+                //                               [1][index]
+                //                       ? Colors.black
+                //                       : Colors.white,
+                //                   fontFamily: 'SFProDisplayBold'),
+                //             ),
+                //           )),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
           Expanded(
-            child: ListView(children: [
-              for (int index = 0; index < Constants.categories.length; index++)
-                Column(
-                  key: categorieKeys[index],
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 15.0, top: 10),
-                        child: largeText(
-                            Constants.categories[index][0].toString(), false),
+              child: PageView.builder(
+            itemBuilder: (context, index) => ListView(
+              children: [
+                for (int index = 0;
+                    index < Constants.categories[categorieIndex][1].length;
+                    index++)
+                  Column(
+                    children: [
+                      // subcategorie title
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15.0, top: 10),
+                          child: largeText(
+                              Constants.categories[categorieIndex][1][index]
+                                  .toString(),
+                              false),
+                        ),
                       ),
-                    ),
-                    for (int i = 0;
-                        i < Constants.categories[index][1].length;
-                        i++)
-                      Column(
-                        // key: subcategorieKeys[i],
-                        children: [
-                          ref
-                              .watch(getSchoolProductsProvider(
-                                  currentUser.schoolId))
-                              .when(
-                                  data: (products) {
-                                    products = products.where(
-                                      (element) {
-                                        return element.categorie ==
-                                                Constants.categories[index]
-                                                    [0] &&
-                                            (element.subcategorie.isEmpty
-                                                ? true
-                                                : element.subcategorie ==
-                                                    Constants.categories[index]
-                                                        [1][i]);
-                                      },
-                                    ).toList();
-                                    return Column(
-                                      children: [
-                                        if (products.isNotEmpty)
-                                          Align(
-                                            // key: subcategorieKeys[i],
-                                            alignment: Alignment.centerLeft,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 15.0,
-                                                  bottom: 10,
-                                                  top: 15),
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 5, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                    color:
-                                                        Palette.darkGreyColor2,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5.0)),
-                                                child: Text(Constants
-                                                    .categories[index][1][i]),
-                                              ),
-                                            ),
-                                          ),
-                                        GridView(
-                                          shrinkWrap: true,
-                                          physics:
-                                              NeverScrollableScrollPhysics(),
-                                          gridDelegate:
-                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                                  mainAxisSpacing: 15,
-                                                  crossAxisCount: 3,
-                                                  mainAxisExtent: 210),
-                                          padding: EdgeInsets.only(left: 15),
-                                          children: List.generate(
-                                              products.length, (i) {
-                                            // print(products[i].categorie
-                                            //     // +
-                                            //     // " esit mi " +
-                                            //     // Constants.categories[index][0]
-                                            //     );
-                                            return
-                                                // products[i].categorie ==
-                                                //         Constants.categories[categorieIndex][0]
-                                                //             .toString()
-                                                //     ?
-                                                Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 10.0),
-                                              child: ProductCard(
-                                                  product: products[i]),
-                                            );
-                                          }),
-                                        ),
-                                      ],
+                      // subcategorie products
+
+                      ref
+                          .watch(
+                              getSchoolProductsProvider(currentUser.schoolId))
+                          .when(
+                              data: (products) {
+                                products = products.where(
+                                  (element) {
+                                    return element.categorie ==
+                                            Constants.categories[categorieIndex]
+                                                [0] &&
+                                        (element.subcategorie.isEmpty
+                                            ? true
+                                            : element.subcategorie ==
+                                                Constants.categories[
+                                                    categorieIndex][1][index]);
+                                  },
+                                ).toList();
+                                if (products.isEmpty)
+                                  return Container(
+                                    padding: EdgeInsets.all(6),
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    alignment: Alignment.centerLeft,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Palette.darkGreyColor2),
+                                    child: Text(
+                                      'henüz bu kategoride ürün bulunmuyor.',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                return GridView(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          mainAxisSpacing: 15,
+                                          crossAxisCount: 3,
+                                          mainAxisExtent: 210),
+                                  padding: EdgeInsets.only(left: 15),
+                                  children: List.generate(products.length, (i) {
+                                    // print(products[i].categorie
+                                    //     // +
+                                    //     // " esit mi " +
+                                    //     // Constants.categories[index][0]
+                                    //     );
+                                    return
+                                        // products[i].categorie ==
+                                        //         Constants.categories[categorieIndex][0]
+                                        //             .toString()
+                                        //     ?
+                                        Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 10.0),
+                                      child: ProductCard(product: products[i]),
                                     );
-                                  },
-                                  error: (error, stackTrace) {
-                                    print(error);
-                                    return Text(error.toString());
-                                  },
-                                  loading: () => Text('loading')),
-                        ],
-                      )
-                  ],
-                ),
-            ]),
-          ),
+                                  }),
+                                );
+                              },
+                              error: (error, stackTrace) {
+                                print(error);
+                                return Text(error.toString());
+                              },
+                              loading: () => Text('loading')),
+                    ],
+                  ),
+              ],
+            ),
+          )),
+          // Expanded(
+          //   child: ListView(controller: scrollController, children: [
+          //     for (int index = 0; index < Constants.categories.length; index++)
+          //       Column(
+          //         key: categorieKeys[index],
+          //         children: [
+          //           SizedBox(
+          //             height: 10,
+          //           ),
+          //           Align(
+          //             alignment: Alignment.centerLeft,
+          //             child: Padding(
+          //               padding: const EdgeInsets.only(left: 15.0, top: 10),
+          //               child: largeText(
+          //                   Constants.categories[index][0].toString(), false),
+          //             ),
+          //           ),
+          //           for (int i = 0;
+          //               i < Constants.categories[index][1].length;
+          //               i++)
+          //             Column(
+          //               // key: subcategorieKeys[i],
+          //               children: [
+          // ref
+          //     .watch(getSchoolProductsProvider(
+          //         currentUser.schoolId))
+          //     .when(
+          //         data: (products) {
+          //           products = products.where(
+          //             (element) {
+          //               return element.categorie ==
+          //                       Constants.categories[index]
+          //                           [0] &&
+          //                   (element.subcategorie.isEmpty
+          //                       ? true
+          //                       : element.subcategorie ==
+          //                           Constants.categories[index]
+          //                               [1][i]);
+          //             },
+          //           ).toList();
+          //           return Column(
+          //             children: [
+          // if (products.isNotEmpty)
+          //   Align(
+          //     // key: subcategorieKeys[i],
+          //     alignment: Alignment.centerLeft,
+          //     child: Padding(
+          //       padding: const EdgeInsets.only(
+          //           left: 15.0,
+          //           bottom: 10,
+          //           top: 15),
+          //       child: Container(
+          //         padding: EdgeInsets.symmetric(
+          //             horizontal: 5, vertical: 2),
+          //         decoration: BoxDecoration(
+          //             color:
+          //                 Palette.darkGreyColor2,
+          //             borderRadius:
+          //                 BorderRadius.circular(
+          //                     5.0)),
+          //         child: Text(Constants
+          //             .categories[index][1][i]),
+          //       ),
+          //     ),
+          //   ),
+          //               GridView(
+          //                 shrinkWrap: true,
+          //                 physics:
+          //                     NeverScrollableScrollPhysics(),
+          //                 gridDelegate:
+          //                     SliverGridDelegateWithFixedCrossAxisCount(
+          //                         mainAxisSpacing: 15,
+          //                         crossAxisCount: 3,
+          //                         mainAxisExtent: 210),
+          //                 padding: EdgeInsets.only(left: 15),
+          //                 children: List.generate(
+          //                     products.length, (i) {
+          //                   // print(products[i].categorie
+          //                   //     // +
+          //                   //     // " esit mi " +
+          //                   //     // Constants.categories[index][0]
+          //                   //     );
+          //                   return
+          //                       // products[i].categorie ==
+          //                       //         Constants.categories[categorieIndex][0]
+          //                       //             .toString()
+          //                       //     ?
+          //                       Padding(
+          //                     padding: const EdgeInsets.only(
+          //                         right: 10.0),
+          //                     child: ProductCard(
+          //                         product: products[i]),
+          //                   );
+          //                 }),
+          //               ),
+          //             ],
+          //           );
+          //         },
+          //         error: (error, stackTrace) {
+          //           print(error);
+          //           return Text(error.toString());
+          //         },
+          //         loading: () => Text('loading')),
+          //               ],
+          //             )
+          //         ],
+          //       ),
+          //   ]),
+          // ),
         ])));
   }
 }

@@ -7,7 +7,6 @@ import 'package:acc/features/notes/widgets/notes_loading_view.dart';
 import 'package:acc/models/report_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../theme/palette.dart';
 

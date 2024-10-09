@@ -8,11 +8,9 @@ import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/theme/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../models/user_model.dart';
 

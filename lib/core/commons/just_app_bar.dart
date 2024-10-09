@@ -1,6 +1,7 @@
 import 'package:acc/core/commons/nav_bar_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 
 class JustAppBar extends StatelessWidget {
   const JustAppBar({super.key});
@@ -10,10 +11,10 @@ class JustAppBar extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       leading: JustIconButton(
-          icon: CupertinoIcons.back, onPressed: () => Navigator.pop(context)),
+          icon: CupertinoIcons.back, onPressed: () => Routemaster.of(context).pop()),
       actions: [
         JustIconButton(
-            icon: Icons.more_horiz, onPressed: () => Navigator.pop(context)),
+            icon: Icons.more_horiz, onPressed: () => Routemaster.of(context).pop()),
         const SizedBox(
           width: 5,
         ),

@@ -1,10 +1,5 @@
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
-import 'package:acc/features/auth/controller/auth_controller.dart';
-import 'package:acc/features/marketplace/controller/marketplace_controller.dart';
-import 'package:acc/features/marketplace/screens/create_product_screen.dart';
 import 'package:acc/features/notes/controller/note_controller.dart';
-import 'package:acc/models/product_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +22,6 @@ class _ReportsViewState extends ConsumerState<ReportsView> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = ref.read(userProvider)!;
     return ref.watch(getReportsProvider).when(
         data: (reports) => Scaffold(
               appBar: CupertinoNavigationBar(

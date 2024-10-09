@@ -1,27 +1,19 @@
-import 'dart:io';
 
 import 'package:acc/core/constants/constants.dart';
-import 'package:acc/core/utils.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/bookmarks/screens/library.dart';
 import 'package:acc/features/marketplace/screens/product_approval_view.dart';
 import 'package:acc/features/notes/screens/reports_view.dart';
 import 'package:acc/features/school/screens/school_approval.dart';
 import 'package:acc/features/school/screens/school_screen.dart';
-import 'package:acc/features/tracker/screens/tracker_home.dart';
-import 'package:acc/features/user_profile/screens/user_profile_screen.dart';
 import 'package:acc/models/user_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:toggle_list/toggle_list.dart';
 import 'package:unicons/unicons.dart';
-import '../../../core/commons/native_ad_widget.dart';
 import '../../../theme/palette.dart';
 
 void navigateToProfile(BuildContext context, UserModel user) {

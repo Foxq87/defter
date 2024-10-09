@@ -1,22 +1,21 @@
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/image_view.dart';
-import 'package:acc/core/commons/loader.dart';
+import 'package:acc/core/commons/share_bottom_sheet.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
-import 'package:acc/features/notes/screens/note_details.dart';
 import 'package:acc/features/notes/widgets/report_note_dialog.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:any_link_preview/any_link_preview.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:like_button/like_button.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../user_profile/controller/user_profile_controller.dart';
 import '../controller/note_controller.dart';
@@ -237,6 +236,12 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                         image: NetworkImage(
                                                           user.profilePic,
                                                         ),
+                                                        onError: (
+                                                          context,
+                                                          error,
+                                                        ) {
+                                                          print('error shit');
+                                                        },
                                                         fit: BoxFit.cover,
                                                       )),
                                                   child: SizedBox()),
@@ -371,10 +376,13 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                             ],
                                                                           ),
                                                                       error: (error,
-                                                                              stackTrace) =>
-                                                                          ErrorText(
-                                                                              error: error
-                                                                                  .toString()),
+                                                                          stackTrace) {
+                                                                        print(
+                                                                            error);
+                                                                        return ErrorText(
+                                                                            error:
+                                                                                error.toString());
+                                                                      },
                                                                       loading: () =>
                                                                           const SizedBox()),
                                                             ),
@@ -506,6 +514,18 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                     imageLink,
                                                                     fit: BoxFit
                                                                         .cover,
+                                                                    errorBuilder:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      // Handle error and display a placeholder image
+                                                                      // You can set a state or log the error here
+                                                                      print(
+                                                                          'Error loading image: $error');
+                                                                      return const Icon(
+                                                                          Icons
+                                                                              .error);
+                                                                    },
                                                                     // loadingBuilder: (BuildContext
                                                                     //         context,
                                                                     //     Widget child,
@@ -641,12 +661,14 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                           fontSize:
                                                                               15),
                                                                     ),
-                                                                    error: (error,
-                                                                            stackTrace) =>
-                                                                        ErrorText(
-                                                                      error: error
-                                                                          .toString(),
-                                                                    ),
+                                                                  error: (error,
+                                                                          stackTrace) {
+                                                                        print(
+                                                                            error);
+                                                                        return ErrorText(
+                                                                            error:
+                                                                                error.toString());
+                                                                      },
                                                                     loading: () =>
                                                                         const Text(
                                                                       '0',
@@ -717,8 +739,9 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                             padding:
                                                                 EdgeInsets.zero,
                                                             onPressed: () {
-                                                              alertNotAvailable(
-                                                                  context);
+                                                              showShareModalBottomSheet(
+                                                                  context,
+                                                                  'https://defter.web.app/note/${widget.note.id}');
                                                             },
                                                             icon: SvgPicture
                                                                 .asset(
@@ -995,6 +1018,13 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                           image: NetworkImage(
                                                             user.profilePic,
                                                           ),
+                                                          onError: (exception,
+                                                              stackTrace) {
+                                                            // Handle error and display a placeholder image
+                                                            // You can set a state or log the error here
+                                                            print(
+                                                                'Error loading image: $exception');
+                                                          },
                                                           fit: BoxFit.cover,
                                                         )),
                                                     child: SizedBox()),
@@ -1124,9 +1154,14 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                                 ),
                                                                               ],
                                                                             ),
-                                                                        error: (error, stackTrace) => ErrorText(
-                                                                            error: error
-                                                                                .toString()),
+                                                                        error: (error,
+                                                                          stackTrace) {
+                                                                        print(
+                                                                            error);
+                                                                        return ErrorText(
+                                                                            error:
+                                                                                error.toString());
+                                                                      },
                                                                         loading:
                                                                             () =>
                                                                                 const SizedBox()),
@@ -1396,12 +1431,14 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                             fontSize:
                                                                                 15),
                                                                       ),
-                                                                      error: (error,
-                                                                              stackTrace) =>
-                                                                          ErrorText(
-                                                                        error: error
-                                                                            .toString(),
-                                                                      ),
+                                                                   error: (error,
+                                                                          stackTrace) {
+                                                                        print(
+                                                                            error);
+                                                                        return ErrorText(
+                                                                            error:
+                                                                                error.toString());
+                                                                      },
                                                                       loading: () =>
                                                                           const Text(
                                                                         '0',
@@ -1619,12 +1656,14 @@ class _NoteCardState extends ConsumerState<NoteCard> {
                                                                         return const SizedBox();
                                                                       }
                                                                     },
-                                                                    error: (error,
-                                                                            stackTrace) =>
-                                                                        ErrorText(
-                                                                      error: error
-                                                                          .toString(),
-                                                                    ),
+                                                                      error: (error,
+                                                                          stackTrace) {
+                                                                        print(
+                                                                            error);
+                                                                        return ErrorText(
+                                                                            error:
+                                                                                error.toString());
+                                                                      },
                                                                     loading: () =>
                                                                         const SizedBox(),
                                                                   ),

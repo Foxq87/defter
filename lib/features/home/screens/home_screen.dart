@@ -18,7 +18,6 @@ import 'package:routemaster/routemaster.dart';
 import '../../../models/models.dart';
 import '../../../theme/palette.dart';
 import '../../notes/widgets/note_card.dart';
-import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -256,8 +255,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
                           return Container(
                             alignment: Alignment.center,
-                            child: AdWidget(ad: bannerAd!),
-                            height: bannerAd!.size.height.toDouble(),
+                            child: AdWidget(ad: bannerAd),
+                            height: bannerAd.size.height.toDouble(),
                           );
                         } else {
                           // Display note

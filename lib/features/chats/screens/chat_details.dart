@@ -100,7 +100,8 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                               Text(
                                 widget.chat.description,
                                 style: TextStyle(
-                                    color: Palette.lightGreyColor, fontSize: 16),
+                                    color: Palette.lightGreyColor,
+                                    fontSize: 16),
                                 textAlign: TextAlign.center,
                               ),
                               SizedBox(
@@ -140,8 +141,24 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                                                       uid: widget
                                                           .chat.members[index]),
                                             ))),
-                                    error: (error, stackTrace) =>
-                                        Text(error.toString()),
+                                    error: (error, stackTrace) => ListTile(
+                                      leading: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                            border: Border.all(
+                                                width: 0.45,
+                                                color: Palette.darkGreyColor2)),
+                                        child: SizedBox(
+                                            width: 50,
+                                            height: 50,
+                                            child: Icon(
+                                              CupertinoIcons.clear,
+                                              color: Palette.redColor,
+                                            )),
+                                      ),
+                                      title: Text('silinmiş kullanıcı'),
+                                    ),
                                     loading: () => Loader(),
                                   );
                             },
@@ -162,7 +179,140 @@ class _ChatDetailsState extends ConsumerState<ChatDetails> {
                           ),
                       ],
                     ),
-                error: (error, stackTrace) => Text(error.toString()),
+                error: (error, stackTrace) => ListView(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 25.0, vertical: 20),
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: widget.chat.isDM
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                            border: Border.all(
+                                                width: 0.45,
+                                                color: Palette.darkGreyColor2)),
+                                        child: SizedBox(
+                                            width: 50,
+                                            height: 50,
+                                            child: Icon(
+                                              CupertinoIcons.clear,
+                                              color: Palette.redColor,
+                                            )),
+                                      )
+                                    : Image.network(
+                                        widget.chat.profilePic,
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              largeText(
+                                  widget.chat.isDM
+                                      ? 'silinmiş kullanıcı'
+                                      : widget.chat.title,
+                                  false),
+                              if (!widget.chat.isDM)
+                                Text(
+                                  widget.chat.members.length.toString() +
+                                      " üye",
+                                  style: TextStyle(
+                                      color: Palette.lightGreyColor,
+                                      fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                widget.chat.description,
+                                style: TextStyle(
+                                    color: Palette.lightGreyColor,
+                                    fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              if (!widget.chat.isDM)
+                                Row(
+                                  children: [
+                                    largeText('üyeler', false),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (!widget.chat.isDM)
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: widget.chat.members.length,
+                            itemBuilder: (context, index) {
+                              return ref
+                                  .watch(getUserDataProvider(
+                                      widget.chat.members[index]))
+                                  .when(
+                                    data: (user) => ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundImage:
+                                              NetworkImage(user.profilePic),
+                                        ),
+                                        title: Text(user.name),
+                                        subtitle: Text('@' + user.username),
+                                        onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  UserProfileScreen(
+                                                      uid: widget
+                                                          .chat.members[index]),
+                                            ))),
+                                    error: (error, stackTrace) => ListTile(
+                                      leading: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15.0),
+                                            border: Border.all(
+                                                width: 0.45,
+                                                color: Palette.darkGreyColor2)),
+                                        child: SizedBox(
+                                            width: 50,
+                                            height: 50,
+                                            child: Icon(
+                                              CupertinoIcons.clear,
+                                              color: Palette.redColor,
+                                            )),
+                                      ),
+                                      title: Text('silinmiş kullanıcı'),
+                                    ),
+                                    loading: () => Loader(),
+                                  );
+                            },
+                          ),
+                        if (!widget.chat.isDM)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0, vertical: 20),
+                            child: CupertinoButton(
+                              color: Palette.darkGreyColor,
+                              child: Text(
+                                'gruptan çık',
+                                style: TextStyle(color: Palette.redColor),
+                              ),
+                              onPressed: () =>
+                                  leaveGroup(currentUser, widget.chat),
+                            ),
+                          ),
+                      ],
+                    ),
                 loading: () => CupertinoActivityIndicator()));
   }
 }

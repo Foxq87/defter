@@ -13,21 +13,21 @@ class WaitingToLogin extends StatelessWidget {
       body: Center(
           child: CupertinoButton(
         onPressed: () {
-          // FirebaseFirestore.instance
-          //     .collection('users')
-          //     .get()
-          //     .then((querySnapshot) {
-          //   querySnapshot.docs.forEach((doc) {
-          //     // final name = doc.get('name');
-          //     // final username = doc.get('username');
-          //     // final nameInsensitive = name.toLowerCase();
-          //     // final usernameInsensitive = username.toLowerCase();
-
-          //     doc.reference.update({
-          //       'blockedAccountIds': [],
-          //     });
-          //   });
-          // });
+          FirebaseFirestore.instance
+              .collection('posts')
+              .get()
+              .then((querySnapshot) {
+            querySnapshot.docs.forEach((doc) {
+              // final name = doc.get('name');
+              // final username = doc.get('username');
+              // final nameInsensitive = name.toLowerCase();
+              // final usernameInsensitive = username.toLowerCase();
+              List likes = doc.get('likes');
+              doc.reference.update({
+                'likesCount': likes.length,
+              });
+            });
+          });
         },
         child: Image.asset(
           'assets/defter-icon-rounded.png',

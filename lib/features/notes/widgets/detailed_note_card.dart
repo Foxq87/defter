@@ -1,6 +1,7 @@
 import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/image_view.dart';
 import 'package:acc/core/commons/loader.dart';
+import 'package:acc/core/commons/share_bottom_sheet.dart';
 import 'package:acc/core/commons/view_users_by_uids.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/bookmarks/controller/bookmark_controller.dart';
@@ -521,7 +522,8 @@ class _DetailedNoteCardState extends ConsumerState<DetailedNoteCard> {
                 IconButton(
                   padding: EdgeInsets.zero,
                   onPressed: () {
-                    alertNotAvailable(context);
+                    showShareModalBottomSheet(context,
+                        'https://defter.web.app/note/${widget.note.id}');
                   },
                   icon: SvgPicture.asset(
                     Constants.upload,

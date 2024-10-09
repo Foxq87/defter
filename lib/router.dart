@@ -3,11 +3,12 @@
 import 'package:acc/core/commons/no_internet_view.dart';
 import 'package:acc/features/auth/screens/login_screen.dart';
 import 'package:acc/features/auth/screens/suspended_account.dart';
+import 'package:acc/features/chats/screens/chat_screen.dart';
+import 'package:acc/features/marketplace/screens/product_details.dart';
 import 'package:acc/features/notes/screens/create_note.dart';
 import 'package:acc/features/notes/screens/note_details.dart';
 import 'package:acc/features/settings/screens/settings_view.dart';
 import 'package:acc/features/widget_tree.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
@@ -59,6 +60,11 @@ final loggedInRoute = RouteMap(routes: {
           id: routeData.pathParameters['id']!,
         ),
       ),
+  '/product/:id': (routeData) => MaterialPage(
+        child: ProductDetails(
+          productId: routeData.pathParameters['id']!,
+        ),
+      ),
   '/create-note': (routeData) => const MaterialPage(
         child: CreateNote(),
       ),
@@ -75,5 +81,10 @@ final loggedInRoute = RouteMap(routes: {
       ),
   '/settings': (routeData) => const MaterialPage(
         child: SettingsView(),
+      ),
+  '/chat/:chatId/:isDM': (routeData) => MaterialPage(
+        child: ChatScreen(
+            chatId: routeData.pathParameters['chatId']!,
+            isDM: bool.parse(routeData.pathParameters['isDM']!)),
       ),
 });

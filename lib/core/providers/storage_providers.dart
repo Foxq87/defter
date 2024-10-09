@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:acc/models/note_model.dart';
 import 'package:acc/models/product_model.dart';
-import 'package:acc/models/update_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';

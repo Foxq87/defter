@@ -92,12 +92,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   textAlign: TextAlign.center,
                 ),
               )
-            : now.weekday != DateTime.saturday &&
-                    now.weekday != DateTime.sunday &&
-                    now.isAfter(startTime) &&
-                    now.isBefore(endTime)
-                ? NotInSchoolTime()
-                : Scrollbar(
+            : 
+            // now.weekday != DateTime.saturday &&
+            //         now.weekday != DateTime.sunday &&
+            //         now.isAfter(startTime) &&
+            //         now.isBefore(endTime)
+            //     ? NotInSchoolTime()
+            //     :
+                 Scrollbar(
                     scrollbarOrientation: ScrollbarOrientation.right,
                     thumbVisibility: true,
                     trackVisibility: true,

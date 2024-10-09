@@ -1,6 +1,6 @@
 import 'package:acc/models/report_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
@@ -171,10 +171,12 @@ class NoteRepository {
       if (note.likes.contains(userId)) {
         _notes.doc(note.id).update({
           'likes': FieldValue.arrayRemove([userId]),
+          'likeCount': FieldValue.increment(-1),
         });
       } else {
         _notes.doc(note.id).update({
           'likes': FieldValue.arrayUnion([userId]),
+          'likeCount': FieldValue.increment(1),
         });
       }
     } catch (e) {

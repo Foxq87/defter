@@ -7,13 +7,11 @@ import 'package:acc/models/user_model.dart';
 import 'package:acc/core/providers/firebase_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 
 final authRepositoryProvider = Provider((ref) => AuthRepository(
       firestore: ref.read(firestoreProvider),
@@ -324,7 +322,7 @@ class AuthRepository {
   //   }
   // }
 
-  FutureEither<UserModel> signInWithApple() async {
+  FutureEither<UserModel> signInWithApple(BuildContext context) async {
     String appbeyogluUserUid = '';
     try {
       // Request Apple ID credentials
@@ -343,90 +341,111 @@ class AuthRepository {
           accessToken: credential.authorizationCode,
         ),
       );
-      // Check if the user already exists in Firestore
-      // final userSnapshot = await _users.doc(authResult.user?.uid).get();
-      // if (userSnapshot.exists) {
-      //   // User already exists, retrieve the existing data
-      //   final userData = userSnapshot.data() as Map<String, dynamic>;
-      //   UserModel userModel = UserModel.fromMap(userData);
-      //   return right(userModel);
-      // }
 
-      // Create a new UserModel object with the necessary data
-      UserModel userModel = UserModel(
-        warningCount: 0,
-        uid: userCredential.user!.uid,
-        name: userCredential.user!.displayName ?? '',
-        name_insensitive: userCredential.user!.displayName?.toLowerCase() ?? '',
-        username: '',
-        username_insensitive: '',
-        profilePic: userCredential.user!.photoURL ?? Constants.avatarDefault,
-        schoolId: '',
-        banner: Constants.bannerDefault,
-        email: userCredential.user!.email == null
-            ? ''
-            : normalizeEmail(userCredential.user!.email!),
-        bio: '',
-        isSuspended: false,
-        creation: DateTime.now(),
-        roles: [],
-        followers: [],
-        following: [],
-        closeFriends: [],
-        ofCloseFriends: [],
-        didAcceptEula: false,
-        blockedAccountIds: [],
-        // Set the other properties of the userModel object
-        // ...
-      );
 
-      _users
-          .where('email', isEqualTo: userCredential.user!.email)
-          .get()
-          .then((value) async {
-        if (value.docs.isEmpty /* this is new user */ &&
-            userCredential.additionalUserInfo!.isNewUser) {
-          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
-        } else if (value.docs.isNotEmpty /*this is appbeyoglu user */ &&
-            userCredential.additionalUserInfo!.isNewUser) {
-          appbeyogluUserUid = await value.docs.first.get('uid');
 
-          //get appbeyoglu user data
-          userModel = await getUserData(appbeyogluUserUid).first;
+      //1) Check if the user already exists in Firestore
+      // a) User already exists, retrieve the existing data, return
+      // b) if user does not exist in firestore, 
+      //   i) assign default values
+      //   ii)
+      final userSnapshot = await _users.doc(userCredential.user!.uid).get();
+      if (userSnapshot.exists) {
+        // User already exists, retrieve the existing data
+        final userData = userSnapshot.data() as Map<String, dynamic>;
+        UserModel userModel = UserModel.fromMap(userData);
+        return right(userModel);
+      } else {
+        UserModel userModel = UserModel( 
+          warningCount: 0,
+          uid: userCredential.user!.uid,
+          name: userCredential.user!.displayName ?? '',
+          name_insensitive:
+              userCredential.user!.displayName?.toLowerCase() ?? '',
+          username: '',
+          username_insensitive: '',
+          profilePic: userCredential.user!.photoURL ?? Constants.avatarDefault,
+          schoolId: '',
+          banner: Constants.bannerDefault,
+          email: userCredential.user!.email == null
+              ? ''
+              : normalizeEmail(userCredential.user!.email!),
+          bio: '',
+          isSuspended: false,
+          creation: DateTime.now(),
+          roles: [],
+          followers: [],
+          following: [],
+          closeFriends: [],
+          ofCloseFriends: [],
+          didAcceptEula: false,
+          blockedAccountIds: [],
+          // Set the other properties of the userModel object
+          // ...
+        );
+        // Create a new UserModel object with the necessary data
 
-          //change uid, username, creation, roles and schoolId
-          userModel = userModel.copyWith(
-            uid: userCredential.user!.uid,
-            creation: userModel.creation,
-            roles: ['appbeyoglu-user'],
-            schoolId: 'BAIHL',
-          );
+        _users
+            .where('email', isEqualTo: userCredential.user!.email)
+            .get()
+            .then((value) async {
+          if (value.docs.isEmpty /* this is new user */ &&
+              userCredential.additionalUserInfo!.isNewUser) {
+            
+            await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+          } else if (value.docs.isNotEmpty /*this is appbeyoglu user */ &&
+              userCredential.additionalUserInfo!.isNewUser) {
+            appbeyogluUserUid = await value.docs.first.get('uid');
 
-          //update database values
-          await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+            //get appbeyoglu user data
+            userModel = await getUserData(appbeyogluUserUid).first;
 
-          //delete old user
-          await _users.doc(appbeyogluUserUid).delete();
-        } else /* this is defter user */ {
-          userModel = await getUserData(userCredential.user!.uid).first;
-        }
-        // if (waiterEmails.contains(userCredential.user!.email)) {
-        //   await _users.doc(userCredential.user!.uid).set(userModel.copyWith(
-        //         roles: ['waitLister'],
-        //         email: formattedEmail,
-        //       ));
-        // }
-      });
+            //change uid, username, creation, roles and schoolId
+            userModel = userModel.copyWith(
+              uid: userCredential.user!.uid,
+              creation: userModel.creation,
+              roles: ['appbeyoglu-user'],
+              schoolId: 'BAIHL',
+            );
+
+            //update database values
+            await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+
+            //delete old user
+            await _users.doc(appbeyogluUserUid).delete();
+          } else /* this is defter user */ {
+            userModel = await getUserData(userCredential.user!.uid).first;
+          }
+          // if (waiterEmails.contains(userCredential.user!.email)) {
+          //   await _users.doc(userCredential.user!.uid).set(userModel.copyWith(
+          //         roles: ['waitLister'],
+          //         email: formattedEmail,
+          //       ));
+          // }
+        });
+        return right(userModel);
+      }
 
       // Save the user data to the Firestore collection
-      await _users.doc(userCredential.user!.uid).set(userModel.toMap());
+      // await _users.doc(userCredential.user!.uid).set(userModel.toMap());
 
       // Return the userModel object
-      return right(userModel);
-    } on FirebaseException catch (e) {
-      throw e.message!;
+      // return right(userModel);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        // User canceled the sign-in process
+        showSnackBar(
+            context, 'Apple ile giriş kullanıcı tarafından iptal edildi.');
+        return FutureEither.error('Sign in with Apple was canceled.');
+      } else {
+        // Handle other errors
+        print('Sign in with Apple failed: $e');
+        return FutureEither.error('Sign in with Apple failed: $e');
+      }
     } catch (e) {
-      return left(Failure(e.toString()));
+      // Handle other exceptions
+      print('Sign in with Apple failed: $e');
+      return FutureEither.error('Sign in with Apple failed: $e');
     }
   }
 

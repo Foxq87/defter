@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 
 import '../../../models/product_model.dart';
 import '../../../theme/palette.dart';
@@ -19,11 +20,7 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ProductDetails(productId: widget.product.id))),
+      onTap: () => Routemaster.of(context).push('product/${widget.product.id}'),
       child: Container(
         width: 140,
         decoration: BoxDecoration(

@@ -1,11 +1,12 @@
-import 'package:acc/core/constants/constants.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
+import 'package:acc/features/chats/controller/chat_controller.dart';
 import 'package:acc/features/chats/screens/chat_screen.dart';
+import 'package:acc/features/chats/widgets/message_card.dart';
 import 'package:acc/models/chat_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
+import 'package:routemaster/routemaster.dart';
 
 import '../../../theme/palette.dart';
 
@@ -18,6 +19,10 @@ class ChatCard extends ConsumerStatefulWidget {
 }
 
 class _ChatCardState extends ConsumerState<ChatCard> {
+  void deleteNotification(BuildContext context) async {
+    ref.read(chatControllerProvider.notifier).deleteChat(widget.chat, context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.read(userProvider)!;
@@ -88,14 +93,55 @@ class _ChatCardState extends ConsumerState<ChatCard> {
                       ],
                     ),
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                    chat: widget.chat,
-                                  )));
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => ChatScreen(
+                      //               chat: widget.chat,
+                      //             )));
+                      print(widget.chat.members.toString());
+                      print(widget.chat.id);
+                      Routemaster.of(context).push('/chat/${widget.chat.id}/false');
                     }),
-                error: (error, stackTrace) => Text(error.toString()),
+                error: (error, stackTrace) => ListTile(
+                    leading: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(
+                              width: 0.45, color: Palette.darkGreyColor2)),
+                      child: SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: Icon(
+                            CupertinoIcons.clear,
+                            color: Palette.redColor,
+                          )),
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'silinmiş kullanıcı',
+                            style: TextStyle(
+                              color: Palette.redColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    trailing: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Icon(
+                          CupertinoIcons.delete,
+                          size: 22,
+                          color: Palette.redColor,
+                        ),
+                        onPressed: () {
+                          deleteNotification(context);
+                        }),
+                    onTap: () {}),
                 loading: () => CupertinoActivityIndicator())
         : ListTile(
             leading: Container(
@@ -138,12 +184,7 @@ class _ChatCardState extends ConsumerState<ChatCard> {
               ],
             ),
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                            chat: widget.chat,
-                          )));
+              Routemaster.of(context).push('/chat/${widget.chat.id}/false');
             });
   }
 }

@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/features/tracker/repository/tracker_repository.dart';
 import 'package:acc/models/test_model.dart';
 import 'package:acc/models/user_model.dart';
@@ -9,12 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:get/get.dart';
 
-import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../core/constants/constants.dart';
 import '../../../core/failure.dart';
 import '../../../core/providers/storage_providers.dart';
 import '../../../core/utils.dart';

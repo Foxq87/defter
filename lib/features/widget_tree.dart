@@ -132,7 +132,6 @@
 //   }
 // }
 
-import 'package:acc/core/commons/eula_screen.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/utils.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
@@ -142,7 +141,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import '../theme/palette.dart';
 
 class WidgetTree extends ConsumerStatefulWidget {
   const WidgetTree({super.key});

@@ -1,14 +1,11 @@
 import 'dart:io';
 
-import 'package:acc/features/notes/controller/note_controller.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:get/get.dart';
 
-import 'package:routemaster/routemaster.dart';
 
 import '../../../core/constants/constants.dart';
 import '../../../core/failure.dart';

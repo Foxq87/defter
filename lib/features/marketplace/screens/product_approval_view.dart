@@ -1,4 +1,3 @@
-import 'package:acc/core/commons/error_text.dart';
 import 'package:acc/core/commons/loader.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
 import 'package:acc/features/marketplace/controller/marketplace_controller.dart';

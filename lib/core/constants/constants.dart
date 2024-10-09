@@ -1,4 +1,3 @@
-import 'package:acc/core/commons/native_ad_widget.dart';
 import 'package:acc/features/chats/screens/chats_screen.dart';
 import 'package:flutter/material.dart';
 import '../../features/features.dart';

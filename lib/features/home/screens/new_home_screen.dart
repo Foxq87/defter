@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:acc/core/commons/loader.dart';
 import 'package:acc/core/constants/constants.dart';
 import 'package:acc/core/commons/commons.dart';
 import 'package:acc/core/constants/firebase_constants.dart';
 import 'package:acc/features/article.dart';
 import 'package:acc/features/auth/controller/auth_controller.dart';
-import 'package:acc/features/home/screens/close_friends_feed.dart';
 import 'package:acc/features/notes/widgets/notes_loading_view.dart';
 import 'package:acc/features/school/controller/school_controller.dart';
 import 'package:acc/features/search/screens/search_screen.dart';
@@ -139,9 +137,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     ref.read(schoolControllerProvider.notifier).refreshData(context);
   }
 
+  Future<UserModel> getUserData() async {
+    // Replace this with your actual method to fetch user data
+    return await getUserData();
+  }
+
   bool checkLoading = false;
   int segmentedValue = 2;
   int noteLimit = 10;
+  int filterIndex = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -150,6 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final user = ref.read(userProvider)!;
+
     final notesQuery = FirebaseFirestore.instance
         .collection(FirebaseConstants.notesCollection)
         .where('schoolName',
@@ -162,8 +167,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         .orderBy('createdAt', descending: true);
     return Scaffold(
       appBar: CupertinoNavigationBar(
-        border: Border(
-            bottom: BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
+        // border: Border(
+        // bottom: BorderSide(width: 0.5, color: Palette.darkGreyColor2)),
         backgroundColor: Colors.black.withOpacity(0.4),
         padding: EdgeInsetsDirectional.zero,
         leading: Builder(
@@ -201,8 +206,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ],
                 ),
                 onPressed: () async {
-                  ref.read(userProvider.notifier).update((state) =>
-                      user.copyWith(schoolId: "onay bekliyor: BAIHL"));
+                  // ref.read(userProvider.notifier).update((state) =>
+                  //     user.copyWith(schoolId: "onay bekliyor: BAIHL"));
                   // final PackageInfo info = await PackageInfo.fromPlatform();
                   // final int currentVersion = int.parse(info.buildNumber);
 
@@ -259,6 +264,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     ? NotesLoadingView()
                     : Column(
                         children: [
+                          Container(
+                            color: Colors.black.withOpacity(0.4),
+                            padding: EdgeInsets.all(8),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 35,
+                                  child: CupertinoButton(
+                                    color: filterIndex == 0
+                                        ? Palette.themeColor
+                                        : Palette.darkGreyColor2,
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Text(
+                                      'güncel',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        filterIndex = 0;
+                                      });
+                                    },
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 15),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                SizedBox(
+                                  height: 35,
+                                  child: CupertinoButton(
+                                    color: filterIndex == 1
+                                        ? Palette.themeColor
+                                        : Palette.darkGreyColor2,
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Text(
+                                      'popüler',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        filterIndex = 1;
+                                      });
+                                    },
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 15),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                SizedBox(
+                                  height: 35,
+                                  child: CupertinoButton(
+                                    color: filterIndex == 2
+                                        ? Palette.themeColor
+                                        : Palette.darkGreyColor2,
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Text(
+                                      'samimi',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'JetBrainsMonoBold'),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        filterIndex = 2;
+                                      });
+                                    },
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 15),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                              height: 0,
+                              thickness: 0.5,
+                              color: Palette.darkGreyColor2),
                           if (user.schoolId.contains('onay bekliyor:'))
                             StreamBuilder<DocumentSnapshot>(
                                 stream: getUserStream(user.uid),
@@ -290,12 +379,125 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                     return buildReviewed(userData);
                                   }
                                 }),
+                          if (filterIndex == 2)
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.all(10),
+                                        margin: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Palette.darkGreyColor),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width: 7,
+                                            ),
+                                            Icon(
+                                              CupertinoIcons.group,
+                                              size: 40,
+                                              color: Palette.themeColor,
+                                            ),
+                                            SizedBox(
+                                              width: 15,
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                'yakın arkadaşlarının paylaştığı notları burada görebilirsin',
+                                                maxLines: 4,
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                            ),
+                                            // CupertinoButton(
+                                            //   color: Palette.themeColor,
+                                            //   padding: EdgeInsets.symmetric(
+                                            //       horizontal: 20),
+                                            //   child: checkLoading
+                                            //       ? CupertinoActivityIndicator()
+                                            //       : Text(
+                                            //           'kontrol et',
+                                            //           style: TextStyle(
+                                            //               fontFamily:
+                                            //                   'JetBrainsMonoBold',
+                                            //               color: Colors.white),
+                                            //         ),
+                                            //   onPressed: () async {
+                                            //     setState(() {
+                                            //       checkLoading = true;
+                                            //     });
+                                            //     await Future.delayed(
+                                            //         Duration(seconds: 2));
+                                            //     setState(() {
+                                            //       checkLoading = false;
+                                            //     });
+                                            //   },
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text('')
+                              ],
+                            ),
                           Expanded(
                             child: FirestoreQueryBuilder(
                               pageSize: 5,
-                              query: notesQuery,
+                              query: filterIndex == 0
+                                  ? FirebaseFirestore.instance
+                                      .collection(
+                                          FirebaseConstants.notesCollection)
+                                      .where('schoolName',
+                                          isEqualTo: segmentedValue == 1
+                                              ? ""
+                                              : user.schoolId)
+                                      .where('repliedTo', isEqualTo: '')
+                                      .where('uid',
+                                          whereNotIn: user.blockedAccountIds.isNotEmpty
+                                              ? user.blockedAccountIds
+                                              : [''])
+                                      .orderBy('createdAt', descending: true)
+                                  : filterIndex == 1
+                                      ? FirebaseFirestore.instance
+                                          .collection(
+                                              FirebaseConstants.notesCollection)
+                                          .where('schoolName',
+                                              isEqualTo: segmentedValue == 1
+                                                  ? ""
+                                                  : user.schoolId)
+                                          .where('repliedTo', isEqualTo: '')
+                                          .where('uid',
+                                              whereNotIn:
+                                                  user.blockedAccountIds.isNotEmpty
+                                                      ? user.blockedAccountIds
+                                                      : [''])
+                                          .orderBy('likesCount',
+                                              descending: true)
+                                      : filterIndex == 2
+                                          ? FirebaseFirestore.instance.collection(FirebaseConstants.notesCollection).where('schoolId', isEqualTo: 'closeFriends-${user.uid}').where('repliedTo', isEqualTo: '').where('uid', whereNotIn: user.blockedAccountIds.isNotEmpty ? user.blockedAccountIds : ['']).orderBy(
+                                              'createdAt',
+                                              descending: true)
+                                          : FirebaseFirestore.instance
+                                              .collection(FirebaseConstants.notesCollection)
+                                              .where('schoolName', isEqualTo: segmentedValue == 1 ? "" : user.schoolId)
+                                              .where('repliedTo', isEqualTo: '')
+                                              .where('uid', whereNotIn: user.blockedAccountIds.isNotEmpty ? user.blockedAccountIds : [''])
+                                              .orderBy('createdAt', descending: true),
                               builder: (context, snapshot, child) {
                                 if (snapshot.hasError) {
+                                  print(snapshot.error);
                                   return Center(
                                       child: Text('Error: ${snapshot.error}'));
                                 }

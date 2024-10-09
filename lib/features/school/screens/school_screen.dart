@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:acc/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
-import '../../../core/commons/error_text.dart';
 import '../../../core/commons/image_view.dart';
 import '../../../core/commons/loader.dart';
 import '../../../core/commons/nav_bar_button.dart';

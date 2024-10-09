@@ -13,7 +13,6 @@ import 'package:acc/core/utils.dart';
 // import 'package:acc/models/comment_model.dart';
 import 'package:acc/models/note_model.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/providers/storage_providers.dart';
@@ -186,6 +185,7 @@ class NoteController extends StateNotifier<bool> {
       content: content,
       link: link,
       repliedTo: repliedTo,
+      likesCount: 0
     );
 
     final res = await _noteRepository.addNote(note, currentUser);
@@ -257,7 +257,9 @@ class NoteController extends StateNotifier<bool> {
         createdAt: DateTime.now(),
         link: link,
         repliedTo: repliedTo,
+        likesCount: 0
       );
+
       final res = await _noteRepository.addNote(note, user);
 
       state = false;
